@@ -18,3 +18,5 @@ yarn-error.log*
 
 src/containers/MonitorPage.js
 src/containers/HomePage.js
+
+/docs
