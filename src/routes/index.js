@@ -38,6 +38,7 @@ function Routes() {
                         <Side>
                             <Route path="/home" component={Sidebar} />
                             <Route path="/monitor" component={MonitorSide} />
+                            <Route path="/multi" component={MultiMonitorSide} />
                         </Side>
                         <HomeContainer id="home">
                             <HomeContent>
@@ -48,7 +49,7 @@ function Routes() {
                                     <Route path="/multi" component={() => { return (<Searchbar url={`/multi`} />) }} />
                                 </Search>
                                 {/* <Hospitals /> */}
-                                <Route path="/home" component={Home} />
+                                <Route path="/home" component={HomePage} />
                                 <Route path="/monitor" component={Monitor} />
                                 <Route path="/multi" component={MultiMonitor} />
                                 <Route path="/about" component={temp} />
@@ -65,18 +66,7 @@ const Redirect = () => {
     window.location.replace("/home/view");
     return (<div>Redirecting to HomePage</div>);
 }
-const Home = ({ match }) => {
-    const { url } = match;
-    return (
-        <InnerContainer>
-            <Route path={`${url}/view`} component={Hospitals} />
-            <Route path={`${url}/view/hospital=:_id`} component={Hospital} />
-            <Route path={`${url}/view/hospital=:_id/floor=:floor`} component={Floor} />
-            <Route path={`${url}/view/hospital=:_id/floor=:floor/room=:room`} component={Room} />
-            <Route path={`${url}/search=:searchByName`} component={SearchResult} />
-        </InnerContainer>
-    )
-}
+
 const Monitor = ({ match }) => {
     const { url } = match;
     return (
@@ -113,6 +103,24 @@ const MultiMonitor = ({ match }) => {
             <Route exact path={`${url}`} component={() => { return <MultiMonitorPage />}} />
             <Route path={`${url}/search=:searchByName`} component={SearchResult} />
         </InnerContainer>
+    )
+}
+const MultiMonitorSide = ({ match }) => {
+    const { url } = match;
+    const A = styled.a` float: right; color: white; padding: 0px 10px 0px 0; display: flex; flex: 1; align-items: center; justify-content: flex-end`
+    const Content = styled.div`width:100%; display: flex; flex: 7; justify-content: center;`
+    const H3 = styled.h3`width: 100%; color: white; padding: 10px 0 10px 0; margin: 0; font-size:2em; display: flex; flex: 1; align-items: center; justify-content: center`
+    const SideSearch = styled.div`width: 100%; padding: 10px 0 10px 0; font-size:1em; display:flex; flex: 1; align-items: center; justify-content: center`;
+    const SideInner = styled.div`height: 100%; width:100%;`
+    return (
+        <SideInner>
+            <A href="/"><span className="glyphicon glyphicon-chevron-left"></span>Home</A>
+            <Link to="/monitor"><H3>Monitor Page</H3></Link>
+            <Content>
+                <Route exact path={`${url}`} component={temp} />
+                {/* <Route path={`${url}`} component={} /> */}
+            </Content>
+        </SideInner>
     )
 }
 const temp = () => {

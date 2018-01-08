@@ -37,7 +37,7 @@ function Sidebar() {
             <Link to="/home"><SideItem><Span>{/* <span class="glyphicon glyphicon-home"></span>  */}Home</Span></SideItem></Link>
             <Link to="/monitor"><SideItem><Span>{/* <span class="glyphicon glyphicon-facetime-video"></span>  */}Monitor</Span></SideItem></Link>
             <Link to="/multi"><SideItem><Span>Multi Monitor</Span></SideItem></Link>
-            <Link to=""><SideItem><Span>Management</Span></SideItem></Link>
+            <Link to="/manage"><SideItem><Span>Management</Span></SideItem></Link>
             <Link to="/about"><SideItem><Span>About</Span></SideItem></Link>
             </SideItemGroup>
         </Side>

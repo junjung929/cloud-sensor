@@ -3,6 +3,7 @@ export { default as CounterContainer } from './CounterContainer'
 // export { default as MonitorPage } from './MonitorPage'
 
 /*Home page*/
+export { default as HomePage } from './HomePage'
 export { default as Hospitals } from './Hospitals'
 export { default as Hospital } from './Hospital'
 export { default as Floor } from './Floor'
