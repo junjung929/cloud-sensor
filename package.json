@@ -12,6 +12,7 @@
     "react-highcharts": "^15.0.0",
     "react-loading-indicator": "^1.0.2",
     "react-redux": "^5.0.6",
+    "react-responsive-modal": "^2.0.0",
     "react-router-dom": "^4.2.2",
     "react-scripts": "1.0.17",
     "recompose": "^0.26.0",

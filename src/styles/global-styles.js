@@ -20,4 +20,9 @@ injectGlobal`
   a:hover, a:active, a:visited {
     text-decoration: none;
   }
+
+  .divisionLine {
+    clear: both;
+    height: 1vh
+  }
 `

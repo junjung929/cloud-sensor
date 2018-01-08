@@ -1,10 +1,11 @@
 import React from 'react'
-import { HomePage, MonitorPage } from 'containers'
+import { HomePage, MonitorPage, ManagePage } from 'containers'
 import { Header, Sidebar, Carousel, Searchbar, SearchResult } from 'components'
-import { Hospitals, Hospital, Floor, Room, Patient, Sensor } from 'containers'
+import { Patient } from 'containers/HomePage'
 import { BrowserRouter as Router, Route, Link } from 'react-router-dom'
 import styled from 'styled-components'
 import MultiMonitorPage from '../containers/MultiMonitorPage';
+import ManageSide from '../containers/ManagePage/ManageSide';
 
 const Container = styled.div`text-align: center;`
 const windowHeight = window.innerHeight;
@@ -39,6 +40,7 @@ function Routes() {
                             <Route path="/home" component={Sidebar} />
                             <Route path="/monitor" component={MonitorSide} />
                             <Route path="/multi" component={MultiMonitorSide} />
+                            <Route path="/manage" component={ManageSide} />
                         </Side>
                         <HomeContainer id="home">
                             <HomeContent>
@@ -50,8 +52,9 @@ function Routes() {
                                 </Search>
                                 {/* <Hospitals /> */}
                                 <Route path="/home" component={HomePage} />
-                                <Route path="/monitor" component={Monitor} />
+                                <Route path="/monitor" component={MonitorPage} />
                                 <Route path="/multi" component={MultiMonitor} />
+                                <Route path="/manage" component={ManagePage} />
                                 <Route path="/about" component={temp} />
                             </HomeContent>
                         </HomeContainer>
@@ -67,16 +70,7 @@ const Redirect = () => {
     return (<div>Redirecting to HomePage</div>);
 }
 
-const Monitor = ({ match }) => {
-    const { url } = match;
-    return (
-        <InnerContainer>
-            <Route exact path={`${url}`} component={() => { return (<div>Please search a patient by name</div>) }} />
-            <Route path={`${url}/patient=:_id`} component={Sensor} />
-            <Route path={`${url}/search=:searchByName`} component={SearchResult} />
-        </InnerContainer>
-    )
-}
+
 const MonitorSide = ({ match }) => {
     const { url } = match;
     const A = styled.a` float: right; color: white; padding: 0px 10px 0px 0; display: flex; flex: 1; align-items: center; justify-content: flex-end`
