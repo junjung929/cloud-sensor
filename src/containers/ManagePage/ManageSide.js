@@ -18,8 +18,7 @@ class ManageSide extends Component {
                 <A href="/"><span className="glyphicon glyphicon-chevron-left"></span>Home</A>
                 <Link to="/manage"><H3>Management Page</H3></Link>
                 <Content>
-                    <Route exact path={`/manage`} component={HospitalsList} />
-                    <Route path={`/manage/hospital=:id`} component={HospitalsList} />
+                    <Route exact path={`${pathname}`} component={HospitalsList} />
                 </Content>
             </SideInner>
         );
