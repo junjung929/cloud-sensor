@@ -4,7 +4,12 @@ import { connect } from "react-redux";
 import { Field, reduxForm } from "redux-form";
 import { Link } from "react-router-dom";
 import LoadingIndicator from "react-loading-indicator";
-import { fetchHospitals, fetchHospital, addHospitalInfo, editHospitalInfo } from "actions";
+import {
+  fetchHospitals,
+  fetchHospital,
+  addHospitalInfo,
+  editHospitalInfo
+} from "actions";
 import styled from "styled-components";
 import Modal from "react-responsive-modal";
 
@@ -76,7 +81,11 @@ class Hospitals extends Component {
   onAddFormSubmit = data => {
     console.log(this.state.file);
     console.log(data);
-    this.props.addHospitalInfo(data, this.state.file);
+    this.props.addHospitalInfo(data, this.state.file).then((err, callback) => {
+      alert(`${data.name} is added!`);
+      this.onCloseModal();
+      this.props.fetchHospitals();
+    });
   };
   renderPhotoField(field) {
     return (
@@ -334,7 +343,10 @@ export default reduxForm({
   validate,
   form: `HospitalEditForm`
 })(
-  connect(mapStateToProps, { fetchHospitals, fetchHospital, editHospitalInfo, addHospitalInfo })(
-    Hospitals
-  )
+  connect(mapStateToProps, {
+    fetchHospitals,
+    fetchHospital,
+    editHospitalInfo,
+    addHospitalInfo
+  })(Hospitals)
 );
