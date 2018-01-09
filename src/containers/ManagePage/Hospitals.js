@@ -7,8 +7,9 @@ import LoadingIndicator from "react-loading-indicator";
 import {
   fetchHospitals,
   fetchHospital,
-  addHospitalInfo,
-  editHospitalInfo
+  addHospital,
+  editHospital,
+  deleteHospital
 } from "actions";
 import styled from "styled-components";
 import Modal from "react-responsive-modal";
@@ -16,7 +17,7 @@ import Modal from "react-responsive-modal";
 import { Table, Profile } from "components";
 
 const Content = styled.div`
-  display: flex;
+  display: block;
   justify-content: center;
   margin: 0 5% 0 5%;
 `;
@@ -48,7 +49,7 @@ class Hospitals extends Component {
       open: false,
       currHospital: null,
       file: null,
-      imagePreviewUrl: null
+      imagePreviewUrl: null,
     };
     this.renderPhotoField = this.renderPhotoField.bind(this);
     this.onAddFormSubmit = this.onAddFormSubmit.bind(this);
@@ -73,18 +74,23 @@ class Hospitals extends Component {
     };
     reader.readAsDataURL(file);
   }
+  formReset() {
+    this.props.reset()
+  }
   onEditFormSubmit = data => {
     console.log(this.state.file);
     console.log(data);
-    this.props.editHospitalInfo(data, this.state.file);
+    this.props.editHospital(data, this.state.file);
   };
   onAddFormSubmit = data => {
-    console.log(this.state.file);
+    const { file, onSubmit } = this.state;
+    console.log(file);
     console.log(data);
-    this.props.addHospitalInfo(data, this.state.file).then((err, callback) => {
+    this.props.addHospital(data, file).then((err, callback) => {
       alert(`${data.name} is added!`);
       this.onCloseModal();
       this.props.fetchHospitals();
+      this.formReset();
     });
   };
   renderPhotoField(field) {
@@ -101,10 +107,10 @@ class Hospitals extends Component {
       </div>
     );
   }
-  renderField(field) {
+  renderField = field => {
+    console.log(field);
     const { meta: { touched, error } } = field;
     const className = `form-group ${touched && error ? "has-danger" : ""}`;
-
     return (
       <div className={className}>
         <label>{field.label}</label>
@@ -117,7 +123,7 @@ class Hospitals extends Component {
         <div className="text-help text-danger">{touched ? error : ""}</div>
       </div>
     );
-  }
+  };
   renderModal(mode) {
     const { hospital, handleSubmit } = this.props;
     let { imagePreviewUrl } = this.state;
@@ -169,7 +175,11 @@ class Hospitals extends Component {
     return (
       <div>
         <h3>{title}</h3>
-        <form className="form-group" onSubmit={handleSubmit(submitHandler)}>
+        <form
+          id="hospitalForm"
+          className="form-group"
+          onSubmit={handleSubmit(submitHandler)}
+        >
           <Field
             label="Photo of Hospital"
             name="thumb_picture"
@@ -193,7 +203,7 @@ class Hospitals extends Component {
           <div className="divisionLine" />
           <Field
             label="Contact Number of Hospital"
-            name="phone"
+            name="phone_number"
             placeholder={placeholder.phone}
             component={this.renderField}
           />
@@ -224,7 +234,20 @@ class Hospitals extends Component {
       file: null,
       imagePreviewUrl: null
     });
+    this.formReset();
   }
+  deleteHospital = (id, name) => e => {
+    onClick: if (
+      window.confirm(
+        "This behaviour will also affect all information which is childe components of this hospital.\nAre you sure to delete?"
+      )
+    ) {
+      this.props.deleteHospital(id).then((err, callback) => {
+        alert(`${name} has been successfully deleted!`);
+        this.props.fetchHospitals();
+      });
+    }
+  };
   renderHospitals() {
     const { hospitals } = this.props;
     let i = 0;
@@ -251,9 +274,7 @@ class Hospitals extends Component {
           <td width="10%">
             <div
               className="btn btn-danger"
-              onClick={() => {
-                this.onOpenDeleteHandler();
-              }}
+              onClick={this.deleteHospital(hospital._id, hospital.name)}
             >
               Delete
             </div>
@@ -289,8 +310,10 @@ class Hospitals extends Component {
     return (
       <div id="hospitals">
         <h3 className="text-center">Hospitals</h3>
+
         <Content>
           <button
+            className="btn btn-primary pull-left"
             onClick={() => {
               this.setState({ modalMode: "add" });
               this.setState({ open: true });
@@ -298,6 +321,7 @@ class Hospitals extends Component {
           >
             Add
           </button>
+          <div className="divisionLine" />
           <Table tableHeadRow={tableHeadRow} tableBody={tableBody} />
         </Content>
         <Modal
@@ -346,7 +370,8 @@ export default reduxForm({
   connect(mapStateToProps, {
     fetchHospitals,
     fetchHospital,
-    editHospitalInfo,
-    addHospitalInfo
+    editHospital,
+    addHospital,
+    deleteHospital
   })(Hospitals)
 );

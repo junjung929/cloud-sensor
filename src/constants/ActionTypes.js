@@ -10,10 +10,13 @@ export const ROOT_URL = `http://${URL}:${PORT}`;
 // Hospital get request
 export const FETCH_HOSPITALS = "fetch_hospitals";
 export const FETCH_HOSPITAL = "fetch_hospital";
-
 // Hospital post request
-export const ADD_HOSPITAL_INFO = "add_hospital_info";
-export const EIDT_HOSPITAL_INFO = "edit_hospital_info";
+export const ADD_HOSPITAL = "add_hospital";
+export const EIDT_HOSPITAL = "edit_hospital";
+// Hospital delete request
+export const DELETE_HOSPITAL = "delete_hospital";
+export const RESET_HOSPITAL_FORM = "reset_hospital_form";
+
 
 // Floor get request
 export const FETCH_FLOORS_AT = "fetch_floors_at";
@@ -34,5 +37,3 @@ export const FETCH_PATIENTS_SEACHED = "fetch_patients_searched";
 
 // Data get request
 export const FETCH_SENSOR_DATA = "fetch_sensor_data";
-
-

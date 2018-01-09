@@ -8,12 +8,12 @@ import MultiMonitorPage from '../containers/MultiMonitorPage';
 import ManageSide from '../containers/ManagePage/ManageSide';
 
 const Container = styled.div`text-align: center;`
-const windowHeight = window.innerHeight;
-const Side = styled.div`
+let windowHeight = window.innerHeight;
+let Side = styled.div`
+    position: fixed;
     float: left; 
-    min-height:${windowHeight}px; 
+    min-height: ${windowHeight}px; 
     width: 25%; 
-    position: fixed; 
     background-color: #333F50; 
     color: white;
     box-shadow: 3px 0px 8px 3px rgba(0, 0, 0, 0.3);
@@ -28,7 +28,6 @@ const HomeContent = styled.div`padding: 0 0 20px 0`
 const InnerContainer = styled.div`display: flex; justify-content: center; width:100%; flex-direction: column`;
 
 function Routes() {
-
     return (
         <Router>
             <Container>
