@@ -7,6 +7,7 @@ injectGlobal`
     height: 100%;
     width: 100%;
     min-width: 100%;
+    top: 0px !important;
   }
 
   body {
@@ -29,5 +30,9 @@ injectGlobal`
 
   .btn-default {
     border: 1px solid gray
+  }
+
+  .table-responsive {
+    display: inline-table;
   }
 `;

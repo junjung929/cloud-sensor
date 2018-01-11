@@ -39,9 +39,10 @@ export function fetchHospital(id) {
   };
 }
 // post
-export function addHospital(values, file) {
+export function addHospital(values) {
   const query = `/push`;
   const url = `${ROOT_URL}/api/hospitals${query}`;
+  console.log("val" , values);
   const request = axios.post(url, values);
 
   return dispatch => {

@@ -17,7 +17,6 @@ export const EIDT_HOSPITAL = "edit_hospital";
 export const DELETE_HOSPITAL = "delete_hospital";
 export const RESET_HOSPITAL_FORM = "reset_hospital_form";
 
-
 // Floor get request
 export const FETCH_FLOORS_AT = "fetch_floors_at";
 export const FETCH_FLOOR = "fetch_floor";
@@ -37,3 +36,6 @@ export const FETCH_PATIENTS_SEACHED = "fetch_patients_searched";
 
 // Data get request
 export const FETCH_SENSOR_DATA = "fetch_sensor_data";
+
+//file upload
+export const UPLOAD_FILE = "upload_file";

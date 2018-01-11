@@ -9,7 +9,8 @@ import {
   fetchHospital,
   addHospital,
   editHospital,
-  deleteHospital
+  deleteHospital,
+  uploadFile
 } from "actions";
 import styled from "styled-components";
 import Modal from "react-responsive-modal";
@@ -17,8 +18,6 @@ import Modal from "react-responsive-modal";
 import { Table, Profile } from "components";
 
 const Content = styled.div`
-  display: block;
-  justify-content: center;
   margin: 0 5% 0 5%;
 `;
 const ImgPreview = styled.div`
@@ -49,7 +48,7 @@ class Hospitals extends Component {
       open: false,
       currHospital: null,
       file: null,
-      imagePreviewUrl: null,
+      imagePreviewUrl: null
     };
     this.renderPhotoField = this.renderPhotoField.bind(this);
     this.onAddFormSubmit = this.onAddFormSubmit.bind(this);
@@ -75,21 +74,37 @@ class Hospitals extends Component {
     reader.readAsDataURL(file);
   }
   formReset() {
-    this.props.reset()
+    this.props.reset();
   }
   onEditFormSubmit = data => {
-    console.log(this.state.file);
-    console.log(data);
     this.props.editHospital(data, this.state.file);
   };
   onAddFormSubmit = data => {
     const { file, onSubmit } = this.state;
-    console.log(file);
-    console.log(data);
-    this.props.addHospital(data, file).then((err, callback) => {
+    const { addHospital, uploadFile } = this.props;
+
+    //file config
+    const dest = `hospitals`;
+    let filePath = `${dest}/`;
+    const newData = new FormData();
+
+    if (file) {
+      let tempData = [];
+      filePath += `${file.name}`;
+      tempData = Object.assign(data, { file_path: filePath });
+      console.log("tempData", tempData);
+      data = tempData;
+    }
+    newData.set("file", file);
+    addHospital(data, file).then((err, callback) => {
+      if (file) {
+        uploadFile(newData, dest, err.data._id).then((err, callback) => {
+          console.log("img upload done");
+        });
+      }
       alert(`${data.name} is added!`);
-      this.onCloseModal();
       this.props.fetchHospitals();
+      this.onCloseModal();
       this.formReset();
     });
   };
@@ -108,7 +123,6 @@ class Hospitals extends Component {
     );
   }
   renderField = field => {
-    console.log(field);
     const { meta: { touched, error } } = field;
     const className = `form-group ${touched && error ? "has-danger" : ""}`;
     return (
@@ -163,7 +177,7 @@ class Hospitals extends Component {
       $imagePreview = (
         <ImgPreview>
           <PreviewImg
-            src={hospital.photo}
+            src={hospital.imgSrc}
             alt={`${hospital.name} main photo`}
           />
         </ImgPreview>
@@ -338,9 +352,11 @@ class Hospitals extends Component {
 }
 
 function mapStateToProps(state) {
+  const { hospitals, hospital, add_hospital } = state.hospitals;
   return {
-    hospitals: state.hospitals.hospitals,
-    hospital: state.hospitals.hospital
+    hospitals,
+    hospital,
+    add_hospital
   };
 }
 
@@ -372,6 +388,7 @@ export default reduxForm({
     fetchHospital,
     editHospital,
     addHospital,
-    deleteHospital
+    deleteHospital,
+    uploadFile
   })(Hospitals)
 );
