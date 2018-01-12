@@ -12,7 +12,7 @@ export function fetchBedsAt(id) {
     const request = axios.get(url);
   
     return dispatch => {
-      request.then(({ data }) => {
+      return request.then(({ data }) => {
         dispatch({
           type: FETCH_BEDS_AT,
           payload: data
@@ -26,7 +26,7 @@ export function fetchBedsAt(id) {
     const request = axios.get(url);
   
     return dispatch => {
-      request.then(({ data }) => {
+      return request.then(({ data }) => {
         dispatch({
           type: FETCH_BED,
           payload: data

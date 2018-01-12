@@ -3,6 +3,7 @@ import {
   FETCH_HOSPITALS,
   FETCH_HOSPITAL,
   ADD_HOSPITAL,
+  EDIT_HOSPITAL,
   RESET_HOSPITAL_FORM,
   FETCH_FLOORS_AT,
   FETCH_FLOOR,
@@ -35,8 +36,10 @@ export default function(state = {}, action) {
       return { ...state, hospitals: action.payload };
     case ADD_HOSPITAL:
       return { ...state, add_hospital: action.payload };
+    case EDIT_HOSPITAL:
+      return { ...state, edit_hospital: action.payload };
     case RESET_HOSPITAL_FORM:
-      return { ...state, add_hospital: 'none' };
+      return { ...state, add_hospital: "none" };
     default:
       return state;
   }

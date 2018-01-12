@@ -5,7 +5,7 @@ import {
   FETCH_HOSPITALS,
   FETCH_HOSPITAL,
   ADD_HOSPITAL,
-  EIDT_HOSPITAL,
+  EDIT_HOSPITAL,
   DELETE_HOSPITAL,
   RESET_HOSPITAL_FORM
 } from "../constants/ActionTypes";
@@ -16,7 +16,7 @@ export function fetchHospitals() {
   const request = axios.get(url);
 
   return dispatch => {
-    request.then(({ data }) => {
+    return request.then(({ data }) => {
       dispatch({
         type: FETCH_HOSPITALS,
         payload: data
@@ -30,7 +30,7 @@ export function fetchHospital(id) {
   const request = axios.get(url);
 
   return dispatch => {
-    request.then(({ data }) => {
+    return request.then(({ data }) => {
       dispatch({
         type: FETCH_HOSPITAL,
         payload: data
@@ -39,30 +39,43 @@ export function fetchHospital(id) {
   };
 }
 // post
-export function addHospital(values) {
-  const query = `/push`;
+export function addHospital(values, file) {
+  const { name, address, phone_number } = values;
+  const query = `/push/name=${name}/address=${address}/phone=${phone_number}`;
   const url = `${ROOT_URL}/api/hospitals${query}`;
-  console.log("val" , values);
-  const request = axios.post(url, values);
+  const request = axios.post(url, file);
 
   return dispatch => {
-    request.then(({ data }) => {
-      console.log(data);
+    return request.then(({ data }) => {
       dispatch({
         type: ADD_HOSPITAL,
         payload: data
       });
     });
-    return request.then(response => {
-      return response;
-    });
   };
 }
+export function editHospital(id, values, file) {
+  const { name, address, phone_number } = values;
+  const query = `/update/id=${id}/name=${name}/address=${address}/phone=${phone_number}`;
+  const url = `${ROOT_URL}/api/hospitals${query}`;
+  const request = axios.post(url, file);
 
-export function editHospital(values, file) {
-  const query = ``;
-  const url = `${ROOT_URL}/api/hospitals`;
-  const request = axios.post(url);
+  return dispatch => {
+    console.log(request);
+    return request
+      .then(({ data }) => {
+    console.log(request);
+        
+        dispatch({
+          type: EDIT_HOSPITAL,
+          payload: 'SUCCESS'
+        });
+      })
+      .catch(({ response }) => {
+        console.log(response.data.err);
+        return response.data.err;
+      });
+  };
 }
 
 // delete
@@ -73,14 +86,11 @@ export function deleteHospital(id) {
   const request = axios.delete(url);
 
   return dispatch => {
-    request.then(({ data }) => {
+    return request.then(({ data }) => {
       dispatch({
         type: DELETE_HOSPITAL,
         payload: id
       });
-    });
-    return request.then(response => {
-      return response;
     });
   };
 }

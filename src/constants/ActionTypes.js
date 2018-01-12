@@ -12,7 +12,7 @@ export const FETCH_HOSPITALS = "fetch_hospitals";
 export const FETCH_HOSPITAL = "fetch_hospital";
 // Hospital post request
 export const ADD_HOSPITAL = "add_hospital";
-export const EIDT_HOSPITAL = "edit_hospital";
+export const EDIT_HOSPITAL = "edit_hospital";
 // Hospital delete request
 export const DELETE_HOSPITAL = "delete_hospital";
 export const RESET_HOSPITAL_FORM = "reset_hospital_form";

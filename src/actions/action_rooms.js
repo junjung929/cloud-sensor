@@ -12,7 +12,7 @@ export function fetchRoomsAt(id) {
     const request = axios.get(url);
   
     return dispatch => {
-      request.then(({ data }) => {
+      return request.then(({ data }) => {
         dispatch({
           type: FETCH_ROOMS_AT,
           payload: data
@@ -26,7 +26,7 @@ export function fetchRoomsAt(id) {
     const request = axios.get(url);
   
     return dispatch => {
-      request.then(({ data }) => {
+      return request.then(({ data }) => {
         dispatch({
           type: FETCH_ROOM,
           payload: data
