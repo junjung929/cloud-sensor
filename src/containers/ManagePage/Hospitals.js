@@ -1,7 +1,7 @@
 import _ from "lodash";
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { Field, reduxForm } from "redux-form";
+import { Field, reduxForm, initialize } from "redux-form";
 import { Link } from "react-router-dom";
 import LoadingIndicator from "react-loading-indicator";
 import {
@@ -35,14 +35,30 @@ class Hospitals extends Component {
     // this.onEditFormSubmit = this.onEditFormSubmit.bind(this);
   }
   componentDidMount() {
-    const { hospitals } = this.props;
+    const { hospitals, hospital } = this.props;
     if (!hospitals) {
       this.props.fetchHospitals();
     }
     // let { _id } = this.props.match.params
     // console.log(_id)
   }
-
+  handleInitialize() {
+    const { name, address, phone_number } = this.props.hospital;
+    const iniData = {
+      name,
+      address,
+      phone_number
+    };
+    this.props.initialize(iniData);
+  }
+  handleInitializeNull() {
+    const iniData = {
+      name: null,
+      address: null,
+      phone_number: null
+    };
+    this.props.initialize(iniData);
+  }
   onPhotoChange(e) {
     e.preventDefault();
 
@@ -170,7 +186,6 @@ class Hospitals extends Component {
         placeholder.button = "Edit";
         break;
       default:
-        console.log(hospital);
         title = "Add a hospital";
         submitHandler = data => {
           this.onFormSubmit(data, mode);
@@ -247,8 +262,14 @@ class Hospitals extends Component {
     );
   }
   onOpenModal(id) {
-    this.props.fetchHospital(id);
-    this.setState({ open: true, currHospital: id });
+    const { modalMode } = this.state;
+    this.props.fetchHospital(id).then(() => {
+      const { hospital } = this.props;
+      if (hospital && modalMode === "edit") {
+        this.handleInitialize();
+        this.setState({ open: true, currHospital: id });
+      }
+    });
   }
   onCloseModal() {
     this.setState({
@@ -278,8 +299,9 @@ class Hospitals extends Component {
             <div
               className="btn btn-default"
               onClick={() => {
-                this.setState({ modalMode: "edit" });
-                this.onOpenModal(hospital._id);
+                this.setState({ modalMode: "edit" }, () => {
+                  this.onOpenModal(hospital._id);
+                });
               }}
             >
               Open
@@ -335,8 +357,8 @@ class Hospitals extends Component {
           <button
             className="btn btn-primary pull-left"
             onClick={() => {
-              this.setState({ modalMode: "add" });
-              this.setState({ open: true });
+              this.setState({ modalMode: "add", open: true });
+              this.handleInitializeNull();
             }}
           >
             Add
@@ -392,8 +414,7 @@ function mapStateToProps(state) {
   return {
     hospitals,
     hospital,
-    add_hospital,
-    initialValues: { name: "ad" }
+    add_hospital
   };
 }
 
@@ -417,8 +438,7 @@ function validate(values) {
 
 export default reduxForm({
   validate,
-  form: `HospitalEditForm`,
-  enableReinitialize: true
+  form: `HospitalEditForm`
 })(
   connect(mapStateToProps, {
     fetchHospitals,
