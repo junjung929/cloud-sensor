@@ -7,12 +7,15 @@ import {
   ADD_HOSPITAL,
   EDIT_HOSPITAL,
   DELETE_HOSPITAL,
+  ADD_FLOOR_AT,
+  DELETE_FLOOR_AT,
   RESET_HOSPITAL_FORM
 } from "../constants/ActionTypes";
 
+const URL = `${ROOT_URL}/api/hospitals`;
 // get
 export function fetchHospitals() {
-  const url = `${ROOT_URL}/api/hospitals`;
+  const url = `${URL}`;
   const request = axios.get(url);
 
   return dispatch => {
@@ -26,7 +29,7 @@ export function fetchHospitals() {
 }
 export function fetchHospital(id) {
   const query = `/id=${id}`;
-  const url = `${ROOT_URL}/api/hospitals${query}`;
+  const url = `${URL}${query}`;
   const request = axios.get(url);
 
   return dispatch => {
@@ -42,7 +45,7 @@ export function fetchHospital(id) {
 export function addHospital(values, file) {
   const { name, address, phone_number } = values;
   const query = `/push/name=${name}/address=${address}/phone=${phone_number}`;
-  const url = `${ROOT_URL}/api/hospitals${query}`;
+  const url = `${URL}${query}`;
   const request = axios.post(url, file);
 
   return dispatch => {
@@ -57,18 +60,18 @@ export function addHospital(values, file) {
 export function editHospital(id, values, file) {
   const { name, address, phone_number } = values;
   const query = `/update/id=${id}/name=${name}/address=${address}/phone=${phone_number}`;
-  const url = `${ROOT_URL}/api/hospitals${query}`;
+  const url = `${URL}${query}`;
   const request = axios.post(url, file);
 
   return dispatch => {
     console.log(request);
     return request
       .then(({ data }) => {
-    console.log(request);
-        
+        console.log(request);
+
         dispatch({
           type: EDIT_HOSPITAL,
-          payload: 'SUCCESS'
+          payload: "SUCCESS"
         });
       })
       .catch(({ response }) => {
@@ -82,7 +85,7 @@ export function editHospital(id, values, file) {
 
 export function deleteHospital(id) {
   const query = `/delete/${id}`;
-  const url = `${ROOT_URL}/api/hospitals${query}`;
+  const url = `${URL}${query}`;
   const request = axios.delete(url);
 
   return dispatch => {
@@ -95,6 +98,34 @@ export function deleteHospital(id) {
   };
 }
 
+export function addFloorAt(id, floorId) {
+  const query = `/add_floor/${id}`;
+  const url = `${URL}${query}`;
+  const request = axios.post(url, floorId);
+
+  return dispatch => {
+    return request.then(({ data }) => {
+      dispatch({
+        type: ADD_FLOOR_AT,
+        payload: id
+      });
+    });
+  };
+}
+export function deleteFloorAt(id, floorId) {
+  const query = `/delete_floor/${id}`;
+  const url = `${URL}${query}`;
+  const request = axios.post(url, floorId);
+
+  return dispatch => {
+    return request.then(({ data }) => {
+      dispatch({
+        type: DELETE_FLOOR_AT,
+        payload: id
+      });
+    });
+  };
+}
 export function resetHospitalForm() {
   return dispatch => {
     dispatch({

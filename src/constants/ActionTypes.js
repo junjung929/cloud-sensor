@@ -16,10 +16,18 @@ export const EDIT_HOSPITAL = "edit_hospital";
 // Hospital delete request
 export const DELETE_HOSPITAL = "delete_hospital";
 export const RESET_HOSPITAL_FORM = "reset_hospital_form";
+// Update floor list into hospital
+export const ADD_FLOOR_AT = "add_floor_at";
+export const DELETE_FLOOR_AT = "delete_floor_at";
 
 // Floor get request
 export const FETCH_FLOORS_AT = "fetch_floors_at";
 export const FETCH_FLOOR = "fetch_floor";
+// Hospital post request
+export const ADD_FLOOR = "add_floor";
+export const EDIT_FLOOR = "edit_floor";
+// Hospital delete request
+export const DELETE_FLOOR = "delete_floor";
 
 // Room get request
 export const FETCH_ROOMS_AT = "fetch_rooms_at";

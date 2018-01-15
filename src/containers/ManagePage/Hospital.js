@@ -1,60 +1,72 @@
 import _ from "lodash";
 import React, { Component } from "react";
 import { connect } from "react-redux";
+import { Field, reduxForm, initialize } from "redux-form";
 import { Link } from "react-router-dom";
 import LoadingIndicator from "react-loading-indicator";
-import { fetchHospital, fetchFloor } from "actions";
-import styled from "styled-components";
+import {
+  fetchHospital,
+  fetchFloorsAt,
+  fetchFloor,
+  addFloor,
+  editFloor,
+  deleteFloor,
+  addFloorAt,
+  deleteFloorAt
+} from "actions";
 import Modal from "react-responsive-modal";
 
-import { Table, Profile } from "components";
+import { Table, Profile, getOrdinal } from "components";
 
-const Content = styled.div`
-  display: flex;
-  justify-content: center;
-  margin: 0 5% 0 5%;
-`;
-const ImgPreview = styled.div`
-  text-align: center;
-  margin: 5px 15px;
-  height: 200px;
-  max-width: 85vw;
-  max-height: 90vh;
-  width: 500px;
-  border-left: 1px solid gray;
-  border-right: 1px solid gray;
-  border-top: 5px solid gray;
-  border-bottom: 5px solid gray;
-`;
-const PreviewImg = styled.img`
-  width: 100%;
-  height: 100%;
-`;
+import { PreviewImg, Content, ImgPreview } from "./styles";
 
 class Hospital extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
+      modalMode: null,
       open: false,
+      updating: false,
+      updatingText: null,
+      currHospital: null,
       currFloor: null,
       file: null,
       imagePreviewUrl: null
     };
+    this.renderPhotoField = this.renderPhotoField.bind(this);
+    this.onFormSubmit = this.onFormSubmit.bind(this);
+    // this.onEditFormSubmit = this.onEditFormSubmit.bind(this);
   }
   componentDidMount() {
+    const { hospital, floor } = this.props;
     const { id } = this.props.match.params;
-    console.log(id);
-    const { hospital } = this.props;
-    if (!hospital) {
-      this.props.fetchHospital(id);
-    }
+    this.setState({ currHospital: id });
+    this.props.fetchHospital(id);
+    this.props.fetchFloorsAt(id);
     // let { _id } = this.props.match.params
     // console.log(_id)
   }
-  componentDidUpdate() {}
-
-  onChange(e) {
+  componentDidUpdate() {
+    const { id } = this.props.match.params;
+    const { currHospital } = this.state;
+    if (currHospital !== id) {
+      this.props.fetchFloorsAt(id);
+      this.setState({ currHospital: id });
+    }
+  }
+  handleInitialize() {
+    const { number } = this.props.floor;
+    const iniData = {
+      number
+    };
+    this.props.initialize(iniData);
+  }
+  handleInitializeNull() {
+    const iniData = null;
+    this.props.initialize(iniData);
+  }
+  onPhotoChange(e) {
     e.preventDefault();
 
     let reader = new FileReader();
@@ -63,53 +75,182 @@ class Hospital extends Component {
       this.setState({ file, imagePreviewUrl: reader.result });
     };
     reader.readAsDataURL(file);
+    console.log(file);
   }
-  onFormSubmit(e) {
-    e.preventDefault();
-    console.log(this.state.file);
+
+  deleteFloor = (floorId, number) => e => {
+    const { id } = this.props.match.params;
+    onClick: if (
+      window.confirm(
+        "This behaviour will also affect all information which is childe components of this floor.\nAre you sure to delete?"
+      )
+    ) {
+      this.setState({ updating: true, updatingText: "initial" });
+      this.props.deleteFloor(floorId).then(callback => {
+        this.props.deleteFloorAt(id, {floorId: floorId}).then(()=> {
+          this.setState({
+            updatingText: `${getOrdinal(number)} floor has been successfully deleted!`
+          });
+          this.props.fetchFloorsAt(id);
+        })
+      });
+    }
+  };
+  addFloor = (values, file) => {
+    const { id } = this.props.match.params;
+    console.log(values);
+    this.props.addFloor(values, file).then(callback => {
+      this.props.addFloorAt(id, { floorId: callback._id }).then(() => {
+        this.setState({ updatingText: `${values.number} floor is added!` });
+        this.props.fetchFloorsAt(id);
+        this.onCloseModal();
+      });
+    });
+  };
+  editFloor = (floorId, values, file) => {
+    const { id } = this.props.match.params;
+    this.props.editFloor(floorId, values, file).then(err => {
+      if (err) {
+        return this.setState({ updatingText: `${err}, please try again.` });
+      }
+
+      this.setState({ updatingText: `${values.number} is edited!` });
+
+      this.props.fetchFloorsAt(id);
+      this.onCloseModal();
+    });
+  };
+  onFormSubmit = (data, mode, floorId) => {
+    const { id } = this.props.match.params;
+    const temp = Object.assign(data, { floorAt: id });
+    data = temp;
+    // console.log(data)
+    if (!data) {
+      return alert("dfa");
+    }
+    const { file, onSubmit } = this.state;
+
+    //file config
+    const newData = new FormData();
+
+    newData.set("file", file);
+    this.setState({ updating: true, updatingText: "initial" });
+    switch (mode) {
+      case "add":
+        console.log(data);
+        this.addFloor(data, newData);
+        break;
+      case "edit":
+        this.editFloor(floorId, data, newData);
+        break;
+    }
+  };
+  renderPhotoField(field) {
+    return (
+      <div>
+        <label>{field.label}</label>
+        <input
+          className="form-control"
+          type="file"
+          onChange={e => {
+            this.onPhotoChange(e);
+          }}
+        />
+      </div>
+    );
   }
-  renderModal() {
-    const { floor } = this.props;
+  renderField = field => {
+    const { label, input, type, placeholder, meta: { touched, error } } = field;
+    const className = `form-group ${touched && error ? "has-danger" : ""}`;
+    return (
+      <div className={className}>
+        <label>{label}</label>
+        <input
+          className="form-control"
+          type={type}
+          {...input}
+          placeholder={placeholder}
+          required
+        />
+        <div className="text-help text-danger">{touched ? error : ""}</div>
+      </div>
+    );
+  };
+
+  renderModal(mode) {
+    // console.log(this.props.initialize)
+    const { floor, handleSubmit } = this.props;
     let { imagePreviewUrl } = this.state;
     let $imagePreview = null;
+    let title = "",
+      submitHandler = "",
+      placeholder = {
+        number: "Enter an integer number.",
+        button: "Add"
+      };
+    switch (mode) {
+      case "edit":
+        if (!floor) {
+          return <div />;
+        }
+        title = `${getOrdinal(floor.number)} floor Edit`;
+        submitHandler = data => {
+          this.onFormSubmit(data, mode, floor._id);
+        };
+
+        placeholder.number = floor.number;
+        placeholder.button = "Edit";
+        break;
+      default:
+        title = "Add a floor";
+        submitHandler = data => {
+          this.onFormSubmit(data, mode);
+        };
+    }
     if (imagePreviewUrl) {
       $imagePreview = (
         <ImgPreview>
           <PreviewImg src={imagePreviewUrl} />
         </ImgPreview>
       );
+    } else if (mode === "edit") {
+      $imagePreview = (
+        <ImgPreview>
+          <PreviewImg
+            src={floor.imgSrc}
+            alt={`${floor.number} floor main photo`}
+          />
+        </ImgPreview>
+      );
     } else {
       $imagePreview = <div />;
-    }
-    if (!floor) {
-      return <div />;
     }
 
     return (
       <div>
-        <h3>{floor.number} Floor Edit</h3>
+        <h3>{title}</h3>
         <form
+          id="floorForm"
           className="form-group"
-          onSubmit={() => {
-            this.onFormSubmit();
-          }}
+          onSubmit={handleSubmit(submitHandler)}
         >
-          <label>Photo: </label>
-          <img src={floor.photo} alt={`${floor.name} main photo`} />
-          <input
-            type="file"
-            onChange={e => {
-              this.onChange(e);
-            }}
+          <Field
+            label="Photo of Floor"
+            name="thumb_picture"
+            component={this.renderPhotoField}
           />
           {$imagePreview}
           <div className="divisionLine" />
-          <label>Number: </label>
-          <input className="form-control" placeholder={floor.number} />
+          <Field
+            label="Number of Floor"
+            name="number"
+            type="number"
+            placeholder={placeholder.number}
+            component={this.renderField}
+          />
           <div className="divisionLine" />
-
           <button type="submit" className="btn btn-primary">
-            Edit
+            {placeholder.button}
           </button>
           <div
             className="btn btn-danger"
@@ -123,9 +264,15 @@ class Hospital extends Component {
       </div>
     );
   }
-  onOpenModal(id) {
-    this.props.fetchFloor(id);
-    this.setState({ open: true, currFloor: id });
+  onOpenModal(floorId) {
+    const { modalMode } = this.state;
+    this.props.fetchFloor(floorId).then(() => {
+      const { floor } = this.props;
+      if (floor && modalMode === "edit") {
+        this.handleInitialize();
+        this.setState({ open: true, currFloor: floorId });
+      }
+    });
   }
   onCloseModal() {
     this.setState({
@@ -134,47 +281,51 @@ class Hospital extends Component {
       file: null,
       imagePreviewUrl: null
     });
+    this.formReset();
+  }
+  formReset() {
+    this.props.reset();
   }
   renderFloors() {
-    const { hospital } = this.props;
+    const { floors_at } = this.props;
     let i = 0;
-    if (!hospital) {
-      return <div />;
+    if (!floors_at) {
+      return <tr />;
     }
-    return _.map(hospital._floor_list, floor => {
+    return _.map(floors_at, floor => {
       return (
         <tr key={floor._id} id={floor._id}>
           <th scope="row" width="10%">
             {++i}
           </th>
-          <td>{floor.number} Floor</td>
+          <td>{getOrdinal(floor.number)} floor</td>
           <td width="10%">
-            <div
+            <button
               className="btn btn-default"
               onClick={() => {
-                this.onOpenModal(floor._id);
+                this.setState({ modalMode: "edit" }, () => {
+                  this.onOpenModal(floor._id);
+                });
               }}
             >
               Open
-            </div>
+            </button>
           </td>
           <td width="10%">
-            <div
+            <button
               className="btn btn-danger"
-              onClick={() => {
-                this.onOpenDeleteHandler();
-              }}
+              onClick={this.deleteFloor(floor._id, floor.number)}
             >
               Delete
-            </div>
+            </button>
           </td>
         </tr>
       );
     });
   }
   render() {
-    const { hospital, floor } = this.props;
-    const { open, currfloor } = this.state;
+    const { hospital } = this.props;
+    const { open, updating, updatingText, currFloor, modalMode } = this.state;
     const tableHeadRow = (
       <tr>
         <td>No.</td>
@@ -192,13 +343,24 @@ class Hospital extends Component {
         </div>
       );
     }
-    if (hospital) {
-      modalContent = this.renderModal();
+    if (modalMode !== null) {
+      modalContent = this.renderModal(modalMode);
     }
     return (
       <div id="floors">
         <h3 className="text-center">{hospital.name}</h3>
+
         <Content>
+          <button
+            className="btn btn-primary pull-left"
+            onClick={() => {
+              this.setState({ modalMode: "add", open: true });
+              this.handleInitializeNull();
+            }}
+          >
+            Add
+          </button>
+          <div className="divisionLine" />
           <Table tableHeadRow={tableHeadRow} tableBody={tableBody} />
         </Content>
         <Modal
@@ -209,15 +371,75 @@ class Hospital extends Component {
         >
           {modalContent}
         </Modal>
+        {/* updating alert modal */}
+        <Modal
+          open={updating}
+          onClose={() => {
+            this.onCloseModal();
+          }}
+        >
+          {(() => {
+            switch (updatingText) {
+              case "initial":
+                return <LoadingIndicator />;
+
+                break;
+              default:
+                return (
+                  <div>
+                    <p>{updatingText}</p>
+                    <button
+                      className="btn btn-sm btn-default"
+                      onClick={() => {
+                        this.setState({ updating: false });
+                      }}
+                    >
+                      Check
+                    </button>
+                  </div>
+                );
+            }
+          })()}
+        </Modal>
       </div>
     );
   }
 }
 
 function mapStateToProps(state) {
-  return { hospital: state.hospitals.hospital, floor: state.hospitals.floor };
+  const { hospital, floors_at, floor, add_floor, edit_floor } = state.hospitals;
+  return {
+    hospital,
+    floors_at,
+    floor,
+    add_floor
+  };
 }
 
-export default connect(mapStateToProps, { fetchHospital, fetchFloor })(
-  Hospital
+function validate(values) {
+  // console.log(valuues) -> { title: "", categories: "", content: ""}
+  const errors = {};
+  // Validate the inputs from 'values'
+  if (!values.number) {
+    errors.number = "Enter an integer number";
+  }
+  // If errors is empty, the form is fine to submit
+  // If errors hs *any* properties, redux form assumes form is invalid
+  return errors;
+}
+
+export default reduxForm({
+  validate,
+  form: `FloorEditForm`
+})(
+  connect(mapStateToProps, {
+    fetchHospital,
+    fetchFloorsAt,
+    fetchFloor,
+    addFloor,
+    editFloor,
+    deleteFloor,
+    addFloorAt,
+    deleteFloorAt
+  })(Hospital)
 );
