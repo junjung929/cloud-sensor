@@ -35,4 +35,7 @@ injectGlobal`
   .table-responsive {
     display: inline-table;
   }
+  svg.Modal-closeIcon-0-1-4 {
+    display: none;
+  }
 `;

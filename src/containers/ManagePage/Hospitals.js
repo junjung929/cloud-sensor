@@ -15,7 +15,7 @@ import Modal from "react-responsive-modal";
 
 import { Table, Profile } from "components";
 
-import { PreviewImg, Content, ImgPreview } from './styles';
+import { PreviewImg, Content, ImgPreview } from "./styles";
 
 class Hospitals extends Component {
   constructor(props) {
@@ -54,15 +54,18 @@ class Hospitals extends Component {
     reader.readAsDataURL(file);
     console.log(file);
   }
- 
+
   deleteHospital = (id, name) => e => {
     onClick: if (
       window.confirm(
         "This behaviour will also affect all information which is childe components of this hospital.\nAre you sure to delete?"
       )
     ) {
+      this.setState({ updating: true, updatingText: "initial" });
       this.props.deleteHospital(id).then(callback => {
-        alert(`${name} has been successfully deleted!`);
+        this.setState({
+          updatingText: `${name} has been successfully deleted!`
+        });
         this.props.fetchHospitals();
       });
     }
@@ -87,8 +90,10 @@ class Hospitals extends Component {
     });
   };
   onFormSubmit = (data, mode, id) => {
-    console.log(data)
-    if(!data){return alert("dfa")}
+    // console.log(data)
+    if (!data) {
+      return alert("dfa");
+    }
     const { file, onSubmit } = this.state;
 
     //file config
@@ -120,16 +125,16 @@ class Hospitals extends Component {
     );
   }
   renderField = field => {
-    const { meta: { touched, error } } = field;
+    const { label, input, placeholder, meta: { touched, error } } = field;
     const className = `form-group ${touched && error ? "has-danger" : ""}`;
     return (
       <div className={className}>
-        <label>{field.label}</label>
+        <label>{label}</label>
         <input
           className="form-control"
           type="text"
-          {...field.input}
-          placeholder={field.placeholder}
+          {...input}
+          placeholder={placeholder}
           required
         />
         <div className="text-help text-danger">{touched ? error : ""}</div>
@@ -137,7 +142,7 @@ class Hospitals extends Component {
     );
   };
   renderModal(mode) {
-    console.log(this.props)
+    // console.log(this.props.initialize)
     const { hospital, handleSubmit } = this.props;
     let { imagePreviewUrl } = this.state;
     let $imagePreview = null;
@@ -165,6 +170,7 @@ class Hospitals extends Component {
         placeholder.button = "Edit";
         break;
       default:
+        console.log(hospital);
         title = "Add a hospital";
         submitHandler = data => {
           this.onFormSubmit(data, mode);
@@ -353,7 +359,6 @@ class Hospitals extends Component {
             this.onCloseModal();
           }}
         >
-          <p />
           {(() => {
             switch (updatingText) {
               case "initial":
@@ -388,7 +393,7 @@ function mapStateToProps(state) {
     hospitals,
     hospital,
     add_hospital,
-    // initialValues: 
+    initialValues: { name: "ad" }
   };
 }
 
@@ -412,7 +417,8 @@ function validate(values) {
 
 export default reduxForm({
   validate,
-  form: `HospitalEditForm`
+  form: `HospitalEditForm`,
+  enableReinitialize: true
 })(
   connect(mapStateToProps, {
     fetchHospitals,
