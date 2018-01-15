@@ -34,7 +34,7 @@ function Sidebar() {
             <Brand><a href="/"><BrandSpan>Cloud Sensor Monitor</BrandSpan></a></Brand>
             <Search><Searchbar url={`/home`} /></Search>
             <SideItemGroup>
-            <Link to="/home"><SideItem><Span>{/* <span class="glyphicon glyphicon-home"></span>  */}Home</Span></SideItem></Link>
+            <Link to="/home/view"><SideItem><Span>{/* <span class="glyphicon glyphicon-home"></span>  */}Home</Span></SideItem></Link>
             <Link to="/monitor"><SideItem><Span>{/* <span class="glyphicon glyphicon-facetime-video"></span>  */}Monitor</Span></SideItem></Link>
             <Link to="/multi"><SideItem><Span>Multi Monitor</Span></SideItem></Link>
             <Link to="/manage"><SideItem><Span>Management</Span></SideItem></Link>

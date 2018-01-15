@@ -1,4 +1,4 @@
-import { injectGlobal } from 'styled-components'
+import { injectGlobal } from "styled-components";
 
 /* eslint no-unused-expressions: 0 */
 injectGlobal`
@@ -6,6 +6,8 @@ injectGlobal`
   body {
     height: 100%;
     width: 100%;
+    min-width: 100%;
+    top: 0px !important;
   }
 
   body {
@@ -20,4 +22,20 @@ injectGlobal`
   a:hover, a:active, a:visited {
     text-decoration: none;
   }
-`
+
+  .divisionLine {
+    clear: both;
+    height: 1vh
+  }
+
+  .btn-default {
+    border: 1px solid gray
+  }
+
+  .table-responsive {
+    display: inline-table;
+  }
+  svg.Modal-closeIcon-0-1-4 {
+    display: none;
+  }
+`;

@@ -1,0 +1,7 @@
+export { default as HomePage } from './HomePage'
+export { default as Hospitals } from './Hospitals'
+export { default as Hospital } from './Hospital'
+export { default as Floor } from './Floor'
+export { default as Room } from './Room'
+export { default as Patient } from './Patient'
+// export { default as Bed } from './Bed'
