@@ -23,15 +23,23 @@ export const DELETE_FLOOR_AT = "delete_floor_at";
 // Floor get request
 export const FETCH_FLOORS_AT = "fetch_floors_at";
 export const FETCH_FLOOR = "fetch_floor";
-// Hospital post request
+// Floor post request
 export const ADD_FLOOR = "add_floor";
 export const EDIT_FLOOR = "edit_floor";
-// Hospital delete request
+// Floor delete request
 export const DELETE_FLOOR = "delete_floor";
+// Update room list into floor
+export const ADD_ROOM_AT = "add_room_at";
+export const DELETE_ROOM_AT = "delete_room_at";
 
 // Room get request
 export const FETCH_ROOMS_AT = "fetch_rooms_at";
 export const FETCH_ROOM = "fetch_room";
+// Room post request
+export const ADD_ROOM = "add_room";
+export const EDIT_ROOM = "edit_room";
+// Room delete request
+export const DELETE_ROOM = "delete_room";
 
 // Bed get request
 export const FETCH_BEDS_AT = "fetch_beds_at";

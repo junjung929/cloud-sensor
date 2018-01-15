@@ -92,8 +92,8 @@ class RoomPage extends Component {
 }
 function mapStateToProps(state) {
     // console.log("hospitals log", hospitals[ownProps.match.params._id]);
-    let tempState = state.hospitals;
-    return { beds_at: tempState.beds_at, room: tempState.room };
+    const { room, beds_at } = state.rooms
+    return { beds_at, room };
 }
 
 export default connect(mapStateToProps, { fetchBedsAt, fetchRoom })(RoomPage);

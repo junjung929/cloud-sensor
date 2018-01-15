@@ -6,7 +6,9 @@ import {
   FETCH_FLOOR,
   ADD_FLOOR,
   EDIT_FLOOR,
-  DELETE_FLOOR
+  DELETE_FLOOR,
+  ADD_ROOM_AT,
+  DELETE_ROOM_AT
 } from "../constants/ActionTypes";
 
 const URL = `${ROOT_URL}/api/floors`;
@@ -90,6 +92,35 @@ export function deleteFloor(id) {
     return request.then(({ data }) => {
       dispatch({
         type: DELETE_FLOOR,
+        payload: id
+      });
+    });
+  };
+}
+
+export function addRoomAt(id, floorId) {
+  const query = `/add_room/${id}`;
+  const url = `${URL}${query}`;
+  const request = axios.post(url, floorId);
+
+  return dispatch => {
+    return request.then(({ data }) => {
+      dispatch({
+        type: ADD_ROOM_AT,
+        payload: id
+      });
+    });
+  };
+}
+export function deleteRoomAt(id, floorId) {
+  const query = `/delete_room/${id}`;
+  const url = `${URL}${query}`;
+  const request = axios.post(url, floorId);
+
+  return dispatch => {
+    return request.then(({ data }) => {
+      dispatch({
+        type: DELETE_ROOM_AT,
         payload: id
       });
     });

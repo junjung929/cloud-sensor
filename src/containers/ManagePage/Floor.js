@@ -5,14 +5,14 @@ import { Field, reduxForm, initialize } from "redux-form";
 import { Link } from "react-router-dom";
 import LoadingIndicator from "react-loading-indicator";
 import {
-  fetchHospital,
-  fetchFloorsAt,
   fetchFloor,
-  addFloor,
-  editFloor,
-  deleteFloor,
-  addFloorAt,
-  deleteFloorAt
+  fetchRoomsAt,
+  fetchRoom,
+  addRoom,
+  editRoom,
+  deleteRoom,
+  addRoomAt,
+  deleteRoomAt
 } from "actions";
 import Modal from "react-responsive-modal";
 
@@ -20,7 +20,7 @@ import { Table, Profile, getOrdinal } from "components";
 
 import { PreviewImg, Content, ImgPreview } from "./styles";
 
-class Hospital extends Component {
+class Floor extends Component {
   constructor(props) {
     super(props);
 
@@ -29,8 +29,8 @@ class Hospital extends Component {
       open: false,
       updating: false,
       updatingText: null,
-      currHospital: null,
       currFloor: null,
+      currRoom: null,
       file: null,
       imagePreviewUrl: null
     };
@@ -39,24 +39,24 @@ class Hospital extends Component {
     // this.onEditFormSubmit = this.onEditFormSubmit.bind(this);
   }
   componentDidMount() {
-    const { hospital, floor } = this.props;
-    const { id } = this.props.match.params;
-    this.setState({ currHospital: id });
-    this.props.fetchHospital(id);
-    this.props.fetchFloorsAt(id);
+    const { floor, room } = this.props;
+    const { floor_id } = this.props.match.params;
+    this.setState({ currFloor: floor_id });
+    this.props.fetchFloor(floor_id);
+    this.props.fetchRoomsAt(floor_id);
     // let { _id } = this.props.match.params
     // console.log(_id)
   }
   componentDidUpdate() {
-    const { id } = this.props.match.params;
-    const { currHospital } = this.state;
-    if (currHospital !== id) {
-      this.props.fetchFloorsAt(id);
-      this.setState({ currHospital: id });
+    const { floor_id } = this.props.match.params;
+    const { currFloor } = this.state;
+    if (currFloor !== floor_id) {
+      this.props.fetchRoomsAt(floor_id);
+      this.setState({ currFloor: floor_id });
     }
   }
   handleInitialize() {
-    const { number } = this.props.floor;
+    const { number } = this.props.room;
     const iniData = {
       number
     };
@@ -78,53 +78,53 @@ class Hospital extends Component {
     console.log(file);
   }
 
-  deleteFloor = (floorId, number) => e => {
-    const { id } = this.props.match.params;
+  deleteRoom = (roomId, number) => e => {
+    const { floor_id } = this.props.match.params;
     onClick: if (
       window.confirm(
-        "This behaviour will also affect all information which is childe components of this floor.\nAre you sure to delete?"
+        "This behaviour will also affect all information which is childe components of this room.\nAre you sure to delete?"
       )
     ) {
       this.setState({ updating: true, updatingText: "initial" });
-      this.props.deleteFloor(floorId).then(callback => {
-        this.props.deleteFloorAt(id, { floorId: floorId }).then(() => {
+      this.props.deleteRoom(roomId).then(callback => {
+        this.props.deleteRoomAt(floor_id, { roomId: roomId }).then(() => {
           this.setState({
             updatingText: `${getOrdinal(
               number
-            )} floor has been successfully deleted!`
+            )} room has been successfully deleted!`
           });
-          this.props.fetchFloorsAt(id);
+          this.props.fetchRoomsAt(floor_id);
         });
       });
     }
   };
-  addFloor = (values, file) => {
-    const { id } = this.props.match.params;
+  addRoom = (values, file) => {
+    const { floor_id } = this.props.match.params;
     console.log(values);
-    this.props.addFloor(values, file).then(callback => {
-      this.props.addFloorAt(id, { floorId: callback._id }).then(() => {
-        this.setState({ updatingText: `${values.number} floor is added!` });
-        this.props.fetchFloorsAt(id);
+    this.props.addRoom(values, file).then(callback => {
+      this.props.addRoomAt(floor_id, { roomId: callback._id }).then(() => {
+        this.setState({ updatingText: `Room No. ${values.number} is added!` });
+        this.props.fetchRoomsAt(floor_id);
         this.onCloseModal();
       });
     });
   };
-  editFloor = (floorId, values, file) => {
-    const { id } = this.props.match.params;
-    this.props.editFloor(floorId, values, file).then(err => {
+  editRoom = (roomId, values, file) => {
+    const { floor_id } = this.props.match.params;
+    this.props.editRoom(roomId, values, file).then(err => {
       if (err) {
         return this.setState({ updatingText: `${err}, please try again.` });
       }
 
-      this.setState({ updatingText: `${values.number} is edited!` });
+      this.setState({ updatingText: `Room No. ${values.number} is edited!` });
 
-      this.props.fetchFloorsAt(id);
+      this.props.fetchRoomsAt(floor_id);
       this.onCloseModal();
     });
   };
-  onFormSubmit = (data, mode, floorId) => {
-    const { id } = this.props.match.params;
-    const temp = Object.assign(data, { floorAt: id });
+  onFormSubmit = (data, mode, roomId) => {
+    const { floor_id } = this.props.match.params;
+    const temp = Object.assign(data, { roomAt: floor_id });
     data = temp;
     // console.log(data)
     if (!data) {
@@ -140,10 +140,10 @@ class Hospital extends Component {
     switch (mode) {
       case "add":
         console.log(data);
-        this.addFloor(data, newData);
+        this.addRoom(data, newData);
         break;
       case "edit":
-        this.editFloor(floorId, data, newData);
+        this.editRoom(roomId, data, newData);
         break;
     }
   };
@@ -181,7 +181,7 @@ class Hospital extends Component {
 
   renderModal(mode) {
     // console.log(this.props.initialize)
-    const { floor, handleSubmit } = this.props;
+    const { room, handleSubmit } = this.props;
     let { imagePreviewUrl } = this.state;
     let $imagePreview = null;
     let title = "",
@@ -192,19 +192,19 @@ class Hospital extends Component {
       };
     switch (mode) {
       case "edit":
-        if (!floor) {
+        if (!room) {
           return <div />;
         }
-        title = `${getOrdinal(floor.number)} floor Edit`;
+        title = `Room No.${room.number} Edit`;
         submitHandler = data => {
-          this.onFormSubmit(data, mode, floor._id);
+          this.onFormSubmit(data, mode, room._id);
         };
 
-        placeholder.number = floor.number;
+        placeholder.number = room.number;
         placeholder.button = "Edit";
         break;
       default:
-        title = "Add a floor";
+        title = "Add a room";
         submitHandler = data => {
           this.onFormSubmit(data, mode);
         };
@@ -219,8 +219,8 @@ class Hospital extends Component {
       $imagePreview = (
         <ImgPreview>
           <PreviewImg
-            src={floor.imgSrc}
-            alt={`${floor.number} floor main photo`}
+            src={room.imgSrc}
+            alt={`${room.number} room main photo`}
           />
         </ImgPreview>
       );
@@ -232,19 +232,19 @@ class Hospital extends Component {
       <div>
         <h3>{title}</h3>
         <form
-          id="floorForm"
+          id="roomForm"
           className="form-group"
           onSubmit={handleSubmit(submitHandler)}
         >
           <Field
-            label="Photo of Floor"
+            label="Photo of Room"
             name="thumb_picture"
             component={this.renderPhotoField}
           />
           {$imagePreview}
           <div className="divisionLine" />
           <Field
-            label="Number of Floor"
+            label="Number of Room"
             name="number"
             type="number"
             placeholder={placeholder.number}
@@ -266,20 +266,20 @@ class Hospital extends Component {
       </div>
     );
   }
-  onOpenModal(floorId) {
+  onOpenModal(roomId) {
     const { modalMode } = this.state;
-    this.props.fetchFloor(floorId).then(() => {
-      const { floor } = this.props;
-      if (floor && modalMode === "edit") {
+    this.props.fetchRoom(roomId).then(() => {
+      const { room } = this.props;
+      if (room && modalMode === "edit") {
         this.handleInitialize();
-        this.setState({ open: true, currFloor: floorId });
+        this.setState({ open: true, currRoom: roomId });
       }
     });
   }
   onCloseModal() {
     this.setState({
       open: false,
-      currFloor: null,
+      currRoom: null,
       file: null,
       imagePreviewUrl: null
     });
@@ -288,25 +288,26 @@ class Hospital extends Component {
   formReset() {
     this.props.reset();
   }
-  renderFloors() {
-    const { floors_at } = this.props;
+  renderRooms() {
+    const { rooms_at } = this.props;
     let i = 0;
-    if (!floors_at) {
+    if (!rooms_at) {
       return <tr />;
     }
-    return _.map(floors_at, floor => {
+    console.log(rooms_at);
+    return _.map(rooms_at, room => {
       return (
-        <tr key={floor._id} id={floor._id}>
+        <tr key={room._id} id={room._id}>
           <th scope="row" width="10%">
             {++i}
           </th>
-          <td>{getOrdinal(floor.number)} floor</td>
+          <td>Room No. {room.number}</td>
           <td width="10%">
             <button
               className="btn btn-default"
               onClick={() => {
                 this.setState({ modalMode: "edit" }, () => {
-                  this.onOpenModal(floor._id);
+                  this.onOpenModal(room._id);
                 });
               }}
             >
@@ -316,7 +317,7 @@ class Hospital extends Component {
           <td width="10%">
             <button
               className="btn btn-danger"
-              onClick={this.deleteFloor(floor._id, floor.number)}
+              onClick={this.deleteRoom(room._id, room.number)}
             >
               Delete
             </button>
@@ -326,8 +327,8 @@ class Hospital extends Component {
     });
   }
   render() {
-    const { hospital } = this.props;
-    const { open, updating, updatingText, currFloor, modalMode } = this.state;
+    const { floor } = this.props;
+    const { open, updating, updatingText, currRoom, modalMode } = this.state;
     const tableHeadRow = (
       <tr>
         <td>No.</td>
@@ -336,9 +337,9 @@ class Hospital extends Component {
         <td>Delete</td>
       </tr>
     );
-    const tableBody = this.renderFloors();
+    const tableBody = this.renderRooms();
     let modalContent = <LoadingIndicator />;
-    if (!hospital) {
+    if (!floor) {
       return (
         <div className="text-center">
           <LoadingIndicator />
@@ -349,8 +350,8 @@ class Hospital extends Component {
       modalContent = this.renderModal(modalMode);
     }
     return (
-      <div id="floors">
-        <h3 className="text-center">{hospital.name}</h3>
+      <div id="rooms">
+        <h3 className="text-center">{getOrdinal(floor.number)} floor</h3>
 
         <Content>
           <button
@@ -409,13 +410,13 @@ class Hospital extends Component {
 }
 
 function mapStateToProps(state) {
-  const { hospital, floors_at } = state.hospitals;
-  const { floor, add_floor, edit_floor } = state.floors;
+  const { floor, rooms_at } = state.floors;
+  const { room, add_room, edit_room } = state.rooms;
   return {
-    hospital,
-    floors_at,
     floor,
-    add_floor
+    rooms_at,
+    room,
+    add_room
   };
 }
 
@@ -433,16 +434,16 @@ function validate(values) {
 
 export default reduxForm({
   validate,
-  form: `FloorEditForm`
+  form: `RoomEditForm`
 })(
   connect(mapStateToProps, {
-    fetchHospital,
-    fetchFloorsAt,
     fetchFloor,
-    addFloor,
-    editFloor,
-    deleteFloor,
-    addFloorAt,
-    deleteFloorAt
-  })(Hospital)
+    fetchRoomsAt,
+    fetchRoom,
+    addRoom,
+    editRoom,
+    deleteRoom,
+    addRoomAt,
+    deleteRoomAt
+  })(Floor)
 );
