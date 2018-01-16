@@ -43,9 +43,10 @@ class HospitalsList extends Component {
     this.setState({ roomSelected: id === roomSelected ? null : id });
   }
   onFloorClick(id) {
-    const { floor, fetchFloor } = this.props;
+    const { floor, fetchFloor, fetchRoomsAt } = this.props;
     const { floorSelected } = this.state;
     fetchFloor(id);
+    fetchRoomsAt(id)
     this.setState({ floorSelected: id === floorSelected ? null : id });
   }
   onHospitalClick(id) {
@@ -56,13 +57,13 @@ class HospitalsList extends Component {
     this.setState({ hospitalSelected: id === hospitalSelected ? null : id });
   }
   renderRoomsList() {
-    const { floor } = this.props;
+    const { rooms_at } = this.props;
     const { hospitalSelected, floorSelected, roomSelected } = this.state;
     let items = <div />;
-    if (!floor) {
+    if (!rooms_at) {
       return <div />;
     }
-    return _.map(floor._room_list, room => {
+    return _.map(rooms_at, room => {
       const { _id, number } = room;
       if (roomSelected === _id) {
         // items = this.renderBedsList();

@@ -9,9 +9,11 @@ import {
   DELETE_ROOM
 } from "../constants/ActionTypes";
 
+const URL = `${ROOT_URL}/api/rooms`;
+
 export function fetchRoomsAt(id) {
     const query = `/floor=${id}`;
-    const url = `${ROOT_URL}/api/rooms${query}`;
+    const url = `${URL}${query}`;
     const request = axios.get(url);
   
     return dispatch => {
@@ -25,7 +27,7 @@ export function fetchRoomsAt(id) {
   }
   export function fetchRoom(id) {
     const query = `/id=${id}`;
-    const url = `${ROOT_URL}/api/rooms${query}`;
+    const url = `${URL}${query}`;
     const request = axios.get(url);
   
     return dispatch => {
