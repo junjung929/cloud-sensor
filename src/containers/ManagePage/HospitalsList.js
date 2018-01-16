@@ -7,10 +7,12 @@ import {
   fetchFloorsAt,
   fetchFloor,
   fetchRoomsAt,
-  fetchRoom
+  fetchRoom,
+  fetchBedsAt,
+  fetchBed
 } from "actions";
 import { Link } from "react-router-dom";
-
+import { getOrdinal } from "../../components";
 import styled from "styled-components";
 
 const ListGroup = styled.ul`
@@ -36,25 +38,69 @@ class HospitalsList extends Component {
       fetchHospitals();
     }
   }
+  onBedClick(id) {
+    const { bed, fetchBed } = this.props;
+    const { bedSelected } = this.state;
+    fetchBed(id);
+    this.setState({ bedSelected: id === bedSelected ? null : id });
+  }
   onRoomClick(id) {
-    const { room, fetchRoom } = this.props;
+    const { room, fetchRoom, fetchBedsAt } = this.props;
     const { roomSelected } = this.state;
     fetchRoom(id);
+    fetchBedsAt(id);
     this.setState({ roomSelected: id === roomSelected ? null : id });
   }
   onFloorClick(id) {
     const { floor, fetchFloor, fetchRoomsAt } = this.props;
-    const { floorSelected } = this.state;
+    const { floorSelected, roomSelected, room } = this.state;
     fetchFloor(id);
-    fetchRoomsAt(id)
-    this.setState({ floorSelected: id === floorSelected ? null : id });
+    fetchRoomsAt(id);
+    this.setState({ floorSelected: id === floorSelected ? null : id, roomSelected: null });
   }
   onHospitalClick(id) {
     const { hospital, fetchHospital, fetchFloorsAt } = this.props;
-    const { hospitalSelected } = this.state;
+    const { hospitalSelected, floorSelected, roomSelected } = this.state;
     fetchHospital(id);
     fetchFloorsAt(id);
-    this.setState({ hospitalSelected: id === hospitalSelected ? null : id });
+    this.setState({ hospitalSelected: id === hospitalSelected ? null : id, floorSelected: null, roomSelected: null });
+  }
+  renderBedsList() {
+    const { beds_at } = this.props;
+    const {
+      hospitalSelected,
+      floorSelected,
+      roomSelected,
+      bedSelected
+    } = this.state;
+    let items = <div />;
+    if (!beds_at) {
+      return <div />;
+    }
+    return _.map(beds_at, bed => {
+      const { _id, number } = bed;
+      if (bedSelected === _id) {
+        // items = this.renderBedsList();
+      } else {
+        items = <div />;
+      }
+
+      return (
+        <ListGroup key={_id}>
+          <Link
+            style={{ textDecoration: "none", color: "white" }}
+            to={`/manage/hospital=${hospitalSelected}/floor=${floorSelected}/room=${roomSelected}/bed=${_id}/`}
+            onClick={() => {
+              this.onBedClick(_id);
+            }}
+          >
+            {" "}
+            - {getOrdinal(number)} room
+          </Link>
+          {items}
+        </ListGroup>
+      );
+    });
   }
   renderRoomsList() {
     const { rooms_at } = this.props;
@@ -66,7 +112,7 @@ class HospitalsList extends Component {
     return _.map(rooms_at, room => {
       const { _id, number } = room;
       if (roomSelected === _id) {
-        // items = this.renderBedsList();
+        items = this.renderBedsList();
       } else {
         items = <div />;
       }
@@ -113,7 +159,7 @@ class HospitalsList extends Component {
             }}
           >
             {" "}
-            - {number} floor
+            - {getOrdinal(number)} floor
           </Link>
           {items}
         </ListGroup>
@@ -157,14 +203,17 @@ class HospitalsList extends Component {
 function mapStateToProps(state) {
   const { hospitals, hospital, floors_at } = state.hospitals;
   const { floor, rooms_at } = state.floors;
-  const { room } = state.rooms;
+  const { room, beds_at } = state.rooms;
+  const { bed } = state.beds;
   return {
     hospitals,
     hospital,
     floors_at,
     floor,
     rooms_at,
-    room
+    room,
+    beds_at,
+    bed
   };
 }
 
@@ -174,5 +223,7 @@ export default connect(mapStateToProps, {
   fetchFloorsAt,
   fetchFloor,
   fetchRoomsAt,
-  fetchRoom
+  fetchRoom,
+  fetchBedsAt,
+  fetchBed
 })(HospitalsList);

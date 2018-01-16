@@ -1,7 +1,7 @@
 import _ from "lodash";
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { fetchPatient, fetchSensorData } from "../actions";
+import { fetchPatient, fetchSensor, fetchSensorData } from "../actions";
 import styled from "styled-components";
 
 import LoadingIndicator from "react-loading-indicator";
@@ -37,11 +37,16 @@ class Sensor extends Component {
   }
   componentDidMount() {
     const { _id } = this.props.match.params;
-    this.props.fetchPatient(_id).then((err, callback) => {
-      const { sensor_node } = this.props.patient.bed_;
-      this._mounted = true;
-      console.log(sensor_node);
-      this.timer(sensor_node);
+    const { fetchPatient, fetchSensor } = this.props;
+    fetchPatient(_id).then((err, callback) => {
+      const { _sensor_node } = this.props.patient.bed_;
+      fetchSensor(_sensor_node).then(()=> {
+        const { sensor } = this.props;
+        this._mounted = true;
+        console.log(sensor.node_name);
+        this.timer(sensor.node_name);
+      });
+      
     });
   }
   componentWillUnmount() {
@@ -171,11 +176,14 @@ class Sensor extends Component {
   }
 }
 function mapStateToProps(state) {
+  const { sensor } = state.sensors;
   const { sensor_data } = state.beds;
   const { patient } = state.patients;
-  return { patient, sensor_data };
+  return { patient, sensor, sensor_data };
 }
 
-export default connect(mapStateToProps, { fetchPatient, fetchSensorData })(
-  Sensor
-);
+export default connect(mapStateToProps, {
+  fetchPatient,
+  fetchSensor,
+  fetchSensorData
+})(Sensor);

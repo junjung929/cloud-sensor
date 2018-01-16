@@ -98,10 +98,10 @@ export function deleteFloor(id) {
   };
 }
 
-export function addRoomAt(id, floorId) {
+export function addRoomAt(id, roomId) {
   const query = `/add_room/${id}`;
   const url = `${URL}${query}`;
-  const request = axios.post(url, floorId);
+  const request = axios.post(url, roomId);
 
   return dispatch => {
     return request.then(({ data }) => {
@@ -112,10 +112,10 @@ export function addRoomAt(id, floorId) {
     });
   };
 }
-export function deleteRoomAt(id, floorId) {
+export function deleteRoomAt(id, roomId) {
   const query = `/delete_room/${id}`;
   const url = `${URL}${query}`;
-  const request = axios.post(url, floorId);
+  const request = axios.post(url, roomId);
 
   return dispatch => {
     return request.then(({ data }) => {

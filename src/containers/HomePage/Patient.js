@@ -41,7 +41,7 @@ class PatientDataPage extends Component {
     return (
       <Info>
         <img
-          src="https://www.planwallpaper.com/static/images/04c05a04079a978b0ffa50a1ae42f5a6.jpg"
+          src={patient.imgSrc}
           className="img-circle"
           style={{ width: 150, height: 150 }}
         />
