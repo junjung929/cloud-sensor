@@ -46,7 +46,6 @@ class SearchResultPage extends Component {
     }
     onGoBtn(id) {
         const { match } = this.props;
-        console.log("here", match)
         switch(match){
 
         }

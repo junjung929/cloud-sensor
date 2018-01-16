@@ -29,11 +29,11 @@ class Hospitals extends Component {
     return _.map(hospitals, hospital => {
       if (i < 3) {
         return (
-            <Profile
+          <Profile
             key={`prof-${hospital._id}-${i++}`}
-              content={hospital}
-              link={`${url}/hospital=${hospital._id}`}
-            />
+            content={hospital}
+            link={`${url}/hospital=${hospital._id}`}
+          />
         );
       } else {
         return <div key={i++} />;
@@ -59,7 +59,8 @@ class Hospitals extends Component {
 }
 
 function mapStateToProps(state) {
-  return { hospitals: state.hospitals.hospitals };
+  const { hospitals } = state.hospitals;
+  return { hospitals };
 }
 
 export default connect(mapStateToProps, { fetchHospitals })(Hospitals);

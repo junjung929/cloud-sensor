@@ -52,11 +52,7 @@ class Hospitals extends Component {
     this.props.initialize(iniData);
   }
   handleInitializeNull() {
-    const iniData = {
-      name: null,
-      address: null,
-      phone_number: null
-    };
+    const iniData = null;
     this.props.initialize(iniData);
   }
   onPhotoChange(e) {

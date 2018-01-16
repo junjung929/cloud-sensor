@@ -91,8 +91,8 @@ class FloorPage extends Component {
 }
 function mapStateToProps(state) {
     // console.log("hospitals log", hospitals[ownProps.match.params._id]);
-    let tempState = state.hospitals;
-    return { rooms_at: tempState.rooms_at, floor: tempState.floor };
+    const { rooms_at, floor } = state.floors;
+    return { rooms_at, floor };
 }
 
 export default connect(mapStateToProps, { fetchRoomsAt, fetchFloor })(FloorPage);
