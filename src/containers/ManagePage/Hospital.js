@@ -8,6 +8,10 @@ import {
   fetchHospital,
   fetchFloorsAt,
   fetchFloor,
+  fetchRoomsAt,
+  fetchBedsAt,
+  deleteRoom,
+  deleteBed,
   addFloor,
   editFloor,
   deleteFloor,
@@ -88,13 +92,31 @@ class Hospital extends Component {
       this.setState({ updating: true, updatingText: "initial" });
       this.props.deleteFloor(floorId).then(callback => {
         this.props.deleteFloorAt(id, { floorId: floorId }).then(() => {
-          this.setState({
-            updatingText: `${getOrdinal(
-              number
-            )} floor has been successfully deleted!`
+          this.props.fetchRoomsAt(floorId).then(() => {
+            const { rooms_at } = this.props;
+            if (!rooms_at) {
+              return;
+            }
+            _.map(rooms_at, room => {
+              this.props.deleteRoom(room._id);
+              this.props.fetchBedsAt(room._id).then(() => {
+                const { beds_at } = this.props;
+                if (!beds_at) {
+                  return;
+                }
+                _.map(beds_at, bed => {
+                  this.props.deleteBed(bed._id);
+                });
+              });
+            });
           });
-          this.props.fetchFloorsAt(id);
         });
+        this.setState({
+          updatingText: `${getOrdinal(
+            number
+          )} floor has been successfully deleted!`
+        });
+        this.props.fetchFloorsAt(id);
       });
     }
   };
@@ -410,12 +432,15 @@ class Hospital extends Component {
 
 function mapStateToProps(state) {
   const { hospital, floors_at } = state.hospitals;
-  const { floor, add_floor, edit_floor } = state.floors;
+  const { floor, add_floor, edit_floor, rooms_at } = state.floors;
+  const { beds_at } = state.rooms;
   return {
     hospital,
     floors_at,
     floor,
-    add_floor
+    add_floor,
+    rooms_at,
+    beds_at
   };
 }
 
@@ -439,6 +464,10 @@ export default reduxForm({
     fetchHospital,
     fetchFloorsAt,
     fetchFloor,
+    fetchRoomsAt,
+    fetchBedsAt,
+    deleteRoom,
+    deleteBed,
     addFloor,
     editFloor,
     deleteFloor,

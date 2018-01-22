@@ -95,7 +95,7 @@ class HospitalsList extends Component {
             }}
           >
             {" "}
-            - {getOrdinal(number)} room
+            - {getOrdinal(number)} bed
           </Link>
           {items}
         </ListGroup>

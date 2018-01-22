@@ -7,6 +7,12 @@ import LoadingIndicator from "react-loading-indicator";
 import {
   fetchHospitals,
   fetchHospital,
+  fetchFloorsAt,
+  fetchRoomsAt,
+  fetchBedsAt,
+  deleteFloor,
+  deleteRoom,
+  deleteBed,
   addHospital,
   editHospital,
   deleteHospital
@@ -75,6 +81,33 @@ class Hospitals extends Component {
     ) {
       this.setState({ updating: true, updatingText: "initial" });
       this.props.deleteHospital(id).then(callback => {
+        this.props.fetchFloorsAt(id).then(() => {
+          const { floors_at } = this.props;
+          if (!floors_at || floors_at.length === 0) {
+            return;
+          }
+          _.map(floors_at, floor => {
+            this.props.deleteFloor(floor._id);
+            this.props.fetchRoomsAt(floor._id).then(() => {
+              const { rooms_at } = this.props;
+              if (!rooms_at) {
+                return;
+              }
+              _.map(rooms_at, room => {
+                this.props.deleteRoom(room._id);
+                this.props.fetchBedsAt(room._id).then(() => {
+                  const { beds_at } = this.props;
+                  if (!beds_at) {
+                    return;
+                  }
+                  _.map(beds_at, bed => {
+                    this.props.deleteBed(bed._id);
+                  });
+                });
+              });
+            });
+          });
+        });
         this.setState({
           updatingText: `${name} has been successfully deleted!`
         });
@@ -406,11 +439,23 @@ class Hospitals extends Component {
 }
 
 function mapStateToProps(state) {
-  const { hospitals, hospital, add_hospital, edit_hospital } = state.hospitals;
+  const {
+    hospitals,
+    hospital,
+    add_hospital,
+    edit_hospital,
+    floors_at
+  } = state.hospitals;
+  const { floor, add_floor, edit_floor, rooms_at } = state.floors;
+  const { beds_at } = state.rooms;
+
   return {
     hospitals,
     hospital,
-    add_hospital
+    add_hospital,
+    floors_at,
+    rooms_at,
+    beds_at
   };
 }
 
@@ -439,6 +484,12 @@ export default reduxForm({
   connect(mapStateToProps, {
     fetchHospitals,
     fetchHospital,
+    fetchFloorsAt,
+    fetchRoomsAt,
+    fetchBedsAt,
+    deleteRoom,
+    deleteBed,
+    deleteFloor,
     addHospital,
     editHospital,
     deleteHospital

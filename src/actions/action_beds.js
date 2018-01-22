@@ -41,24 +41,28 @@ export function fetchBed(id) {
 
 // post
 export function addBed(values, file) {
-  const { number, sensor_node, roomAt } = values;
-  const query = `/push/number=${number}/sensor_node=${sensor_node}/roomAt=${roomAt}`;
+  const { number, _sensor_node, _patient, bedAt } = values;
+  const query = `/push/number=${number}/sensor_node=${_sensor_node}/atPatient=${_patient}/bedAt=${bedAt}`;
   const url = `${URL}${query}`;
   const request = axios.post(url, file);
 
   return dispatch => {
-    return request.then(({ data }) => {
-      dispatch({
-        type: ADD_BED,
-        payload: data
+    return request
+      .then(({ data }) => {
+        dispatch({
+          type: ADD_BED,
+          payload: data
+        });
+        return data;
+      })
+      .catch(({ response }) => {
+        return response.data;
       });
-      return data;
-    });
   };
 }
 export function editBed(id, values, file) {
-  const { number, sensor_node } = values;
-  const query = `/update/id=${id}/number=${number}/sensor_node=${sensor_node}`;
+  const { number, _sensor_node, _patient } = values;
+  const query = `/update/id=${id}/number=${number}/sensor_node=${_sensor_node}/atPatient=${_patient}`;
   const url = `${URL}${query}`;
   const request = axios.post(url, file);
 

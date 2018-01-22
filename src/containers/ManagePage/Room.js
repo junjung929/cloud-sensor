@@ -13,13 +13,22 @@ import {
   editBed,
   deleteBed,
   addBedAt,
-  deleteBedAt
+  deleteBedAt,
+  fetchPatients,
+  fetchPatient
 } from "actions";
 import Modal from "react-responsive-modal";
 
-import { Table, Profile, getOrdinal } from "components";
+import {
+  Table,
+  Profile,
+  getOrdinal,
+  RenderField,
+  RenderSelectField,
+  RenderPhotoField
+} from "components";
 
-import { PreviewImg, Content, ImgPreview } from "./styles";
+import { PreviewImg, Content, ImgPreview, Info } from "./styles";
 
 class Room extends Component {
   constructor(props) {
@@ -35,7 +44,7 @@ class Room extends Component {
       file: null,
       imagePreviewUrl: null
     };
-    this.renderPhotoField = this.renderPhotoField.bind(this);
+    this.onPhotoChange = this.onPhotoChange.bind(this);
     this.onFormSubmit = this.onFormSubmit.bind(this);
     // this.onEditFormSubmit = this.onEditFormSubmit.bind(this);
   }
@@ -45,6 +54,8 @@ class Room extends Component {
     this.setState({ currRoom: room_id });
     this.props.fetchRoom(room_id);
     this.props.fetchBedsAt(room_id);
+    this.props.fetchSensors();
+    this.props.fetchPatients();
     // let { _id } = this.props.match.params
     // console.log(_id)
   }
@@ -57,10 +68,10 @@ class Room extends Component {
     }
   }
   handleInitialize() {
-    const { number, sensor_node } = this.props.bed;
+    const { number, _sensor_node } = this.props.bed;
     const iniData = {
       number,
-      sensor_node
+      _sensor_node
     };
     this.props.initialize(iniData);
   }
@@ -102,15 +113,22 @@ class Room extends Component {
   };
   addBed = (values, file) => {
     const { room_id } = this.props.match.params;
-    console.log(values);
-    this.props.addBed(values, file).then(callback => {
-      this.props.addBedAt(room_id, { bedId: callback._id }).then(() => {
-        this.setState({ updatingText: `Bed No. ${values.number} is added!` });
-        this.props.fetchBedsAt(room_id);
-        this.onCloseModal();
+    // console.log(values);
+    this.props
+      .addBed(values, file)
+      .then((callback) => {
+        const { err } = callback; 
+        if(err){
+          return this.setState({ updatingText: `${err}, please try again.` });
+        }
+        this.props.addBedAt(room_id, { bedId: callback._id }).then(() => {
+          this.setState({ updatingText: `Bed No. ${values.number} is added!` });
+          this.props.fetchBedsAt(room_id);
+          this.onCloseModal();
+        });
       });
-    });
   };
+
   editBed = (bedId, values, file) => {
     const { room_id } = this.props.match.params;
     this.props.editBed(bedId, values, file).then(err => {
@@ -126,9 +144,10 @@ class Room extends Component {
   };
   onFormSubmit = (data, mode, bedId) => {
     const { room_id } = this.props.match.params;
+    console.log(room_id);
     const temp = Object.assign(data, { bedAt: room_id });
     data = temp;
-    // console.log(data)
+    console.log(data);
     if (!data) {
       return alert("dfa");
     }
@@ -141,7 +160,7 @@ class Room extends Component {
     this.setState({ updating: true, updatingText: "initial" });
     switch (mode) {
       case "add":
-        console.log(data);
+        // console.log(data);
         this.addBed(data, newData);
         break;
       case "edit":
@@ -149,56 +168,22 @@ class Room extends Component {
         break;
     }
   };
-  renderPhotoField(field) {
-    return (
-      <div>
-        <label>{field.label}</label>
-        <input
-          className="form-control"
-          type="file"
-          onChange={e => {
-            this.onPhotoChange(e);
-          }}
-        />
-      </div>
-    );
+
+  selectOption(options) {
+    if (!options) {
+      return;
+    }
+    return _.map(options, option => {
+      const optionName = option.node_name
+        ? option.node_name
+        : `${option.first_name} ${option.last_name}`;
+      return (
+        <option key={option._id} value={option._id}>
+          {optionName}
+        </option>
+      );
+    });
   }
-  renderSelectField = field => {
-    const { label, input, placeholder, meta: { touched, error } } = field;
-    const className = `form-group ${touched && error ? "has-danger" : ""}`;
-    return (
-      <div className={className}>
-        <label>{label}</label>
-        <select
-          className="form-control"
-          {...input}
-          placeholder={placeholder}
-          required
-        >
-          <option value={null}>{placeholder}</option>
-          ()
-        </select>
-        <div className="text-help text-danger">{touched ? error : ""}</div>
-      </div>
-    );
-  };
-  renderField = field => {
-    const { label, input, type, placeholder, meta: { touched, error } } = field;
-    const className = `form-group ${touched && error ? "has-danger" : ""}`;
-    return (
-      <div className={className}>
-        <label>{label}</label>
-        <input
-          className="form-control"
-          type={type}
-          {...input}
-          placeholder={placeholder}
-          required
-        />
-        <div className="text-help text-danger">{touched ? error : ""}</div>
-      </div>
-    );
-  };
 
   renderModal(mode) {
     // console.log(this.props.initialize)
@@ -209,7 +194,8 @@ class Room extends Component {
       submitHandler = "",
       placeholder = {
         number: "Enter an integer number.",
-        sensor_node: "Please select a sensor for this bed.",
+        _sensor_node: "Please select a sensor for this bed.",
+        _patient: "Please select a patient for this bed.",
         button: "Add"
       };
     switch (mode) {
@@ -258,7 +244,10 @@ class Room extends Component {
           <Field
             label="Photo of Bed"
             name="thumb_picture"
-            component={this.renderPhotoField}
+            component={RenderPhotoField}
+            onChange={e => {
+              this.onPhotoChange(e);
+            }}
           />
           {$imagePreview}
           <div className="divisionLine" />
@@ -267,13 +256,23 @@ class Room extends Component {
             name="number"
             type="number"
             placeholder={placeholder.number}
-            component={this.renderField}
+            component={RenderField}
           />
           <Field
             label="Sensor of Bed"
-            name="sensor_node"
-            placeholder={placeholder.sensor_node}
-            component={this.renderSelectField}
+            name="_sensor_node"
+            placeholder={placeholder._sensor_node}
+            component={RenderSelectField}
+            option={this.selectOption(this.props.sensors)}
+            required={false}
+          />
+          <Field
+            label="Patient of Bed"
+            name="_patient"
+            placeholder={placeholder._patient}
+            component={RenderSelectField}
+            option={this.selectOption(this.props.patients)}
+            required={false}
           />
           <div className="divisionLine" />
           <button type="submit" className="btn btn-primary">
@@ -313,8 +312,45 @@ class Room extends Component {
   formReset() {
     this.props.reset();
   }
+  renderPatient() {
+    const { patient } = this.props;
+
+    if (!patient) {
+      return <LoadingIndicator />;
+    }
+    const dateFormat = require("dateformat");
+    const birth = dateFormat(patient.birth, "yyyy-mm-dd");
+    const enter_date = dateFormat(patient.enter_date, "yyyy-mm-dd");
+    const leave_date = dateFormat(patient.leave_date, "yyyy-mm-dd");
+    return (
+      <Info>
+        <img
+          src={patient.imgSrc}
+          className="img-circle"
+          style={{ width: 150, height: 150 }}
+        />
+        <div>
+          <h3>
+            {patient.first_name} {patient.last_name}
+          </h3>
+          <p>Address: {patient.address}</p>
+          <p>Tel. {patient.phone_number}</p>
+          <p>Birthday: {birth}</p>
+          <p>Enter Date: {enter_date}</p>
+          <p>Leave Date: {leave_date}</p>
+          <p>Hospital: {patient.hospital_.name}</p>
+          <Link
+            className="btn btn-default"
+            to={`/monitor/patient=${patient._id}`}
+          >
+            Go to monitor
+          </Link>
+        </div>
+      </Info>
+    );
+  }
   renderBeds() {
-    const { beds_at } = this.props;
+    const { beds_at, fetchPatient } = this.props;
     let i = 0;
     if (!beds_at) {
       return <tr />;
@@ -338,7 +374,20 @@ class Room extends Component {
           <td>{getOrdinal(number)}</td>
           <td>{sensorAtBed}</td>
           <td>
-            {patientAtBed}
+            {patientAtBed === "Empty" ? (
+              patientAtBed
+            ) : (
+              <Link
+                to="#"
+                onClick={() => {
+                  this.setState({ open: true, modalMode: "patient" }, () => {
+                    fetchPatient(_patient._id);
+                  });
+                }}
+              >
+                {patientAtBed}
+              </Link>
+            )}
           </td>
           <td width="10%">
             <button
@@ -386,8 +435,17 @@ class Room extends Component {
         </div>
       );
     }
-    if (modalMode !== null) {
-      modalContent = this.renderModal(modalMode);
+    switch (modalMode) {
+      case "add":
+      case "edit":
+        modalContent = this.renderModal(modalMode);
+        break;
+      case "patient":
+        modalContent = this.renderPatient();
+
+        break;
+      default:
+        modalContent = <LoadingIndicator />;
     }
     return (
       <div id="beds">
@@ -452,11 +510,16 @@ class Room extends Component {
 function mapStateToProps(state) {
   const { room, beds_at } = state.rooms;
   const { bed, add_bed, edit_bed } = state.beds;
+  const { patients, patient } = state.patients;
+  const { sensors } = state.sensors;
   return {
     room,
     beds_at,
     bed,
-    add_bed
+    add_bed,
+    patient,
+    patients,
+    sensors
   };
 }
 
@@ -466,9 +529,6 @@ function validate(values) {
   // Validate the inputs from 'values'
   if (!values.number) {
     errors.number = "Enter an integer number!";
-  }
-  if (!values.sensor_node) {
-    errors.sensor_node = "Choose a sensor!";
   }
   // If errors is empty, the form is fine to submit
   // If errors hs *any* properties, redux form assumes form is invalid
@@ -488,6 +548,8 @@ export default reduxForm({
     editBed,
     deleteBed,
     addBedAt,
-    deleteBedAt
+    deleteBedAt,
+    fetchPatients,
+    fetchPatient
   })(Room)
 );
