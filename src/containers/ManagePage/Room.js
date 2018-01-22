@@ -25,7 +25,8 @@ import {
   getOrdinal,
   RenderField,
   RenderSelectField,
-  RenderPhotoField
+  RenderPhotoField,
+  FormReset
 } from "components";
 
 import { PreviewImg, Content, ImgPreview, Info } from "./styles";
@@ -307,10 +308,7 @@ class Room extends Component {
       file: null,
       imagePreviewUrl: null
     });
-    this.formReset();
-  }
-  formReset() {
-    this.props.reset();
+    FormReset(this.props);
   }
   renderPatient() {
     const { patient } = this.props;

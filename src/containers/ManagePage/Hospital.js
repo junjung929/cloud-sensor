@@ -20,7 +20,14 @@ import {
 } from "actions";
 import Modal from "react-responsive-modal";
 
-import { Table, Profile, getOrdinal } from "components";
+import {
+  Table,
+  Profile,
+  getOrdinal,
+  RenderField,
+  RenderPhotoField,
+  FormReset
+} from "components";
 
 import { PreviewImg, Content, ImgPreview } from "./styles";
 
@@ -38,7 +45,6 @@ class Hospital extends Component {
       file: null,
       imagePreviewUrl: null
     };
-    this.renderPhotoField = this.renderPhotoField.bind(this);
     this.onFormSubmit = this.onFormSubmit.bind(this);
     // this.onEditFormSubmit = this.onEditFormSubmit.bind(this);
   }
@@ -169,37 +175,6 @@ class Hospital extends Component {
         break;
     }
   };
-  renderPhotoField(field) {
-    return (
-      <div>
-        <label>{field.label}</label>
-        <input
-          className="form-control"
-          type="file"
-          onChange={e => {
-            this.onPhotoChange(e);
-          }}
-        />
-      </div>
-    );
-  }
-  renderField = field => {
-    const { label, input, type, placeholder, meta: { touched, error } } = field;
-    const className = `form-group ${touched && error ? "has-danger" : ""}`;
-    return (
-      <div className={className}>
-        <label>{label}</label>
-        <input
-          className="form-control"
-          type={type}
-          {...input}
-          placeholder={placeholder}
-          required
-        />
-        <div className="text-help text-danger">{touched ? error : ""}</div>
-      </div>
-    );
-  };
 
   renderModal(mode) {
     // console.log(this.props.initialize)
@@ -261,7 +236,10 @@ class Hospital extends Component {
           <Field
             label="Photo of Floor"
             name="thumb_picture"
-            component={this.renderPhotoField}
+            component={RenderPhotoField}
+            onChange={e => {
+              this.onPhotoChange(e);
+            }}
           />
           {$imagePreview}
           <div className="divisionLine" />
@@ -270,7 +248,7 @@ class Hospital extends Component {
             name="number"
             type="number"
             placeholder={placeholder.number}
-            component={this.renderField}
+            component={RenderField}
           />
           <div className="divisionLine" />
           <button type="submit" className="btn btn-primary">
@@ -305,10 +283,7 @@ class Hospital extends Component {
       file: null,
       imagePreviewUrl: null
     });
-    this.formReset();
-  }
-  formReset() {
-    this.props.reset();
+    FormReset(this.props);
   }
   renderFloors() {
     const { floors_at } = this.props;

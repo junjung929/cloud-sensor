@@ -19,7 +19,14 @@ export const RenderField = field => {
 };
 
 export const RenderSelectField = field => {
-  const { required, option, label, input, placeholder, meta: { touched, error } } = field;
+  const {
+    required,
+    option,
+    label,
+    input,
+    placeholder,
+    meta: { touched, error }
+  } = field;
   const className = `form-group ${touched && error ? "has-danger" : ""}`;
   return (
     <div className={className}>
@@ -45,4 +52,8 @@ export const RenderPhotoField = field => {
       <input className="form-control" type="file" onChange={input.onChange} />
     </div>
   );
+};
+
+export const FormReset = (props) => {
+  props.reset();
 };

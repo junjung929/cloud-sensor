@@ -24,7 +24,8 @@ import {
   getOrdinal,
   RenderField,
   RenderPhotoField,
-  RenderSelectField
+  RenderSelectField,
+  FormReset
 } from "components";
 
 import { PreviewImg, Content, ImgPreview } from "./styles";
@@ -294,10 +295,7 @@ class Floor extends Component {
       file: null,
       imagePreviewUrl: null
     });
-    this.formReset();
-  }
-  formReset() {
-    this.props.reset();
+    FormReset(this.props);
   }
   renderRooms() {
     const { rooms_at } = this.props;
