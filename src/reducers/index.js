@@ -5,6 +5,7 @@ import FloorsReducer from "./reducer_floors";
 import RoomsReducer from "./reducer_rooms";
 import BedsReducer from "./reducer_beds";
 import PatientsReducer from "./reducer_patients";
+import SensorsReducer from "./reducer_sensors";
 import { reducer as formReducer } from "redux-form";
 
 const rootReducer = combineReducers({
@@ -14,6 +15,7 @@ const rootReducer = combineReducers({
   rooms: RoomsReducer,
   beds: BedsReducer,
   patients: PatientsReducer,
+  sensors: SensorsReducer,
   form: formReducer
 });
 

@@ -40,15 +40,27 @@ export const ADD_ROOM = "add_room";
 export const EDIT_ROOM = "edit_room";
 // Room delete request
 export const DELETE_ROOM = "delete_room";
+// Update BED list into Room
+export const ADD_BED_AT = "add_bed_at";
+export const DELETE_BED_AT = "delete_bed_at";
 
 // Bed get request
 export const FETCH_BEDS_AT = "fetch_beds_at";
 export const FETCH_BED = "fetch_bed";
+// BED post request
+export const ADD_BED = "add_bed";
+export const EDIT_BED = "edit_bed";
+// BED delete request
+export const DELETE_BED = "delete_bed";
 
 // Patient get request
 export const FETCH_PATIENTS = "fetch_patients";
 export const FETCH_PATIENT = "fetch_patient";
 export const FETCH_PATIENTS_SEACHED = "fetch_patients_searched";
+
+// Sensor get request
+export const FETCH_SENSORS = "fetch_sensors";
+export const FETCH_SENSOR = "fetch_sensor";
 
 // Data get request
 export const FETCH_SENSOR_DATA = "fetch_sensor_data";

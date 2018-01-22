@@ -7,13 +7,25 @@ import LoadingIndicator from "react-loading-indicator";
 import {
   fetchHospitals,
   fetchHospital,
+  fetchFloorsAt,
+  fetchRoomsAt,
+  fetchBedsAt,
+  deleteFloor,
+  deleteRoom,
+  deleteBed,
   addHospital,
   editHospital,
   deleteHospital
 } from "actions";
 import Modal from "react-responsive-modal";
 
-import { Table, Profile } from "components";
+import {
+  Table,
+  Profile,
+  RenderField,
+  RenderPhotoField,
+  FormReset
+} from "components";
 
 import { PreviewImg, Content, ImgPreview } from "./styles";
 
@@ -30,7 +42,6 @@ class Hospitals extends Component {
       file: null,
       imagePreviewUrl: null
     };
-    this.renderPhotoField = this.renderPhotoField.bind(this);
     this.onFormSubmit = this.onFormSubmit.bind(this);
     // this.onEditFormSubmit = this.onEditFormSubmit.bind(this);
   }
@@ -75,6 +86,33 @@ class Hospitals extends Component {
     ) {
       this.setState({ updating: true, updatingText: "initial" });
       this.props.deleteHospital(id).then(callback => {
+        this.props.fetchFloorsAt(id).then(() => {
+          const { floors_at } = this.props;
+          if (!floors_at || floors_at.length === 0) {
+            return;
+          }
+          _.map(floors_at, floor => {
+            this.props.deleteFloor(floor._id);
+            this.props.fetchRoomsAt(floor._id).then(() => {
+              const { rooms_at } = this.props;
+              if (!rooms_at) {
+                return;
+              }
+              _.map(rooms_at, room => {
+                this.props.deleteRoom(room._id);
+                this.props.fetchBedsAt(room._id).then(() => {
+                  const { beds_at } = this.props;
+                  if (!beds_at) {
+                    return;
+                  }
+                  _.map(beds_at, bed => {
+                    this.props.deleteBed(bed._id);
+                  });
+                });
+              });
+            });
+          });
+        });
         this.setState({
           updatingText: `${name} has been successfully deleted!`
         });
@@ -122,37 +160,7 @@ class Hospitals extends Component {
         break;
     }
   };
-  renderPhotoField(field) {
-    return (
-      <div>
-        <label>{field.label}</label>
-        <input
-          className="form-control"
-          type="file"
-          onChange={e => {
-            this.onPhotoChange(e);
-          }}
-        />
-      </div>
-    );
-  }
-  renderField = field => {
-    const { label, input, placeholder, meta: { touched, error } } = field;
-    const className = `form-group ${touched && error ? "has-danger" : ""}`;
-    return (
-      <div className={className}>
-        <label>{label}</label>
-        <input
-          className="form-control"
-          type="text"
-          {...input}
-          placeholder={placeholder}
-          required
-        />
-        <div className="text-help text-danger">{touched ? error : ""}</div>
-      </div>
-    );
-  };
+
   renderModal(mode) {
     // console.log(this.props.initialize)
     const { hospital, handleSubmit } = this.props;
@@ -217,7 +225,10 @@ class Hospitals extends Component {
           <Field
             label="Photo of Hospital"
             name="thumb_picture"
-            component={this.renderPhotoField}
+            component={RenderPhotoField}
+            onChange={e => {
+              this.onPhotoChange(e);
+            }}
           />
           {$imagePreview}
           <div className="divisionLine" />
@@ -225,21 +236,24 @@ class Hospitals extends Component {
             label="Name of Hospital"
             name="name"
             placeholder={placeholder.name}
-            component={this.renderField}
+            component={RenderField}
+            type="text"
           />
           <div className="divisionLine" />
           <Field
             label="Address of Hospital"
             name="address"
             placeholder={placeholder.address}
-            component={this.renderField}
+            component={RenderField}
+            type="text"
           />
           <div className="divisionLine" />
           <Field
             label="Contact Number of Hospital"
             name="phone_number"
             placeholder={placeholder.phone}
-            component={this.renderField}
+            component={RenderField}
+            type="tel"
           />
           <div className="divisionLine" />
           <button type="submit" className="btn btn-primary">
@@ -274,10 +288,7 @@ class Hospitals extends Component {
       file: null,
       imagePreviewUrl: null
     });
-    this.formReset();
-  }
-  formReset() {
-    this.props.reset();
+    FormReset(this.props);
   }
   renderHospitals() {
     const { hospitals } = this.props;
@@ -406,11 +417,23 @@ class Hospitals extends Component {
 }
 
 function mapStateToProps(state) {
-  const { hospitals, hospital, add_hospital, edit_hospital } = state.hospitals;
+  const {
+    hospitals,
+    hospital,
+    add_hospital,
+    edit_hospital,
+    floors_at
+  } = state.hospitals;
+  const { floor, add_floor, edit_floor, rooms_at } = state.floors;
+  const { beds_at } = state.rooms;
+
   return {
     hospitals,
     hospital,
-    add_hospital
+    add_hospital,
+    floors_at,
+    rooms_at,
+    beds_at
   };
 }
 
@@ -439,6 +462,12 @@ export default reduxForm({
   connect(mapStateToProps, {
     fetchHospitals,
     fetchHospital,
+    fetchFloorsAt,
+    fetchRoomsAt,
+    fetchBedsAt,
+    deleteRoom,
+    deleteBed,
+    deleteFloor,
     addHospital,
     editHospital,
     deleteHospital

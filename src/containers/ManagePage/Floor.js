@@ -8,15 +8,25 @@ import {
   fetchFloor,
   fetchRoomsAt,
   fetchRoom,
+  fetchBedsAt,
   addRoom,
   editRoom,
   deleteRoom,
   addRoomAt,
-  deleteRoomAt
+  deleteRoomAt,
+  deleteBed
 } from "actions";
 import Modal from "react-responsive-modal";
 
-import { Table, Profile, getOrdinal } from "components";
+import {
+  Table,
+  Profile,
+  getOrdinal,
+  RenderField,
+  RenderPhotoField,
+  RenderSelectField,
+  FormReset
+} from "components";
 
 import { PreviewImg, Content, ImgPreview } from "./styles";
 
@@ -34,7 +44,6 @@ class Floor extends Component {
       file: null,
       imagePreviewUrl: null
     };
-    this.renderPhotoField = this.renderPhotoField.bind(this);
     this.onFormSubmit = this.onFormSubmit.bind(this);
     // this.onEditFormSubmit = this.onEditFormSubmit.bind(this);
   }
@@ -89,13 +98,22 @@ class Floor extends Component {
       this.setState({ updating: true, updatingText: "initial" });
       this.props.deleteRoom(roomId).then(callback => {
         this.props.deleteRoomAt(floor_id, { roomId: roomId }).then(() => {
-          this.setState({
-            updatingText: `${getOrdinal(
-              number
-            )} room has been successfully deleted!`
+          this.props.fetchBedsAt(roomId).then(() => {
+            const { beds_at } = this.props;
+            if (!beds_at) {
+              return;
+            }
+            _.map(beds_at, bed => {
+              this.props.deleteBed(bed._id);
+            });
           });
-          this.props.fetchRoomsAt(floor_id);
         });
+        this.setState({
+          updatingText: `${getOrdinal(
+            number
+          )} room has been successfully deleted!`
+        });
+        this.props.fetchRoomsAt(floor_id);
       });
     }
   };
@@ -148,58 +166,20 @@ class Floor extends Component {
         break;
     }
   };
-  renderPhotoField(field) {
-    return (
-      <div>
-        <label>{field.label}</label>
-        <input
-          className="form-control"
-          type="file"
-          onChange={e => {
-            this.onPhotoChange(e);
-          }}
-        />
-      </div>
-    );
+  selectOption() {
+    const options = [
+      { value: "normal", text: "Normal" },
+      { value: "important", text: "Important" },
+      { value: "vip", text: "VIP" }
+    ];
+    return _.map(options, option => {
+      return (
+        <option key={option.value} value={option.value}>
+          {option.text} class
+        </option>
+      );
+    });
   }
-  renderSelectField = field => {
-    const { label, input, placeholder, meta: { touched, error } } = field;
-    const className = `form-group ${touched && error ? "has-danger" : ""}`;
-    return (
-      <div className={className}>
-        <label>{label}</label>
-        <select
-          className="form-control"
-          {...input}
-          placeholder={placeholder}
-          required>
-          <option value={null}>{placeholder}</option>
-          <option value="normal">Normal class</option>
-          <option value="important">Important class</option>
-          <option value="vip">VIP class</option>
-        </select>
-        <div className="text-help text-danger">{touched ? error : ""}</div>
-      </div>
-    );
-  }
-  renderField = field => {
-    const { label, input, type, placeholder, meta: { touched, error } } = field;
-    const className = `form-group ${touched && error ? "has-danger" : ""}`;
-    return (
-      <div className={className}>
-        <label>{label}</label>
-        <input
-          className="form-control"
-          type={type}
-          {...input}
-          placeholder={placeholder}
-          required
-        />
-        <div className="text-help text-danger">{touched ? error : ""}</div>
-      </div>
-    );
-  };
-
   renderModal(mode) {
     // console.log(this.props.initialize)
     const { room, handleSubmit } = this.props;
@@ -261,7 +241,10 @@ class Floor extends Component {
           <Field
             label="Photo of Room"
             name="thumb_picture"
-            component={this.renderPhotoField}
+            component={RenderPhotoField}
+            onChange={e => {
+              this.onPhotoChange(e);
+            }}
           />
           {$imagePreview}
           <div className="divisionLine" />
@@ -270,13 +253,14 @@ class Floor extends Component {
             name="number"
             type="number"
             placeholder={placeholder.number}
-            component={this.renderField}
+            component={RenderField}
           />
           <Field
             label="Class of Room"
             name="room_class"
             placeholder={placeholder.room_class}
-            component={this.renderSelectField}
+            component={RenderSelectField}
+            option={this.selectOption()}
           />
           <div className="divisionLine" />
           <button type="submit" className="btn btn-primary">
@@ -311,10 +295,7 @@ class Floor extends Component {
       file: null,
       imagePreviewUrl: null
     });
-    this.formReset();
-  }
-  formReset() {
-    this.props.reset();
+    FormReset(this.props);
   }
   renderRooms() {
     const { rooms_at } = this.props;
@@ -440,12 +421,13 @@ class Floor extends Component {
 
 function mapStateToProps(state) {
   const { floor, rooms_at } = state.floors;
-  const { room, add_room, edit_room } = state.rooms;
+  const { room, add_room, edit_room, beds_at } = state.rooms;
   return {
     floor,
     rooms_at,
     room,
-    add_room
+    add_room,
+    beds_at
   };
 }
 
@@ -472,10 +454,12 @@ export default reduxForm({
     fetchFloor,
     fetchRoomsAt,
     fetchRoom,
+    fetchBedsAt,
     addRoom,
     editRoom,
     deleteRoom,
     addRoomAt,
-    deleteRoomAt
+    deleteRoomAt,
+    deleteBed
   })(Floor)
-  );
+);

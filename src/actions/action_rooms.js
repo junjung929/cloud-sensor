@@ -6,42 +6,44 @@ import {
   FETCH_ROOM,
   ADD_ROOM,
   EDIT_ROOM,
-  DELETE_ROOM
+  DELETE_ROOM,
+  ADD_BED_AT,
+  DELETE_BED_AT
 } from "../constants/ActionTypes";
 
 const URL = `${ROOT_URL}/api/rooms`;
 
 export function fetchRoomsAt(id) {
-    const query = `/floor=${id}`;
-    const url = `${URL}${query}`;
-    const request = axios.get(url);
-  
-    return dispatch => {
-      return request.then(({ data }) => {
-        dispatch({
-          type: FETCH_ROOMS_AT,
-          payload: data
-        });
+  const query = `/floor=${id}`;
+  const url = `${URL}${query}`;
+  const request = axios.get(url);
+
+  return dispatch => {
+    return request.then(({ data }) => {
+      dispatch({
+        type: FETCH_ROOMS_AT,
+        payload: data
       });
-    };
-  }
-  export function fetchRoom(id) {
-    const query = `/id=${id}`;
-    const url = `${URL}${query}`;
-    const request = axios.get(url);
-  
-    return dispatch => {
-      return request.then(({ data }) => {
-        dispatch({
-          type: FETCH_ROOM,
-          payload: data
-        });
+    });
+  };
+}
+export function fetchRoom(id) {
+  const query = `/id=${id}`;
+  const url = `${URL}${query}`;
+  const request = axios.get(url);
+
+  return dispatch => {
+    return request.then(({ data }) => {
+      dispatch({
+        type: FETCH_ROOM,
+        payload: data
       });
-    };
-  }
-  // post
+    });
+  };
+}
+// post
 export function addRoom(values, file) {
-  const { number, room_class, roomAt  } = values;
+  const { number, room_class, roomAt } = values;
   const query = `/push/number=${number}/room_class=${room_class}/roomAt=${roomAt}`;
   const url = `${URL}${query}`;
   const request = axios.post(url, file);
@@ -52,7 +54,7 @@ export function addRoom(values, file) {
         type: ADD_ROOM,
         payload: data
       });
-      return data
+      return data;
     });
   };
 }
@@ -66,11 +68,11 @@ export function editRoom(id, values, file) {
     console.log(request);
     return request
       .then(({ data }) => {
-    console.log(request);
-        
+        console.log(request);
+
         dispatch({
           type: EDIT_ROOM,
-          payload: 'SUCCESS'
+          payload: "SUCCESS"
         });
       })
       .catch(({ response }) => {
@@ -91,6 +93,35 @@ export function deleteRoom(id) {
     return request.then(({ data }) => {
       dispatch({
         type: DELETE_ROOM,
+        payload: id
+      });
+    });
+  };
+}
+
+export function addBedAt(id, bedId) {
+  const query = `/add_bed/${id}`;
+  const url = `${URL}${query}`;
+  const request = axios.post(url, bedId);
+
+  return dispatch => {
+    return request.then(({ data }) => {
+      dispatch({
+        type: ADD_BED_AT,
+        payload: id
+      });
+    });
+  };
+}
+export function deleteBedAt(id, bedId) {
+  const query = `/delete_bed/${id}`;
+  const url = `${URL}${query}`;
+  const request = axios.post(url, bedId);
+
+  return dispatch => {
+    return request.then(({ data }) => {
+      dispatch({
+        type: DELETE_BED_AT,
         payload: id
       });
     });

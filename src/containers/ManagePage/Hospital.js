@@ -8,6 +8,10 @@ import {
   fetchHospital,
   fetchFloorsAt,
   fetchFloor,
+  fetchRoomsAt,
+  fetchBedsAt,
+  deleteRoom,
+  deleteBed,
   addFloor,
   editFloor,
   deleteFloor,
@@ -16,7 +20,14 @@ import {
 } from "actions";
 import Modal from "react-responsive-modal";
 
-import { Table, Profile, getOrdinal } from "components";
+import {
+  Table,
+  Profile,
+  getOrdinal,
+  RenderField,
+  RenderPhotoField,
+  FormReset
+} from "components";
 
 import { PreviewImg, Content, ImgPreview } from "./styles";
 
@@ -34,7 +45,6 @@ class Hospital extends Component {
       file: null,
       imagePreviewUrl: null
     };
-    this.renderPhotoField = this.renderPhotoField.bind(this);
     this.onFormSubmit = this.onFormSubmit.bind(this);
     // this.onEditFormSubmit = this.onEditFormSubmit.bind(this);
   }
@@ -88,13 +98,31 @@ class Hospital extends Component {
       this.setState({ updating: true, updatingText: "initial" });
       this.props.deleteFloor(floorId).then(callback => {
         this.props.deleteFloorAt(id, { floorId: floorId }).then(() => {
-          this.setState({
-            updatingText: `${getOrdinal(
-              number
-            )} floor has been successfully deleted!`
+          this.props.fetchRoomsAt(floorId).then(() => {
+            const { rooms_at } = this.props;
+            if (!rooms_at) {
+              return;
+            }
+            _.map(rooms_at, room => {
+              this.props.deleteRoom(room._id);
+              this.props.fetchBedsAt(room._id).then(() => {
+                const { beds_at } = this.props;
+                if (!beds_at) {
+                  return;
+                }
+                _.map(beds_at, bed => {
+                  this.props.deleteBed(bed._id);
+                });
+              });
+            });
           });
-          this.props.fetchFloorsAt(id);
         });
+        this.setState({
+          updatingText: `${getOrdinal(
+            number
+          )} floor has been successfully deleted!`
+        });
+        this.props.fetchFloorsAt(id);
       });
     }
   };
@@ -146,37 +174,6 @@ class Hospital extends Component {
         this.editFloor(floorId, data, newData);
         break;
     }
-  };
-  renderPhotoField(field) {
-    return (
-      <div>
-        <label>{field.label}</label>
-        <input
-          className="form-control"
-          type="file"
-          onChange={e => {
-            this.onPhotoChange(e);
-          }}
-        />
-      </div>
-    );
-  }
-  renderField = field => {
-    const { label, input, type, placeholder, meta: { touched, error } } = field;
-    const className = `form-group ${touched && error ? "has-danger" : ""}`;
-    return (
-      <div className={className}>
-        <label>{label}</label>
-        <input
-          className="form-control"
-          type={type}
-          {...input}
-          placeholder={placeholder}
-          required
-        />
-        <div className="text-help text-danger">{touched ? error : ""}</div>
-      </div>
-    );
   };
 
   renderModal(mode) {
@@ -239,7 +236,10 @@ class Hospital extends Component {
           <Field
             label="Photo of Floor"
             name="thumb_picture"
-            component={this.renderPhotoField}
+            component={RenderPhotoField}
+            onChange={e => {
+              this.onPhotoChange(e);
+            }}
           />
           {$imagePreview}
           <div className="divisionLine" />
@@ -248,7 +248,7 @@ class Hospital extends Component {
             name="number"
             type="number"
             placeholder={placeholder.number}
-            component={this.renderField}
+            component={RenderField}
           />
           <div className="divisionLine" />
           <button type="submit" className="btn btn-primary">
@@ -283,10 +283,7 @@ class Hospital extends Component {
       file: null,
       imagePreviewUrl: null
     });
-    this.formReset();
-  }
-  formReset() {
-    this.props.reset();
+    FormReset(this.props);
   }
   renderFloors() {
     const { floors_at } = this.props;
@@ -410,12 +407,15 @@ class Hospital extends Component {
 
 function mapStateToProps(state) {
   const { hospital, floors_at } = state.hospitals;
-  const { floor, add_floor, edit_floor } = state.floors;
+  const { floor, add_floor, edit_floor, rooms_at } = state.floors;
+  const { beds_at } = state.rooms;
   return {
     hospital,
     floors_at,
     floor,
-    add_floor
+    add_floor,
+    rooms_at,
+    beds_at
   };
 }
 
@@ -439,6 +439,10 @@ export default reduxForm({
     fetchHospital,
     fetchFloorsAt,
     fetchFloor,
+    fetchRoomsAt,
+    fetchBedsAt,
+    deleteRoom,
+    deleteBed,
     addFloor,
     editFloor,
     deleteFloor,

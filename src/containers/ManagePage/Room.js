@@ -5,22 +5,33 @@ import { Field, reduxForm, initialize } from "redux-form";
 import { Link } from "react-router-dom";
 import LoadingIndicator from "react-loading-indicator";
 import {
-  fetchFloor,
-  fetchRoomsAt,
   fetchRoom,
-  addRoom,
-  editRoom,
-  deleteRoom,
-  addRoomAt,
-  deleteRoomAt
+  fetchBedsAt,
+  fetchBed,
+  fetchSensors,
+  addBed,
+  editBed,
+  deleteBed,
+  addBedAt,
+  deleteBedAt,
+  fetchPatients,
+  fetchPatient
 } from "actions";
 import Modal from "react-responsive-modal";
 
-import { Table, Profile, getOrdinal } from "components";
+import {
+  Table,
+  Profile,
+  getOrdinal,
+  RenderField,
+  RenderSelectField,
+  RenderPhotoField,
+  FormReset
+} from "components";
 
-import { PreviewImg, Content, ImgPreview } from "./styles";
+import { PreviewImg, Content, ImgPreview, Info } from "./styles";
 
-class Floor extends Component {
+class Room extends Component {
   constructor(props) {
     super(props);
 
@@ -29,37 +40,39 @@ class Floor extends Component {
       open: false,
       updating: false,
       updatingText: null,
-      currFloor: null,
       currRoom: null,
+      currBed: null,
       file: null,
       imagePreviewUrl: null
     };
-    this.renderPhotoField = this.renderPhotoField.bind(this);
+    this.onPhotoChange = this.onPhotoChange.bind(this);
     this.onFormSubmit = this.onFormSubmit.bind(this);
     // this.onEditFormSubmit = this.onEditFormSubmit.bind(this);
   }
   componentDidMount() {
-    const { floor, room } = this.props;
-    const { floor_id } = this.props.match.params;
-    this.setState({ currFloor: floor_id });
-    this.props.fetchFloor(floor_id);
-    this.props.fetchRoomsAt(floor_id);
+    const { room, bed } = this.props;
+    const { room_id } = this.props.match.params;
+    this.setState({ currRoom: room_id });
+    this.props.fetchRoom(room_id);
+    this.props.fetchBedsAt(room_id);
+    this.props.fetchSensors();
+    this.props.fetchPatients();
     // let { _id } = this.props.match.params
     // console.log(_id)
   }
   componentDidUpdate() {
-    const { floor_id } = this.props.match.params;
-    const { currFloor } = this.state;
-    if (currFloor !== floor_id) {
-      this.props.fetchRoomsAt(floor_id);
-      this.setState({ currFloor: floor_id });
+    const { room_id } = this.props.match.params;
+    const { currRoom } = this.state;
+    if (currRoom !== room_id) {
+      this.props.fetchBedsAt(room_id);
+      this.setState({ currRoom: room_id });
     }
   }
   handleInitialize() {
-    const { number, room_class } = this.props.room;
+    const { number, _sensor_node } = this.props.bed;
     const iniData = {
       number,
-      room_class
+      _sensor_node
     };
     this.props.initialize(iniData);
   }
@@ -79,55 +92,63 @@ class Floor extends Component {
     console.log(file);
   }
 
-  deleteRoom = (roomId, number) => e => {
-    const { floor_id } = this.props.match.params;
+  deleteBed = (bedId, number) => e => {
+    const { room_id } = this.props.match.params;
     onClick: if (
       window.confirm(
-        "This behaviour will also affect all information which is childe components of this room.\nAre you sure to delete?"
+        "This behaviour will also affect all information which is childe components of this bed.\nAre you sure to delete?"
       )
     ) {
       this.setState({ updating: true, updatingText: "initial" });
-      this.props.deleteRoom(roomId).then(callback => {
-        this.props.deleteRoomAt(floor_id, { roomId: roomId }).then(() => {
+      this.props.deleteBed(bedId).then(callback => {
+        this.props.deleteBedAt(room_id, { bedId: bedId }).then(() => {
           this.setState({
             updatingText: `${getOrdinal(
               number
-            )} room has been successfully deleted!`
+            )} bed has been successfully deleted!`
           });
-          this.props.fetchRoomsAt(floor_id);
+          this.props.fetchBedsAt(room_id);
         });
       });
     }
   };
-  addRoom = (values, file) => {
-    const { floor_id } = this.props.match.params;
-    console.log(values);
-    this.props.addRoom(values, file).then(callback => {
-      this.props.addRoomAt(floor_id, { roomId: callback._id }).then(() => {
-        this.setState({ updatingText: `Room No. ${values.number} is added!` });
-        this.props.fetchRoomsAt(floor_id);
-        this.onCloseModal();
+  addBed = (values, file) => {
+    const { room_id } = this.props.match.params;
+    // console.log(values);
+    this.props
+      .addBed(values, file)
+      .then((callback) => {
+        const { err } = callback; 
+        if(err){
+          return this.setState({ updatingText: `${err}, please try again.` });
+        }
+        this.props.addBedAt(room_id, { bedId: callback._id }).then(() => {
+          this.setState({ updatingText: `Bed No. ${values.number} is added!` });
+          this.props.fetchBedsAt(room_id);
+          this.onCloseModal();
+        });
       });
-    });
   };
-  editRoom = (roomId, values, file) => {
-    const { floor_id } = this.props.match.params;
-    this.props.editRoom(roomId, values, file).then(err => {
+
+  editBed = (bedId, values, file) => {
+    const { room_id } = this.props.match.params;
+    this.props.editBed(bedId, values, file).then(err => {
       if (err) {
         return this.setState({ updatingText: `${err}, please try again.` });
       }
 
-      this.setState({ updatingText: `Room No. ${values.number} is edited!` });
+      this.setState({ updatingText: `Bed No. ${values.number} is edited!` });
 
-      this.props.fetchRoomsAt(floor_id);
+      this.props.fetchBedsAt(room_id);
       this.onCloseModal();
     });
   };
-  onFormSubmit = (data, mode, roomId) => {
-    const { floor_id } = this.props.match.params;
-    const temp = Object.assign(data, { roomAt: floor_id });
+  onFormSubmit = (data, mode, bedId) => {
+    const { room_id } = this.props.match.params;
+    console.log(room_id);
+    const temp = Object.assign(data, { bedAt: room_id });
     data = temp;
-    // console.log(data)
+    console.log(data);
     if (!data) {
       return alert("dfa");
     }
@@ -140,93 +161,59 @@ class Floor extends Component {
     this.setState({ updating: true, updatingText: "initial" });
     switch (mode) {
       case "add":
-        console.log(data);
-        this.addRoom(data, newData);
+        // console.log(data);
+        this.addBed(data, newData);
         break;
       case "edit":
-        this.editRoom(roomId, data, newData);
+        this.editBed(bedId, data, newData);
         break;
     }
   };
-  renderPhotoField(field) {
-    return (
-      <div>
-        <label>{field.label}</label>
-        <input
-          className="form-control"
-          type="file"
-          onChange={e => {
-            this.onPhotoChange(e);
-          }}
-        />
-      </div>
-    );
+
+  selectOption(options) {
+    if (!options) {
+      return;
+    }
+    return _.map(options, option => {
+      const optionName = option.node_name
+        ? option.node_name
+        : `${option.first_name} ${option.last_name}`;
+      return (
+        <option key={option._id} value={option._id}>
+          {optionName}
+        </option>
+      );
+    });
   }
-  renderSelectField = field => {
-    const { label, input, placeholder, meta: { touched, error } } = field;
-    const className = `form-group ${touched && error ? "has-danger" : ""}`;
-    return (
-      <div className={className}>
-        <label>{label}</label>
-        <select
-          className="form-control"
-          {...input}
-          placeholder={placeholder}
-          required>
-          <option value={null}>{placeholder}</option>
-          <option value="normal">Normal class</option>
-          <option value="important">Important class</option>
-          <option value="vip">VIP class</option>
-        </select>
-        <div className="text-help text-danger">{touched ? error : ""}</div>
-      </div>
-    );
-  }
-  renderField = field => {
-    const { label, input, type, placeholder, meta: { touched, error } } = field;
-    const className = `form-group ${touched && error ? "has-danger" : ""}`;
-    return (
-      <div className={className}>
-        <label>{label}</label>
-        <input
-          className="form-control"
-          type={type}
-          {...input}
-          placeholder={placeholder}
-          required
-        />
-        <div className="text-help text-danger">{touched ? error : ""}</div>
-      </div>
-    );
-  };
 
   renderModal(mode) {
     // console.log(this.props.initialize)
-    const { room, handleSubmit } = this.props;
+    const { bed, handleSubmit } = this.props;
     let { imagePreviewUrl } = this.state;
     let $imagePreview = null;
     let title = "",
       submitHandler = "",
       placeholder = {
         number: "Enter an integer number.",
-        room_class: "Please select a class for the room.",
+        _sensor_node: "Please select a sensor for this bed.",
+        _patient: "Please select a patient for this bed.",
         button: "Add"
       };
     switch (mode) {
       case "edit":
-        if (!room) {
+        if (!bed) {
           return <div />;
         }
-        title = `Room No.${room.number} Edit`;
+        title = `${getOrdinal(bed.number)} bed Edit`;
         submitHandler = data => {
-          this.onFormSubmit(data, mode, room._id);
+          this.onFormSubmit(data, mode, bed._id);
         };
 
-        placeholder.number = room.number;
+        placeholder.number = bed.number;
         placeholder.button = "Edit";
         break;
       default:
-        title = "Add a room";
+        title = "Add a bed";
         submitHandler = data => {
           this.onFormSubmit(data, mode);
         };
@@ -240,10 +227,7 @@ class Floor extends Component {
     } else if (mode === "edit") {
       $imagePreview = (
         <ImgPreview>
-          <PreviewImg
-            src={room.imgSrc}
-            alt={`${room.number} room main photo`}
-          />
+          <PreviewImg src={bed.imgSrc} alt={`${bed.number} bed main photo`} />
         </ImgPreview>
       );
     } else {
@@ -254,29 +238,42 @@ class Floor extends Component {
       <div>
         <h3>{title}</h3>
         <form
-          id="roomForm"
+          id="bedForm"
           className="form-group"
           onSubmit={handleSubmit(submitHandler)}
         >
           <Field
-            label="Photo of Room"
+            label="Photo of Bed"
             name="thumb_picture"
-            component={this.renderPhotoField}
+            component={RenderPhotoField}
+            onChange={e => {
+              this.onPhotoChange(e);
+            }}
           />
           {$imagePreview}
           <div className="divisionLine" />
           <Field
-            label="Number of Room"
+            label="Number of Bed"
             name="number"
             type="number"
             placeholder={placeholder.number}
-            component={this.renderField}
+            component={RenderField}
           />
           <Field
-            label="Class of Room"
-            name="room_class"
-            placeholder={placeholder.room_class}
-            component={this.renderSelectField}
+            label="Sensor of Bed"
+            name="_sensor_node"
+            placeholder={placeholder._sensor_node}
+            component={RenderSelectField}
+            option={this.selectOption(this.props.sensors)}
+            required={false}
+          />
+          <Field
+            label="Patient of Bed"
+            name="_patient"
+            placeholder={placeholder._patient}
+            component={RenderSelectField}
+            option={this.selectOption(this.props.patients)}
+            required={false}
           />
           <div className="divisionLine" />
           <button type="submit" className="btn btn-primary">
@@ -294,48 +291,108 @@ class Floor extends Component {
       </div>
     );
   }
-  onOpenModal(roomId) {
+  onOpenModal(bedId) {
     const { modalMode } = this.state;
-    this.props.fetchRoom(roomId).then(() => {
-      const { room } = this.props;
-      if (room && modalMode === "edit") {
+    this.props.fetchBed(bedId).then(() => {
+      const { bed } = this.props;
+      if (bed && modalMode === "edit") {
         this.handleInitialize();
-        this.setState({ open: true, currRoom: roomId });
+        this.setState({ open: true, currBed: bedId });
       }
     });
   }
   onCloseModal() {
     this.setState({
       open: false,
-      currRoom: null,
+      currBed: null,
       file: null,
       imagePreviewUrl: null
     });
-    this.formReset();
+    FormReset(this.props);
   }
-  formReset() {
-    this.props.reset();
+  renderPatient() {
+    const { patient } = this.props;
+
+    if (!patient) {
+      return <LoadingIndicator />;
+    }
+    const dateFormat = require("dateformat");
+    const birth = dateFormat(patient.birth, "yyyy-mm-dd");
+    const enter_date = dateFormat(patient.enter_date, "yyyy-mm-dd");
+    const leave_date = dateFormat(patient.leave_date, "yyyy-mm-dd");
+    return (
+      <Info>
+        <img
+          src={patient.imgSrc}
+          className="img-circle"
+          style={{ width: 150, height: 150 }}
+        />
+        <div>
+          <h3>
+            {patient.first_name} {patient.last_name}
+          </h3>
+          <p>Address: {patient.address}</p>
+          <p>Tel. {patient.phone_number}</p>
+          <p>Birthday: {birth}</p>
+          <p>Enter Date: {enter_date}</p>
+          <p>Leave Date: {leave_date}</p>
+          <p>Hospital: {patient.hospital_.name}</p>
+          <Link
+            className="btn btn-default"
+            to={`/monitor/patient=${patient._id}`}
+          >
+            Go to monitor
+          </Link>
+        </div>
+      </Info>
+    );
   }
-  renderRooms() {
-    const { rooms_at } = this.props;
+  renderBeds() {
+    const { beds_at, fetchPatient } = this.props;
     let i = 0;
-    if (!rooms_at) {
+    if (!beds_at) {
       return <tr />;
     }
-    return _.map(rooms_at, room => {
+    return _.map(beds_at, bed => {
+      const { _id, number, _sensor_node, _patient } = bed;
+      let patientAtBed = "Empty",
+        sensorAtBed = "Empty";
+
+      if (_patient) {
+        patientAtBed = `${_patient.first_name} ${_patient.last_name}`;
+      }
+      if (_sensor_node) {
+        sensorAtBed = `${_sensor_node.node_name}`;
+      }
       return (
-        <tr key={room._id} id={room._id}>
+        <tr key={bed._id} id={bed._id}>
           <th scope="row" width="10%">
             {++i}
           </th>
-          <td>Room No. {room.number}</td>
-          <td>{room.room_class}</td>
+          <td>{getOrdinal(number)}</td>
+          <td>{sensorAtBed}</td>
+          <td>
+            {patientAtBed === "Empty" ? (
+              patientAtBed
+            ) : (
+              <Link
+                to="#"
+                onClick={() => {
+                  this.setState({ open: true, modalMode: "patient" }, () => {
+                    fetchPatient(_patient._id);
+                  });
+                }}
+              >
+                {patientAtBed}
+              </Link>
+            )}
+          </td>
           <td width="10%">
             <button
               className="btn btn-default"
               onClick={() => {
                 this.setState({ modalMode: "edit" }, () => {
-                  this.onOpenModal(room._id);
+                  this.onOpenModal(_id);
                 });
               }}
             >
@@ -345,7 +402,7 @@ class Floor extends Component {
           <td width="10%">
             <button
               className="btn btn-danger"
-              onClick={this.deleteRoom(room._id, room.number)}
+              onClick={this.deleteBed(bed._id, bed.number)}
             >
               Delete
             </button>
@@ -355,32 +412,42 @@ class Floor extends Component {
     });
   }
   render() {
-    const { floor } = this.props;
-    const { open, updating, updatingText, currRoom, modalMode } = this.state;
+    const { room } = this.props;
+    const { open, updating, updatingText, currBed, modalMode } = this.state;
     const tableHeadRow = (
       <tr>
         <td>No.</td>
         <td>Name</td>
-        <td>Class</td>
+        <td>Sensor</td>
+        <td>Patient</td>
         <td>Edit</td>
         <td>Delete</td>
       </tr>
     );
-    const tableBody = this.renderRooms();
+    const tableBody = this.renderBeds();
     let modalContent = <LoadingIndicator />;
-    if (!floor) {
+    if (!room) {
       return (
         <div className="text-center">
           <LoadingIndicator />
         </div>
       );
     }
-    if (modalMode !== null) {
-      modalContent = this.renderModal(modalMode);
+    switch (modalMode) {
+      case "add":
+      case "edit":
+        modalContent = this.renderModal(modalMode);
+        break;
+      case "patient":
+        modalContent = this.renderPatient();
+
+        break;
+      default:
+        modalContent = <LoadingIndicator />;
     }
     return (
-      <div id="rooms">
-        <h3 className="text-center">{getOrdinal(floor.number)} floor</h3>
+      <div id="beds">
+        <h3 className="text-center">Room No. {room.number}</h3>
 
         <Content>
           <button
@@ -439,13 +506,18 @@ class Floor extends Component {
 }
 
 function mapStateToProps(state) {
-  const { floor, rooms_at } = state.floors;
-  const { room, add_room, edit_room } = state.rooms;
+  const { room, beds_at } = state.rooms;
+  const { bed, add_bed, edit_bed } = state.beds;
+  const { patients, patient } = state.patients;
+  const { sensors } = state.sensors;
   return {
-    floor,
-    rooms_at,
     room,
-    add_room
+    beds_at,
+    bed,
+    add_bed,
+    patient,
+    patients,
+    sensors
   };
 }
 
@@ -456,9 +528,6 @@ function validate(values) {
   if (!values.number) {
     errors.number = "Enter an integer number!";
   }
-  if (!values.room_class) {
-    errors.room_class = "Choose a class!";
-  }
   // If errors is empty, the form is fine to submit
   // If errors hs *any* properties, redux form assumes form is invalid
   return errors;
@@ -466,16 +535,19 @@ function validate(values) {
 
 export default reduxForm({
   validate,
-  form: `RoomEditForm`
+  form: `BedEditForm`
 })(
   connect(mapStateToProps, {
-    fetchFloor,
-    fetchRoomsAt,
     fetchRoom,
-    addRoom,
-    editRoom,
-    deleteRoom,
-    addRoomAt,
-    deleteRoomAt
-  })(Floor)
-  );
+    fetchBedsAt,
+    fetchBed,
+    fetchSensors,
+    addBed,
+    editBed,
+    deleteBed,
+    addBedAt,
+    deleteBedAt,
+    fetchPatients,
+    fetchPatient
+  })(Room)
+);
