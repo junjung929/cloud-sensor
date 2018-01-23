@@ -8,7 +8,9 @@ import {
   EDIT_BED,
   DELETE_BED,
   ADD_PATIENT_AT,
-  DELETE_PATIENT_AT
+  DELETE_PATIENT_AT,
+  ADD_SENSOR_AT,
+  DELETE_SENSOR_AT
 } from "../constants/ActionTypes";
 
 const URL = `${ROOT_URL}/api/beds`;
@@ -43,10 +45,15 @@ export function fetchBed(id) {
 
 // post
 export function addBed(values, file) {
-  const { number, _sensor_node, _patient, bedAt } = values;
-  const query = `/push/number=${number}/sensor_node=${_sensor_node}/atPatient=${_patient}/bedAt=${bedAt}`;
+  const query = `/push`;
   const url = `${URL}${query}`;
-  const request = axios.post(url, file);
+  const config = {
+    method: "post",
+    url,
+    data: file,
+    params: values
+  };
+  const request = axios(config);
 
   return dispatch => {
     return request
@@ -63,10 +70,15 @@ export function addBed(values, file) {
   };
 }
 export function editBed(id, values, file) {
-  const { number, _sensor_node, _patient } = values;
-  const query = `/update/id=${id}/number=${number}/sensor_node=${_sensor_node}/atPatient=${_patient}`;
+  const query = `/update/id=${id}`;
   const url = `${URL}${query}`;
-  const request = axios.post(url, file);
+  const config = {
+    method: "post",
+    url,
+    data: file,
+    params: values
+  };
+  const request = axios(config);
 
   return dispatch => {
     console.log(request);
@@ -127,6 +139,34 @@ export function deletePatientAt(id, patientId) {
     return request.then(({ data }) => {
       dispatch({
         type: DELETE_PATIENT_AT,
+        payload: id
+      });
+    });
+  };
+}
+export function addSensorAt(id, sensorId) {
+  const query = `/add_sensor/${id}`;
+  const url = `${URL}${query}`;
+  const request = axios.post(url, sensorId);
+
+  return dispatch => {
+    return request.then(({ data }) => {
+      dispatch({
+        type: ADD_SENSOR_AT,
+        payload: id
+      });
+    });
+  };
+}
+export function deleteSensorAt(id, sensorId) {
+  const query = `/delete_sensor/${id}`;
+  const url = `${URL}${query}`;
+  const request = axios.post(url, sensorId);
+
+  return dispatch => {
+    return request.then(({ data }) => {
+      dispatch({
+        type: DELETE_SENSOR_AT,
         payload: id
       });
     });

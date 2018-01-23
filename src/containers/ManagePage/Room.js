@@ -15,7 +15,9 @@ import {
   addBedAt,
   deleteBedAt,
   fetchPatients,
-  fetchPatient
+  fetchPatient,
+  editSensor,
+  deleteSensorAt
 } from "actions";
 import Modal from "react-responsive-modal";
 
@@ -69,9 +71,16 @@ class Room extends Component {
     }
   }
   handleInitialize() {
-    const { number, _sensor_node } = this.props.bed;
+    let { number, _patient, _sensor_node } = this.props.bed;
+    if (_patient) {
+      _patient = _patient._id;
+    }
+    if (_sensor_node) {
+      _sensor_node = _sensor_node._id;
+    }
     const iniData = {
       number,
+      _patient,
       _sensor_node
     };
     this.props.initialize(iniData);
@@ -113,21 +122,33 @@ class Room extends Component {
     }
   };
   addBed = (values, file) => {
-    const { room_id } = this.props.match.params;
+    const { id, floor_id, room_id } = this.props.match.params;
     // console.log(values);
-    this.props
-      .addBed(values, file)
-      .then((callback) => {
-        const { err } = callback; 
-        if(err){
-          return this.setState({ updatingText: `${err}, please try again.` });
-        }
-        this.props.addBedAt(room_id, { bedId: callback._id }).then(() => {
-          this.setState({ updatingText: `Bed No. ${values.number} is added!` });
-          this.props.fetchBedsAt(room_id);
-          this.onCloseModal();
-        });
+    this.props.addBed(values, file).then(callback => {
+      const { err } = callback;
+      if (err) {
+        return this.setState({ updatingText: `${err}, please try again.` });
+      }
+      console.log(callback);
+      if (callback._sensor_node) {
+        this.props
+          .editSensor(callback._sensor_node, {
+            hospital_: id,
+            floor_: floor_id,
+            room_: room_id,
+            bed_: callback._id
+          })
+          .then(() => {
+            this.props.deleteSensorAt(callback._id, callback._sensor_node);
+          });
+      }
+
+      this.props.addBedAt(room_id, { bedId: callback._id }).then(() => {
+        this.setState({ updatingText: `Bed No. ${values.number} is added!` });
+        this.props.fetchBedsAt(room_id);
+        this.onCloseModal();
       });
+    });
   };
 
   editBed = (bedId, values, file) => {
@@ -146,7 +167,7 @@ class Room extends Component {
   onFormSubmit = (data, mode, bedId) => {
     const { room_id } = this.props.match.params;
     console.log(room_id);
-    const temp = Object.assign(data, { bedAt: room_id });
+    const temp = Object.assign(data, { room_: room_id });
     data = temp;
     console.log(data);
     if (!data) {
@@ -552,6 +573,8 @@ export default reduxForm({
     addBedAt,
     deleteBedAt,
     fetchPatients,
-    fetchPatient
+    fetchPatient,
+    editSensor,
+    deleteSensorAt
   })(Room)
 );

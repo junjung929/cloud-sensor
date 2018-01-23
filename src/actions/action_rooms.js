@@ -43,10 +43,15 @@ export function fetchRoom(id) {
 }
 // post
 export function addRoom(values, file) {
-  const { number, room_class, roomAt } = values;
-  const query = `/push/number=${number}/room_class=${room_class}/roomAt=${roomAt}`;
+  const query = `/push`;
   const url = `${URL}${query}`;
-  const request = axios.post(url, file);
+  const config = {
+    method: "post",
+    url,
+    data: file,
+    params: values
+  };
+  const request = axios(config);
 
   return dispatch => {
     return request.then(({ data }) => {
@@ -59,10 +64,15 @@ export function addRoom(values, file) {
   };
 }
 export function editRoom(id, values, file) {
-  const { number, room_class } = values;
-  const query = `/update/id=${id}/number=${number}/room_class=${room_class}`;
+  const query = `/update/id=${id}`;
   const url = `${URL}${query}`;
-  const request = axios.post(url, file);
+  const config = {
+    method: "post",
+    url,
+    data: file,
+    params: values
+  };
+  const request = axios(config);
 
   return dispatch => {
     console.log(request);

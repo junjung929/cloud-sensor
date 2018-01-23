@@ -143,7 +143,7 @@ class Floor extends Component {
   };
   onFormSubmit = (data, mode, roomId) => {
     const { floor_id } = this.props.match.params;
-    const temp = Object.assign(data, { roomAt: floor_id });
+    const temp = Object.assign(data, { floor_: floor_id });
     data = temp;
     // console.log(data)
     if (!data) {

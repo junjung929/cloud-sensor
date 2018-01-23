@@ -71,7 +71,13 @@ export function fetchPatientsAt(id) {
 export function addPatient(values, file) {
   const query = `/push`;
   const url = `${URL}${query}`;
-  const request = axios.post(url, {file, values});
+  const config = {
+    method: "post",
+    url,
+    data: file,
+    params: values
+  };
+  const request = axios(config);
 
   return dispatch => {
     return request
@@ -90,7 +96,13 @@ export function addPatient(values, file) {
 export function editPatient(id, values, file) {
   const query = `/update/id=${id}`;
   const url = `${URL}${query}`;
-  const request = axios.post(url, {file, values});
+  const config = {
+    method: "post",
+    url,
+    data: file,
+    params: values
+  };
+  const request = axios(config);
 
   return dispatch => {
     console.log(request);

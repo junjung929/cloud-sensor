@@ -152,7 +152,7 @@ class Hospital extends Component {
   };
   onFormSubmit = (data, mode, floorId) => {
     const { id } = this.props.match.params;
-    const temp = Object.assign(data, { floorAt: id });
+    const temp = Object.assign(data, { hospital_ : id });
     data = temp;
     // console.log(data)
     if (!data) {
