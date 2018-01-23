@@ -300,8 +300,12 @@ class Floor extends Component {
   renderRooms() {
     const { rooms_at } = this.props;
     let i = 0;
-    if (!rooms_at) {
-      return <tr />;
+    if (!rooms_at || rooms_at.length < 1) {
+      return (
+        <tr>
+          <td colSpan="100%">No result...</td>
+        </tr>
+      );
     }
     return _.map(rooms_at, room => {
       return (

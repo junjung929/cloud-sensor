@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Hospitals, Hospital, Floor, Room } from '../ManagePage';
+import { Hospitals, Hospital, Floor, Room, Patients } from '../ManagePage';
 import { Sensor } from 'containers'
 import { BrowserRouter as Router, Route } from 'react-router-dom'
 import styled from 'styled-components'
@@ -14,6 +14,7 @@ const ManagePage = ({ match }) => {
             <Route exact path={`${url}/hospital=:id`} component={Hospital} />
             <Route exact path={`${url}/hospital=:id/floor=:floor_id`} component={Floor} />
             <Route exact path={`${url}/hospital=:id/floor=:floor_id/room=:room_id`} component={Room} />
+            <Route exact path={`${url}/patients`} component={Patients} />
         </InnerContainer>
     )
 }

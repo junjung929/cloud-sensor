@@ -350,8 +350,12 @@ class Room extends Component {
   renderBeds() {
     const { beds_at, fetchPatient } = this.props;
     let i = 0;
-    if (!beds_at) {
-      return <tr />;
+    if (!beds_at || beds_at.length < 1) {
+      return (
+        <tr>
+          <td colSpan="100%">No result...</td>
+        </tr>
+      );
     }
     return _.map(beds_at, bed => {
       const { _id, number, _sensor_node, _patient } = bed;

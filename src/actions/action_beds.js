@@ -6,7 +6,9 @@ import {
   FETCH_BED,
   ADD_BED,
   EDIT_BED,
-  DELETE_BED
+  DELETE_BED,
+  ADD_PATIENT_AT,
+  DELETE_PATIENT_AT
 } from "../constants/ActionTypes";
 
 const URL = `${ROOT_URL}/api/beds`;
@@ -95,6 +97,36 @@ export function deleteBed(id) {
     return request.then(({ data }) => {
       dispatch({
         type: DELETE_BED,
+        payload: id
+      });
+    });
+  };
+}
+
+
+export function addPatientAt(id, patientId) {
+  const query = `/add_patient/${id}`;
+  const url = `${URL}${query}`;
+  const request = axios.post(url, patientId);
+
+  return dispatch => {
+    return request.then(({ data }) => {
+      dispatch({
+        type: ADD_PATIENT_AT,
+        payload: id
+      });
+    });
+  };
+}
+export function deletePatientAt(id, patientId) {
+  const query = `/delete_patient/${id}`;
+  const url = `${URL}${query}`;
+  const request = axios.post(url, patientId);
+
+  return dispatch => {
+    return request.then(({ data }) => {
+      dispatch({
+        type: DELETE_PATIENT_AT,
         payload: id
       });
     });

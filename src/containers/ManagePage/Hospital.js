@@ -288,8 +288,13 @@ class Hospital extends Component {
   renderFloors() {
     const { floors_at } = this.props;
     let i = 0;
-    if (!floors_at) {
-      return <tr />;
+
+    if (!floors_at || floors_at.length < 1) {
+      return (
+        <tr>
+          <td colSpan="100%">No result...</td>
+        </tr>
+      );
     }
     return _.map(floors_at, floor => {
       return (
