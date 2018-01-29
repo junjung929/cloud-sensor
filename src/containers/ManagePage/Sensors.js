@@ -40,7 +40,7 @@ class Sensors extends Component {
       open: false,
       updating: false,
       updatingText: null,
-      currHospital: null,
+      currHospital: "",
       currFloor: null,
       currRoom: null,
       currBed: null,
@@ -62,10 +62,10 @@ class Sensors extends Component {
     const { sensor } = this.props;
     const iniData = {
       node_name,
-      hospital_: hospital_ ? hospital_._id : null,
-      floor_: floor_ ? floor_._id : null,
-      room_: room_ ? room_._id : null,
-      bed_: bed_ ? bed_._id : null
+      hospital_: hospital_ ? hospital_._id : "",
+      floor_: floor_ ? floor_._id : "",
+      room_: room_ ? room_._id : "",
+      bed_: bed_ ? bed_._id : ""
     };
     this.props.initialize(iniData);
   }
@@ -100,19 +100,20 @@ class Sensors extends Component {
       this.setState({
         updatingText: `${values.node_name} is added!`
       });
-      this.props.fetchSensorsAt(values.hospital_);
-      this.setState({ currHospital: values.hospital_ });
+      this.props.fetchSensorsAt(
+        this.state.currHospital ? this.state.currHospital : ""
+      );
+      this.setState({ currHospital: values.hospital_ ? values.hospital_ : "" });
       this.onCloseModal();
     });
   };
   editSensor = (sensorId, values) => {
     this.props.editSensor(sensorId, values).then(err => {
       if (err) {
-        return this.setState({ updatingText: `${err}, please try again.` });
+        return this.setState({ updatingText: `${err} please try again.` });
       }
       this.props.fetchSensor(sensorId).then(() => {
         const { sensor } = this.props;
-        this.props;
         this.setState({
           updatingText: `${values.node_name} is edited!`
         });
@@ -141,19 +142,42 @@ class Sensors extends Component {
   };
   onOpenModal(id) {
     const { modalMode } = this.state;
-    this.props.fetchSensor(id).then(() => {
-      const { sensor } = this.props;
-      this.props.fetchFloorsAt(sensor.hospital_._id).then(() => {
-        this.props.fetchRoomsAt(sensor.floor_._id).then(() => {
-          this.props.fetchBedsAt(sensor.room_._id).then(() => {
-            if (sensor && modalMode === "edit") {
-              this.handleInitialize();
-              this.setState({ open: true, currSensor: id });
-            }
-          });
-        });
+    let iniData = {};
+    this.props
+      .fetchSensor(id)
+      .then(() => {
+        const { sensor } = this.props;
+        const { node_name, hospital_, floor_, room_, bed_ } = sensor;
+        this.props.fetchFloorsAt("");
+        this.props.fetchRoomsAt("");
+        this.props.fetchBedsAt("");
+        iniData = Object.assign(iniData, { node_name });
+        if (hospital_) {
+          iniData = Object.assign(iniData, { hospital_: hospital_._id });
+          console.log("f", floor_);
+          if (floor_) {
+            iniData = Object.assign(iniData, { floor_: floor_._id });
+            return this.props.fetchFloorsAt(hospital_._id).then(() => {
+              console.log("r", room_);
+              if (room_) {
+                iniData = Object.assign(iniData, { room_: room_._id });
+                return this.props.fetchRoomsAt(floor_._id).then(() => {
+                  console.log("b", bed_);
+                  if (bed_) {
+                    iniData = Object.assign(iniData, { bed_: bed_._id });
+                    return this.props.fetchBedsAt(room_._id).then(() => {});
+                  }
+                });
+              }
+            });
+          }
+        }
+      })
+      .then(() => {
+        console.log("ini", iniData);
+        this.props.initialize(iniData);
+        return this.setState({ open: true, currSensor: id });
       });
-    });
   }
   onCloseModal() {
     this.setState({
@@ -239,16 +263,16 @@ class Sensors extends Component {
           this.onFormSubmit(data, mode, sensor._id);
         };
         const { hospital_, floor_, room_, bed_ } = sensor;
-        placeholder.hospital_.id = hospital_ ? hospital_._id : null;
-        placeholder.hospital_.name = hospital_ ? hospital_.name : null;
-        placeholder.floor_.id = floor_ ? floor_._id : null;
+        placeholder.hospital_.id = hospital_ ? hospital_._id : "";
+        placeholder.hospital_.name = hospital_ ? hospital_.name : "Hospital";
+        placeholder.floor_.id = floor_ ? floor_._id : "";
         placeholder.floor_.name = floor_
           ? `${getOrdinal(floor_.number)} floor`
-          : null;
-        placeholder.room_.id = room_ ? room_._id : null;
-        placeholder.room_.name = room_ ? `Room ${room_.number}` : null;
-        placeholder.bed_.id = bed_ ? bed_._id : null;
-        placeholder.bed_.name = bed_ ? `${getOrdinal(bed_.number)} bed` : null;
+          : "Floor";
+        placeholder.room_.id = room_ ? room_._id : "";
+        placeholder.room_.name = room_ ? `Room ${room_.number}` : "Room";
+        placeholder.bed_.id = bed_ ? bed_._id : "";
+        placeholder.bed_.name = bed_ ? `${getOrdinal(bed_.number)} bed` : "Bed";
         placeholder.button = "Edit";
         break;
       default:
@@ -285,6 +309,17 @@ class Sensors extends Component {
             option={this.selectOptionHospital()}
             onChange={e => {
               this.props.fetchFloorsAt(e.target.value);
+              if (e.target.value === "") {
+                const iniData = {
+                  node_name: sensor.node_name,
+                  floor_: "",
+                  room_: "",
+                  bed_: ""
+                };
+                this.props.fetchRoomsAt("");
+                this.props.fetchBedsAt("");
+                this.props.initialize(iniData);
+              }
             }}
           />
           <Field
@@ -293,7 +328,20 @@ class Sensors extends Component {
             placeholder={placeholder.floor_}
             component={RenderSelectGroupField}
             option={this.selectOptionFloor()}
-            onChange={e => this.props.fetchRoomsAt(e.target.value)}
+            onChange={e => {
+              this.props.fetchRoomsAt(e.target.value);
+              if (e.target.value === "") {
+                const iniData = {
+                  node_name: sensor.node_name,
+                  hospital_: sensor.hospital_,
+                  floor_: "",
+                  room_: "",
+                  bed_: ""
+                };
+                this.props.fetchBedsAt("");
+                this.props.initialize(iniData);
+              }
+            }}
           />
           <Field
             label=""
@@ -301,7 +349,17 @@ class Sensors extends Component {
             placeholder={placeholder.room_}
             component={RenderSelectGroupField}
             option={this.selectOptionRoom()}
-            onChange={e => this.props.fetchBedsAt(e.target.value)}
+            onChange={e =>{ this.props.fetchBedsAt(e.target.value)
+              if (e.target.value === "") {
+              const iniData = {
+                node_name: sensor.node_name,
+                hospital_: sensor.hospital_,
+                floor_: sensor.floor_,
+                room_: "",
+                bed_: ""
+              };
+              this.props.initialize(iniData);
+            }}}
           />
           <Field
             label=""
@@ -327,16 +385,42 @@ class Sensors extends Component {
     );
   }
   renderSensors() {
-    const { fetchSensorsAt, sensors_at } = this.props;
+    const { fetchSensorsAt, sensors_at, sensors } = this.props;
     let i = 0;
     if (!sensors_at) {
-      return (
-        <tr>
-          <td colSpan="100%">
-            Please select a hospital from above to see the list of sensors.
-          </td>
-        </tr>
-      );
+      return _.map(sensors, sensor => {
+        return (
+          <tr key={sensor._id} id={sensor._id}>
+            <th scope="row" width="10%">
+              {++i}
+            </th>
+            <td>{sensor.node_name ? sensor.node_name : "Empty"}</td>
+            <td>{sensor.hospital_ ? sensor.hospital_.name : "Not set"}</td>
+            <td>{sensor.room_ ? sensor.room_.number : "Empty"}</td>
+            <td>{sensor.bed_ ? getOrdinal(sensor.bed_.number) : "Empty"}</td>
+            <td width="10%">
+              <div
+                className="btn btn-default"
+                onClick={() => {
+                  this.setState({ modalMode: "edit" }, () => {
+                    this.onOpenModal(sensor._id);
+                  });
+                }}
+              >
+                Open
+              </div>
+            </td>
+            <td width="10%">
+              <div
+                className="btn btn-danger"
+                onClick={this.deleteSensor(sensor._id)}
+              >
+                Delete
+              </div>
+            </td>
+          </tr>
+        );
+      });
     }
     if (sensors_at.length < 1) {
       return (
@@ -352,6 +436,7 @@ class Sensors extends Component {
             {++i}
           </th>
           <td>{sensor.node_name ? sensor.node_name : "Empty"}</td>
+          <td>{sensor.hospital_ ? sensor.hospital_.name : "Not set"}</td>
           <td>{sensor.room_ ? sensor.room_.number : "Empty"}</td>
           <td>{sensor.bed_ ? getOrdinal(sensor.bed_.number) : "Empty"}</td>
           <td width="10%">
@@ -394,6 +479,7 @@ class Sensors extends Component {
       <tr>
         <td>No.</td>
         <td>Name</td>
+        <td>Hospital</td>
         <td>Room</td>
         <td>Bed</td>
         <td>Edit</td>

@@ -12,8 +12,6 @@ import {
   addRoom,
   editRoom,
   deleteRoom,
-  addRoomAt,
-  deleteRoomAt,
   deleteBed
 } from "actions";
 import Modal from "react-responsive-modal";
@@ -96,18 +94,7 @@ class Floor extends Component {
       )
     ) {
       this.setState({ updating: true, updatingText: "initial" });
-      this.props.deleteRoom(roomId).then(callback => {
-        this.props.deleteRoomAt(floor_id, { roomId: roomId }).then(() => {
-          this.props.fetchBedsAt(roomId).then(() => {
-            const { beds_at } = this.props;
-            if (!beds_at) {
-              return;
-            }
-            _.map(beds_at, bed => {
-              this.props.deleteBed(bed._id);
-            });
-          });
-        });
+      this.props.deleteRoom(roomId, floor_id).then(callback => {
         this.setState({
           updatingText: `${getOrdinal(
             number
@@ -121,11 +108,9 @@ class Floor extends Component {
     const { floor_id } = this.props.match.params;
     console.log(values);
     this.props.addRoom(values, file).then(callback => {
-      this.props.addRoomAt(floor_id, { roomId: callback._id }).then(() => {
-        this.setState({ updatingText: `Room No. ${values.number} is added!` });
-        this.props.fetchRoomsAt(floor_id);
-        this.onCloseModal();
-      });
+      this.setState({ updatingText: `Room No. ${values.number} is added!` });
+      this.props.fetchRoomsAt(floor_id);
+      this.onCloseModal();
     });
   };
   editRoom = (roomId, values, file) => {
@@ -299,6 +284,7 @@ class Floor extends Component {
   }
   renderRooms() {
     const { rooms_at } = this.props;
+    const { id } = this.props.match.params;
     let i = 0;
     if (!rooms_at || rooms_at.length < 1) {
       return (
@@ -313,7 +299,15 @@ class Floor extends Component {
           <th scope="row" width="10%">
             {++i}
           </th>
-          <td>Room No. {room.number}</td>
+          <td>
+            <Link
+              to={`/manage/hospital=${id}/floor=${room.floor_}/room=${
+                room._id
+              }`}
+            >
+              Room No. {room.number}
+            </Link>
+          </td>
           <td>{room.room_class}</td>
           <td width="10%">
             <button
@@ -462,8 +456,6 @@ export default reduxForm({
     addRoom,
     editRoom,
     deleteRoom,
-    addRoomAt,
-    deleteRoomAt,
     deleteBed
   })(Floor)
 );

@@ -86,33 +86,6 @@ class Hospitals extends Component {
     ) {
       this.setState({ updating: true, updatingText: "initial" });
       this.props.deleteHospital(id).then(callback => {
-        this.props.fetchFloorsAt(id).then(() => {
-          const { floors_at } = this.props;
-          if (!floors_at || floors_at.length === 0) {
-            return;
-          }
-          _.map(floors_at, floor => {
-            this.props.deleteFloor(floor._id);
-            this.props.fetchRoomsAt(floor._id).then(() => {
-              const { rooms_at } = this.props;
-              if (!rooms_at) {
-                return;
-              }
-              _.map(rooms_at, room => {
-                this.props.deleteRoom(room._id);
-                this.props.fetchBedsAt(room._id).then(() => {
-                  const { beds_at } = this.props;
-                  if (!beds_at) {
-                    return;
-                  }
-                  _.map(beds_at, bed => {
-                    this.props.deleteBed(bed._id);
-                  });
-                });
-              });
-            });
-          });
-        });
         this.setState({
           updatingText: `${name} has been successfully deleted!`
         });
@@ -306,7 +279,7 @@ class Hospitals extends Component {
           <th scope="row" width="10%">
             {++i}
           </th>
-          <td>{hospital.name}</td>
+          <td><Link to={`/manage/hospital=${hospital._id}`}>{hospital.name}</Link></td>
           <td>{hospital.address}</td>
           <td width="10%">
             <div

@@ -93,10 +93,15 @@ export function editFloor(id, values, file) {
 
 // delete
 
-export function deleteFloor(id) {
+export function deleteFloor(id, hospital_) {
   const query = `/delete/${id}`;
   const url = `${URL}${query}`;
-  const request = axios.delete(url);
+  const config = {
+    method: "delete",
+    url,
+    params: {hospital_}
+  };
+  const request = axios(config);
 
   return dispatch => {
     return request.then(({ data }) => {

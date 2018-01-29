@@ -94,10 +94,15 @@ export function editRoom(id, values, file) {
 
 // delete
 
-export function deleteRoom(id) {
+export function deleteRoom(id, floor_) {
   const query = `/delete/${id}`;
   const url = `${URL}${query}`;
-  const request = axios.delete(url);
+  const config = {
+    method: "delete",
+    url,
+    params: {floor_}
+  };
+  const request = axios(config);
 
   return dispatch => {
     return request.then(({ data }) => {

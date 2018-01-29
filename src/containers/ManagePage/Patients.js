@@ -43,7 +43,7 @@ class Patients extends Component {
       open: false,
       updating: false,
       updatingText: null,
-      currHospital: null,
+      currHospital: "",
       currFloor: null,
       currRoom: null,
       currBed: null,
@@ -58,20 +58,12 @@ class Patients extends Component {
     if (!hospitals) {
       this.props.fetchHospitals();
     }
+    this.props.fetchPatients();
     // let { _id } = this.props.match.params
     // console.log(_id)
   }
   handleInitialize() {
-    const {
-      first_name,
-      last_name,
-      phone_number,
-      address,
-      hospital_,
-      floor_,
-      room_,
-      bed_
-    } = this.props.patient;
+    const { first_name, last_name, phone_number, address } = this.props.patient;
     const { patient } = this.props;
     let dateFormat = require("dateformat");
     let birth = dateFormat(patient.birth, "yyyy-mm-dd");
@@ -84,13 +76,9 @@ class Patients extends Component {
       enter_date,
       leave_date,
       phone_number,
-      address,
-      hospital_: hospital_._id,
-      floor_: floor_._id,
-      room_: room_._id,
-      bed_: bed_._id
+      address
     };
-    this.props.initialize(iniData);
+    return iniData;
   }
   handleInitializeNull() {
     const iniData = null;
@@ -117,36 +105,27 @@ class Patients extends Component {
       this.props.fetchPatient(patientId).then(() => {
         const { patient } = this.props;
         this.props.deletePatient(patientId).then(callback => {
-          this.props
-            .deletePatientAt(patient.bed_._id, {
-              patientId: patientId
-            })
-            .then(() => {
-              this.setState({
-                updatingText: `Patient ${patient.first_name} ${
-                  patient.last_name
-                } room has been successfully deleted!`
-              });
-              this.props.fetchPatientsAt(this.state.currHospital);
-            });
+          this.setState({
+            updatingText: `Patient ${patient.first_name} ${
+              patient.last_name
+            } room has been successfully deleted!`
+          });
+          this.props.fetchPatientsAt(this.state.currHospital);
         });
       });
     }
   };
   addPatient = (values, file) => {
     this.props.addPatient(values, file).then(callback => {
-      this.props
-        .addPatientAt(values.bed_, { patientId: callback._id })
-        .then(() => {
-          this.setState({
-            updatingText: `Patient ${values.first_name} ${
-              values.last_name
-            } is added!`
-          });
-          this.props.fetchPatientsAt(values.hospital_);
-          this.setState({ currHospital: values.hospital_ });
-          this.onCloseModal();
-        });
+      this.props;
+      this.setState({
+        updatingText: `Patient ${values.first_name} ${
+          values.last_name
+        } is added!`
+      });
+      this.props.fetchPatientsAt(values.hospital_ ? values.hospital_ : "");
+      this.setState({ currHospital: values.hospital_ ? values.hospital_ : "" });
+      this.onCloseModal();
     });
   };
   editPatient = (patientId, values, file) => {
@@ -156,20 +135,13 @@ class Patients extends Component {
       }
       this.props.fetchPatient(patientId).then(() => {
         const { patient } = this.props;
-        this.props
-          .deletePatientAt(patient.bed_._id, {
-            patientId: patientId
-          })
-          .then(() => {
-            this.props.addPatientAt(values.bed_, { patientId: patientId });
-            this.setState({
-              updatingText: `Patient ${values.first_name} ${
-                values.last_name
-              } is edited!`
-            });
-            this.props.fetchPatientsAt(this.state.currHospital);
-            this.onCloseModal();
-          });
+        this.setState({
+          updatingText: `Patient ${values.first_name} ${
+            values.last_name
+          } is edited!`
+        });
+        this.props.fetchPatientsAt(this.state.currHospital);
+        this.onCloseModal();
       });
     });
   };
@@ -197,19 +169,42 @@ class Patients extends Component {
   };
   onOpenModal(id) {
     const { modalMode } = this.state;
-    this.props.fetchPatient(id).then(() => {
-      const { patient } = this.props;
-      this.props.fetchFloorsAt(patient.hospital_._id).then(() => {
-        this.props.fetchRoomsAt(patient.floor_._id).then(() => {
-          this.props.fetchBedsAt(patient.room_._id).then(() => {
-            if (patient && modalMode === "edit") {
-              this.handleInitialize();
-              this.setState({ open: true, currPatient: id });
-            }
-          });
-        });
+    let iniData = {};
+    this.props
+      .fetchPatient(id)
+      .then(() => {
+        const { patient } = this.props;
+        const { hospital_, floor_, room_, bed_ } = patient;
+        this.props.fetchFloorsAt( "");
+        this.props.fetchRoomsAt( "");
+        this.props.fetchBedsAt( "");
+        iniData = this.handleInitialize();
+        if (hospital_) {
+          iniData = Object.assign(iniData, { hospital_: hospital_._id });
+          console.log("f", floor_);
+          if (floor_) {
+            iniData = Object.assign(iniData, { floor_: floor_._id });
+            return this.props.fetchFloorsAt(hospital_._id).then(() => {
+              console.log("r", room_);
+              if (room_) {
+                iniData = Object.assign(iniData, { room_: room_._id });
+                return this.props.fetchRoomsAt(floor_._id).then(() => {
+                  console.log("b", bed_);
+                  if (bed_) {
+                    iniData = Object.assign(iniData, { bed_: bed_._id });
+                    return this.props.fetchBedsAt(room_._id).then(() => {});
+                  }
+                });
+              }
+            });
+          }
+        }
+      })
+      .then(() => {
+        console.log("init", iniData);
+        this.props.initialize(iniData);
+        return this.setState({ open: true, currSensor: id });
       });
-    });
   }
   onCloseModal() {
     this.setState({
@@ -305,14 +300,17 @@ class Patients extends Component {
           this.onFormSubmit(data, mode, patient._id);
         };
 
-        placeholder.hospital_.id = patient.hospital_._id;
-        placeholder.hospital_.name = patient.hospital_.name;
-        placeholder.floor_.id = patient.floor_._id;
-        placeholder.floor_.name = `${getOrdinal(patient.floor_.number)} floor`;
-        placeholder.room_.id = patient.room_._id;
-        placeholder.room_.name = `Room ${patient.room_.number}`;
-        placeholder.bed_.id = patient.bed_._id;
-        placeholder.bed_.name = `${getOrdinal(patient.bed_.number)} bed`;
+        const { hospital_, floor_, room_, bed_ } = patient;
+        placeholder.hospital_.id = hospital_ ? hospital_._id : "";
+        placeholder.hospital_.name = hospital_ ? hospital_.name : "Hospital";
+        placeholder.floor_.id = floor_ ? floor_._id : "";
+        placeholder.floor_.name = floor_
+          ? `${getOrdinal(floor_.number)} floor`
+          : "Floor";
+        placeholder.room_.id = room_ ? room_._id : "";
+        placeholder.room_.name = room_ ? `Room ${room_.number}` : "Room";
+        placeholder.bed_.id = bed_ ? bed_._id : "";
+        placeholder.bed_.name = bed_ ? `${getOrdinal(bed_.number)} bed` : "Bed";
         placeholder.button = "Edit";
         break;
       default:
@@ -466,16 +464,46 @@ class Patients extends Component {
     );
   }
   renderPatients() {
-    const { fetchPatientsAt, patients_at } = this.props;
+    const { fetchPatientsAt, patients_at, patients } = this.props;
     let i = 0;
     if (!patients_at) {
-      return (
-        <tr>
-          <td colSpan="100%">
-            Please select a hospital from above to see the list of patients.
-          </td>
-        </tr>
-      );
+      return _.map(patients, patient => {
+        return (
+          <tr key={patient._id} id={patient._id}>
+            <th scope="row" width="10%">
+              {++i}
+            </th>
+            <td>
+              {patient.first_name} {patient.last_name}
+            </td>
+            <td>{patient.hospital_ ? patient.hospital_.name : "Not set"}</td>
+            <td>{patient.room_ ? patient.room_.number : "Not set"}</td>
+            <td>
+              {patient.bed_ ? `${getOrdinal(patient.bed_.number)}` : "Not set"}
+            </td>
+            <td width="10%">
+              <div
+                className="btn btn-default"
+                onClick={() => {
+                  this.setState({ modalMode: "edit" }, () => {
+                    this.onOpenModal(patient._id);
+                  });
+                }}
+              >
+                Open
+              </div>
+            </td>
+            <td width="10%">
+              <div
+                className="btn btn-danger"
+                onClick={this.deletePatient(patient._id)}
+              >
+                Delete
+              </div>
+            </td>
+          </tr>
+        );
+      });
     }
     if (patients_at.length < 1) {
       return (
@@ -493,7 +521,11 @@ class Patients extends Component {
           <td>
             {patient.first_name} {patient.last_name}
           </td>
-          <td>{patient.room_.number}</td>
+          <td>{patient.hospital_ ? patient.hospital_.name : "Not set"}</td>
+          <td>{patient.room_ ? patient.room_.number : "Not set"}</td>
+          <td>
+            {patient.bed_ ? `${getOrdinal(patient.bed_.number)}` : "Not set"}
+          </td>
           <td width="10%">
             <div
               className="btn btn-default"
@@ -534,14 +566,16 @@ class Patients extends Component {
       <tr>
         <td>No.</td>
         <td>Name</td>
+        <td>Hospital</td>
         <td>Room</td>
+        <td>Bed</td>
         <td>Edit</td>
         <td>Delete</td>
       </tr>
     );
     const tableBody = this.renderPatients();
     let modalContent = <LoadingIndicator />;
-    if (!hospitals) {
+    if (!patients) {
       return (
         <div className="text-center">
           <LoadingIndicator />

@@ -34,11 +34,16 @@ export const RenderSelectField = field => {
       <select
         className="form-control"
         {...input}
-        placeholder={placeholder}
+        placeholder={placeholder.name ? placeholder.name : placeholder}
         required={required}
       >
-        <option value="">{placeholder}</option>
+        {placeholder.name ? (
+          <option value={placeholder.id}>{placeholder.name}</option>
+        ) : (
+          <option value="">{placeholder}</option>
+        )}
         {option}
+        {placeholder.name ? <option value="">Empty</option> : ""}
       </select>
       <div className="text-help text-danger">{touched ? error : ""}</div>
     </div>
@@ -59,10 +64,11 @@ export const RenderSelectGroupField = field => {
       <select
         className="form-control"
         {...input}
-        required
+        placeholder={placeholder.name ? placeholder.name : placeholder}
       >
         <option value={placeholder.id}>{placeholder.name}</option>
         {option}
+        <option value="">Empty</option>
       </select>
       <div className="text-help text-danger">{touched ? error : ""}</div>
     </div>
@@ -78,6 +84,6 @@ export const RenderPhotoField = field => {
   );
 };
 
-export const FormReset = (props) => {
+export const FormReset = props => {
   props.reset();
 };

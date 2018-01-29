@@ -61,6 +61,7 @@ export const DELETE_SENSOR_AT = "delete_sensor_at";
 
 // Patient get request
 export const FETCH_PATIENTS = "fetch_patients";
+export const FETCH_FREE_PATIENTS = "fetch_free_patients";
 export const FETCH_PATIENT = "fetch_patient";
 export const FETCH_PATIENTS_SEACHED = "fetch_patients_searched";
 export const FETCH_PATIENTS_AT = "fetch_patients_at";
@@ -72,6 +73,7 @@ export const DELETE_PATIENT = "delete_patient";
 
 // Sensor get request
 export const FETCH_SENSORS = "fetch_sensors";
+export const FETCH_FREE_SENSORS = "fetch_free_sensors";
 export const FETCH_SENSOR = "fetch_sensor";
 export const FETCH_SENSORS_AT = "fetch_sensors_at";
 //post
