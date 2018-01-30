@@ -62,14 +62,14 @@ class Patients extends Component {
     // let { _id } = this.props.match.params
     // console.log(_id)
   }
-  handleInitialize() {
+  handleInitialize(additionalInit) {
     const { first_name, last_name, phone_number, address } = this.props.patient;
     const { patient } = this.props;
     let dateFormat = require("dateformat");
     let birth = dateFormat(patient.birth, "yyyy-mm-dd");
     let enter_date = dateFormat(patient.enter_date, "yyyy-mm-dd");
     let leave_date = dateFormat(patient.leave_date, "yyyy-mm-dd");
-    const iniData = {
+    let iniData = {
       first_name,
       last_name,
       birth,
@@ -78,6 +78,10 @@ class Patients extends Component {
       phone_number,
       address
     };
+    if (additionalInit) {
+      iniData = Object.assign(iniData, additionalInit);
+    }
+    console.log(iniData);
     return iniData;
   }
   handleInitializeNull() {
@@ -117,13 +121,18 @@ class Patients extends Component {
   };
   addPatient = (values, file) => {
     this.props.addPatient(values, file).then(callback => {
+      if (callback.err) {
+        return this.setState({ updatingText: `${callback.err}` });
+      }
       this.props;
       this.setState({
         updatingText: `Patient ${values.first_name} ${
           values.last_name
         } is added!`
       });
-      this.props.fetchPatientsAt(values.hospital_ ? values.hospital_ : "");
+      this.props.fetchPatientsAt(
+        this.state.currHospital ? this.state.currHospital : ""
+      );
       this.setState({ currHospital: values.hospital_ ? values.hospital_ : "" });
       this.onCloseModal();
     });
@@ -148,7 +157,7 @@ class Patients extends Component {
   onFormSubmit = (data, mode, patientId) => {
     console.log(data);
     if (!data) {
-      return alert("dfa");
+      return alert("Please enter valid input");
     }
     const { file, onSubmit } = this.state;
 
@@ -175,29 +184,27 @@ class Patients extends Component {
       .then(() => {
         const { patient } = this.props;
         const { hospital_, floor_, room_, bed_ } = patient;
-        this.props.fetchFloorsAt( "");
-        this.props.fetchRoomsAt( "");
-        this.props.fetchBedsAt( "");
+        this.props.fetchFloorsAt("");
+        this.props.fetchRoomsAt("");
+        this.props.fetchBedsAt("");
         iniData = this.handleInitialize();
         if (hospital_) {
           iniData = Object.assign(iniData, { hospital_: hospital_._id });
-          console.log("f", floor_);
-          if (floor_) {
-            iniData = Object.assign(iniData, { floor_: floor_._id });
-            return this.props.fetchFloorsAt(hospital_._id).then(() => {
-              console.log("r", room_);
-              if (room_) {
-                iniData = Object.assign(iniData, { room_: room_._id });
-                return this.props.fetchRoomsAt(floor_._id).then(() => {
-                  console.log("b", bed_);
-                  if (bed_) {
-                    iniData = Object.assign(iniData, { bed_: bed_._id });
-                    return this.props.fetchBedsAt(room_._id).then(() => {});
-                  }
-                });
-              }
-            });
-          }
+          return this.props.fetchFloorsAt(hospital_._id).then(() => {
+            if (floor_) {
+              iniData = Object.assign(iniData, { floor_: floor_._id });
+              return this.props.fetchRoomsAt(floor_._id).then(() => {
+                if (room_) {
+                  iniData = Object.assign(iniData, { room_: room_._id });
+                  return this.props.fetchBedsAt(room_._id).then(() => {
+                    if (bed_) {
+                      iniData = Object.assign(iniData, { bed_: bed_._id });
+                    }
+                  });
+                }
+              });
+            }
+          });
         }
       })
       .then(() => {
@@ -422,6 +429,17 @@ class Patients extends Component {
             option={this.selectOptionHospital()}
             onChange={e => {
               this.props.fetchFloorsAt(e.target.value);
+              if (e.target.value === "") {
+                const additionalInit = {
+                  floor_: "",
+                  room_: "",
+                  bed_: ""
+                };
+                this.props.fetchRoomsAt("");
+                this.props.fetchBedsAt("");
+                const iniData = this.handleInitialize(additionalInit);
+                this.props.initialize(iniData);
+              }
             }}
           />
           <Field
@@ -430,7 +448,20 @@ class Patients extends Component {
             placeholder={placeholder.floor_}
             component={RenderSelectGroupField}
             option={this.selectOptionFloor()}
-            onChange={e => this.props.fetchRoomsAt(e.target.value)}
+            onChange={e => {
+              this.props.fetchRoomsAt(e.target.value);
+              if (e.target.value === "") {
+                const additionalInit = {
+                  hospital_: patient.hospital_,
+                  floor_: "",
+                  room_: "",
+                  bed_: ""
+                };
+                this.props.fetchBedsAt("");
+                const iniData = this.handleInitialize(additionalInit);
+                this.props.initialize(iniData);
+              }
+            }}
           />
           <Field
             label=""
@@ -438,7 +469,19 @@ class Patients extends Component {
             placeholder={placeholder.room_}
             component={RenderSelectGroupField}
             option={this.selectOptionRoom()}
-            onChange={e => this.props.fetchBedsAt(e.target.value)}
+            onChange={e => {
+              this.props.fetchBedsAt(e.target.value);
+              if (e.target.value === "") {
+                const additionalInit = {
+                  hospital_: patient.hospital_,
+                  floor_: patient.floor_,
+                  room_: "",
+                  bed_: ""
+                };
+                const iniData = this.handleInitialize(additionalInit);
+                this.props.initialize(iniData);
+              }
+            }}
           />
           <Field
             label=""

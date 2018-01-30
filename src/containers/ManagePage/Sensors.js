@@ -125,7 +125,7 @@ class Sensors extends Component {
   onFormSubmit = (data, mode, sensorId) => {
     console.log(data);
     if (!data) {
-      return alert("dfa");
+      return alert("Please enter valid input");
     }
     const { onSubmit } = this.state;
 
