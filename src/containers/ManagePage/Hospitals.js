@@ -278,9 +278,15 @@ class Hospitals extends Component {
     FormReset(this.props)
   }
   renderHospitals() {
-    const { hospitals } = this.props
-    let i = 0
-
+    const { hospitals } = this.props;
+    let i = 0;
+    if (!hospitals || hospitals.length < 1) {
+      return (
+        <tr>
+          <td colSpan="100%">No result...</td>
+        </tr>
+      );
+    }
     return _.map(hospitals, hospital => {
       return (
         <tr key={hospital._id} id={hospital._id}>

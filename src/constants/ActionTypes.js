@@ -53,14 +53,32 @@ export const EDIT_BED = 'edit_bed'
 // BED delete request
 export const DELETE_BED = 'delete_bed'
 
+export const ADD_PATIENT_AT = "add_patient_at";
+export const DELETE_PATIENT_AT = "delete_patient_at";
+
+export const ADD_SENSOR_AT = "add_sensor_at";
+export const DELETE_SENSOR_AT = "delete_sensor_at";
+
 // Patient get request
-export const FETCH_PATIENTS = 'fetch_patients'
-export const FETCH_PATIENT = 'fetch_patient'
-export const FETCH_PATIENTS_SEACHED = 'fetch_patients_searched'
+export const FETCH_PATIENTS = "fetch_patients";
+export const FETCH_PATIENT = "fetch_patient";
+export const FETCH_PATIENTS_SEACHED = "fetch_patients_searched";
+export const FETCH_PATIENTS_AT = "fetch_patients_at";
+//post
+export const ADD_PATIENT = "add_patient";
+export const EDIT_PATIENT = "edit_patient";
+export const DELETE_PATIENT = "delete_patient";
+
 
 // Sensor get request
-export const FETCH_SENSORS = 'fetch_sensors'
-export const FETCH_SENSOR = 'fetch_sensor'
+export const FETCH_SENSORS = "fetch_sensors";
+export const FETCH_SENSOR = "fetch_sensor";
+export const FETCH_SENSORS_AT = "fetch_sensors_at";
+//post
+export const ADD_SENSOR = "add_sensor";
+export const EDIT_SENSOR = "edit_sensor";
+export const DELETE_SENSOR = "delete_sensor";
+
 
 // Data get request
 export const FETCH_SENSOR_DATA = 'fetch_sensor_data'

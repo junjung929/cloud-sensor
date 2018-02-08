@@ -142,9 +142,9 @@ class Hospital extends Component {
     })
   }
   onFormSubmit = (data, mode, floorId) => {
-    const { id } = this.props.match.params
-    const temp = Object.assign(data, { floorAt: id })
-    data = temp
+    const { id } = this.props.match.params;
+    const temp = Object.assign(data, { hospital_ : id });
+    data = temp;
     // console.log(data)
     if (!data) {
       return alert('dfa')
@@ -270,10 +270,15 @@ class Hospital extends Component {
     FormReset(this.props)
   }
   renderFloors() {
-    const { floors_at } = this.props
-    let i = 0
-    if (!floors_at) {
-      return <tr />
+    const { floors_at } = this.props;
+    let i = 0;
+
+    if (!floors_at || floors_at.length < 1) {
+      return (
+        <tr>
+          <td colSpan="100%">No result...</td>
+        </tr>
+      );
     }
     return _.map(floors_at, floor => {
       return (

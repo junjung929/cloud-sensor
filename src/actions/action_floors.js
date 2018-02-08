@@ -42,10 +42,15 @@ export function fetchFloor(id) {
 }
 // post
 export function addFloor(values, file) {
-  const { number, floorAt  } = values;
-  const query = `/push/number=${number}/floorAt=${floorAt}`;
+  const query = `/push`;
   const url = `${URL}${query}`;
-  const request = axios.post(url, file);
+  const config = {
+    method: "post",
+    url,
+    data: file,
+    params: values
+  };
+  const request = axios(config);
 
   return dispatch => {
     return request.then(({ data }) => {
@@ -58,10 +63,15 @@ export function addFloor(values, file) {
   };
 }
 export function editFloor(id, values, file) {
-  const { number } = values;
-  const query = `/update/id=${id}/number=${number}`;
+  const query = `/update/id=${id}`;
   const url = `${URL}${query}`;
-  const request = axios.post(url, file);
+  const config = {
+    method: "post",
+    url,
+    data: file,
+    params: values
+  };
+  const request = axios(config);
 
   return dispatch => {
     console.log(request);

@@ -1,6 +1,6 @@
-import React, { Component } from 'react'
-import { Hospitals, Hospital, Floor, Room } from '../ManagePage'
-import { Sensor } from '../../containers'
+import React, { Component } from 'react';
+import { Hospitals, Hospital, Floor, Room, Patients, Sensors } from '../ManagePage';
+
 import { BrowserRouter as Router, Route } from 'react-router-dom'
 import styled from 'styled-components'
 
@@ -12,14 +12,17 @@ const InnerContainer = styled.div`
 `
 
 const ManagePage = ({ match }) => {
-  const { url } = match
-  return (
-    <InnerContainer>
-      <Route exact path={`${url}`} component={Hospitals} />
-      <Route exact path={`${url}/hospital=:id`} component={Hospital} />
-      <Route exact path={`${url}/hospital=:id/floor=:floor_id`} component={Floor} />
-      <Route exact path={`${url}/hospital=:id/floor=:floor_id/room=:room_id`} component={Room} />
-    </InnerContainer>
-  )
+    const { url } = match;
+    return (
+        <InnerContainer>
+            <Route exact path={`${url}`} component={Hospitals} />
+            <Route exact path={`${url}/hospital=:id`} component={Hospital} />
+            <Route exact path={`${url}/hospital=:id/floor=:floor_id`} component={Floor} />
+            <Route exact path={`${url}/hospital=:id/floor=:floor_id/room=:room_id`} component={Room} />
+            <Route exact path={`${url}/patients`} component={Patients} />
+            <Route exact path={`${url}/sensors`} component={Sensors} />
+        </InnerContainer>
+    )
+
 }
 export default ManagePage
