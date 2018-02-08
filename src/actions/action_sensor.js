@@ -3,6 +3,7 @@ import axios from "axios";
 import {
   ROOT_URL,
   FETCH_SENSORS,
+  FETCH_FREE_SENSORS,
   FETCH_SENSOR,
   FETCH_SENSORS_AT,
   ADD_SENSOR,
@@ -21,6 +22,21 @@ export function fetchSensors() {
     return request.then(({ data }) => {
       dispatch({
         type: FETCH_SENSORS,
+        payload: data
+      });
+    });
+  };
+}
+export function fetchFreeSensors() {
+  const query = `/free`
+  const url = `${URL}${query}`;
+
+  const request = axios.get(url);
+
+  return dispatch => {
+    return request.then(({ data }) => {
+      dispatch({
+        type: FETCH_FREE_SENSORS,
         payload: data
       });
     });
@@ -80,7 +96,6 @@ export function editSensor(id, values) {
   const query = `/update/id=${id}`;
   const url = `${URL}${query}`;
   const request = axios.post(url, values);
-  console.log(values)
 
   return dispatch => {
     return request

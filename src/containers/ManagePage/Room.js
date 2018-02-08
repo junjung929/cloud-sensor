@@ -8,13 +8,13 @@ import {
   fetchRoom,
   fetchBedsAt,
   fetchBed,
-  fetchSensors,
+  fetchFreeSensors,
   addBed,
   editBed,
   deleteBed,
   addBedAt,
   deleteBedAt,
-  fetchPatients,
+  fetchFreePatients,
   fetchPatient,
   editSensor,
   deleteSensorAt
@@ -28,9 +28,10 @@ import {
   getOrdinal,
   RenderField,
   RenderSelectField,
+  RenderSelectGroupField,
   RenderPhotoField,
-  FormReset,
-} from '../../components'
+  FormReset
+} from "../../components";
 
 import { PreviewImg, Content, ImgPreview, Info } from './styles'
 
@@ -53,13 +54,11 @@ class Room extends Component {
     // this.onEditFormSubmit = this.onEditFormSubmit.bind(this);
   }
   componentDidMount() {
-    const { room, bed } = this.props
-    const { room_id } = this.props.match.params
-    this.setState({ currRoom: room_id })
-    this.props.fetchRoom(room_id)
-    this.props.fetchBedsAt(room_id)
-    this.props.fetchSensors()
-    this.props.fetchPatients()
+    const { room, bed } = this.props;
+    const { room_id } = this.props.match.params;
+    this.setState({ currRoom: room_id });
+    this.props.fetchRoom(room_id);
+    this.props.fetchBedsAt(room_id);
     // let { _id } = this.props.match.params
     // console.log(_id)
   }
@@ -73,16 +72,10 @@ class Room extends Component {
   }
   handleInitialize() {
     let { number, _patient, _sensor_node } = this.props.bed;
-    if (_patient) {
-      _patient = _patient._id;
-    }
-    if (_sensor_node) {
-      _sensor_node = _sensor_node._id;
-    }
     const iniData = {
       number,
-      _patient,
-      _sensor_node
+      _patient: _patient ? _patient._id : "",
+      _sensor_node: _sensor_node ? _sensor_node._id : ""
     };
     this.props.initialize(iniData);
   }
@@ -111,13 +104,13 @@ class Room extends Component {
     ) {
       this.setState({ updating: true, updatingText: 'initial' })
       this.props.deleteBed(bedId).then(callback => {
-        this.props.deleteBedAt(room_id, { bedId: bedId }).then(() => {
-          this.setState({
-            updatingText: `${getOrdinal(number)} bed has been successfully deleted!`,
-          })
-          this.props.fetchBedsAt(room_id)
-        })
-      })
+        this.setState({
+          updatingText: `${getOrdinal(
+            number
+          )} bed has been successfully deleted!`
+        });
+        this.props.fetchBedsAt(room_id);
+      });
     }
   }
   addBed = (values, file) => {
@@ -128,25 +121,10 @@ class Room extends Component {
       if (err) {
         return this.setState({ updatingText: `${err}, please try again.` });
       }
-      console.log(callback);
-      if (callback._sensor_node) {
-        this.props
-          .editSensor(callback._sensor_node, {
-            hospital_: id,
-            floor_: floor_id,
-            room_: room_id,
-            bed_: callback._id
-          })
-          .then(() => {
-            this.props.deleteSensorAt(callback._id, callback._sensor_node);
-          });
-      }
 
-      this.props.addBedAt(room_id, { bedId: callback._id }).then(() => {
-        this.setState({ updatingText: `Bed No. ${values.number} is added!` });
-        this.props.fetchBedsAt(room_id);
-        this.onCloseModal();
-      });
+      this.setState({ updatingText: `Bed No. ${values.number} is added!` });
+      this.props.fetchBedsAt(room_id);
+      this.onCloseModal();
     });
   };
 
@@ -165,12 +143,13 @@ class Room extends Component {
     })
   }
   onFormSubmit = (data, mode, bedId) => {
-    const { room_id } = this.props.match.params;
-    console.log(room_id);
-    const temp = Object.assign(data, { room_: room_id });
+    const { id, floor_id, room_id } = this.props.match.params;
+    const temp = Object.assign(data, {
+      hospital_: id,
+      floor_: floor_id,
+      room_: room_id
+    });
     data = temp;
-    console.log(data);
-
     if (!data) {
       return alert('dfa')
     }
@@ -193,8 +172,9 @@ class Room extends Component {
   }
 
   selectOption(options) {
-    if (!options) {
-      return
+    if(!options){return}
+    if (options.length<1) {
+      return <option>There is no item available</option>;
     }
     return _.map(options, option => {
       const optionName = option.node_name ? option.node_name : `${option.first_name} ${option.last_name}`
@@ -214,11 +194,11 @@ class Room extends Component {
     let title = '',
       submitHandler = '',
       placeholder = {
-        number: 'Enter an integer number.',
-        _sensor_node: 'Please select a sensor for this bed.',
-        _patient: 'Please select a patient for this bed.',
-        button: 'Add',
-      }
+        number: "Enter an integer number.",
+        _sensor_node: { id: "", name: "Please select a sensor for this bed." },
+        _patient: { id: "", name: "Please select a patient for this bed." },
+        button: "Add"
+      };
     switch (mode) {
       case 'edit':
         if (!bed) {
@@ -226,12 +206,19 @@ class Room extends Component {
         }
         title = `${getOrdinal(bed.number)} bed Edit`
         submitHandler = data => {
-          this.onFormSubmit(data, mode, bed._id)
-        }
-
-        placeholder.number = bed.number
-        placeholder.button = 'Edit'
-        break
+          this.onFormSubmit(data, mode, bed._id);
+        };
+        const { _patient, _sensor_node, number } = bed;
+        placeholder._patient.id = _patient ? _patient._id : "";
+        placeholder._patient.name = _patient
+          ? `${_patient.first_name} ${_patient.last_name}`
+          : placeholder._patient.name;
+        placeholder._sensor_node.id = _sensor_node ? _sensor_node._id : "";
+        placeholder._sensor_node.name = _sensor_node
+          ? _sensor_node.node_name
+          : placeholder._sensor_node.name;
+        placeholder.button = "Edit";
+        break;
       default:
         title = 'Add a bed'
         submitHandler = data => {
@@ -280,7 +267,7 @@ class Room extends Component {
             name="_sensor_node"
             placeholder={placeholder._sensor_node}
             component={RenderSelectField}
-            option={this.selectOption(this.props.sensors)}
+            option={this.selectOption(this.props.free_sensors)}
             required={false}
           />
           <Field
@@ -288,7 +275,7 @@ class Room extends Component {
             name="_patient"
             placeholder={placeholder._patient}
             component={RenderSelectField}
-            option={this.selectOption(this.props.patients)}
+            option={this.selectOption(this.props.free_patients)}
             required={false}
           />
           <div className="divisionLine" />
@@ -308,6 +295,9 @@ class Room extends Component {
     )
   }
   onOpenModal(bedId) {
+    const { modalMode } = this.state;
+    this.props.fetchFreeSensors();
+    this.props.fetchFreePatients();
     const { modalMode } = this.state
     this.props.fetchBed(bedId).then(() => {
       const { bed } = this.props
@@ -464,8 +454,10 @@ class Room extends Component {
           <button
             className="btn btn-primary pull-left"
             onClick={() => {
-              this.setState({ modalMode: 'add', open: true })
-              this.handleInitializeNull()
+              this.setState({ modalMode: "add", open: true });
+              this.props.fetchFreeSensors();
+              this.props.fetchFreePatients();
+              this.handleInitializeNull();
             }}
           >
             Add
@@ -517,19 +509,19 @@ class Room extends Component {
 }
 
 function mapStateToProps(state) {
-  const { room, beds_at } = state.rooms
-  const { bed, add_bed, edit_bed } = state.beds
-  const { patients, patient } = state.patients
-  const { sensors } = state.sensors
+  const { room, beds_at } = state.rooms;
+  const { bed, add_bed, edit_bed } = state.beds;
+  const { free_patients, patient } = state.patients;
+  const { free_sensors } = state.sensors;
   return {
     room,
     beds_at,
     bed,
     add_bed,
     patient,
-    patients,
-    sensors,
-  }
+    free_patients,
+    free_sensors
+  };
 }
 
 function validate(values) {
@@ -552,13 +544,13 @@ export default reduxForm({
     fetchRoom,
     fetchBedsAt,
     fetchBed,
-    fetchSensors,
+    fetchFreeSensors,
     addBed,
     editBed,
     deleteBed,
     addBedAt,
     deleteBedAt,
-    fetchPatients,
+    fetchFreePatients,
     fetchPatient,
     editSensor,
     deleteSensorAt

@@ -3,6 +3,7 @@ import axios from "axios";
 import {
   ROOT_URL,
   FETCH_PATIENTS,
+  FETCH_FREE_PATIENTS,
   FETCH_PATIENT,
   FETCH_PATIENTS_SEACHED,
   FETCH_PATIENTS_AT,
@@ -20,6 +21,20 @@ export function fetchPatients() {
     return request.then(({ data }) => {
       dispatch({
         type: FETCH_PATIENTS,
+        payload: data
+      });
+    });
+  };
+}
+export function fetchFreePatients() {
+  const query = `/free`
+  const url = `${URL}${query}`;
+  const request = axios.get(url);
+
+  return dispatch => {
+    return request.then(({ data }) => {
+      dispatch({
+        type: FETCH_FREE_PATIENTS,
         payload: data
       });
     });

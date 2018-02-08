@@ -1,12 +1,12 @@
-import _ from 'lodash'
-import React, { Component } from 'react'
-import { connect } from 'react-redux'
-import { Link } from 'react-router-dom'
-import LoadingIndicator from 'react-loading-indicator'
-import { fetchHospitals } from '../../actions'
-import styled from 'styled-components'
+import _ from "lodash";
+import React, { Component } from "react";
+import { connect } from "react-redux";
+import { Link } from "react-router-dom";
+import LoadingIndicator from "react-loading-indicator";
+import { fetchHospitals } from "../../actions";
+import styled from "styled-components";
 
-import { Table, Profile } from '../../components'
+import { Table, Profile } from "../../components";
 
 const Content = styled.div`
   display: flex;

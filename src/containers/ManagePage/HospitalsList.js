@@ -9,11 +9,11 @@ import {
   fetchRoomsAt,
   fetchRoom,
   fetchBedsAt,
-  fetchBed,
-} from '../../actions'
-import { Link } from 'react-router-dom'
-import { getOrdinal } from '../../components'
-import styled from 'styled-components'
+  fetchBed
+} from "../../actions";
+import { Link } from "react-router-dom";
+import { getOrdinal } from "../../components";
+import styled from "styled-components";
 
 const ListGroup = styled.ul`
   padding-left: 2vw;

@@ -39,14 +39,22 @@ class Sensor extends Component {
     const { _id } = this.props.match.params;
     const { fetchPatient, fetchSensor } = this.props;
     fetchPatient(_id).then((err, callback) => {
-      const { _sensor_node } = this.props.patient.bed_;
-      fetchSensor(_sensor_node).then(()=> {
-        const { sensor } = this.props;
-        this._mounted = true;
-        console.log(sensor.node_name);
-        this.timer(sensor.node_name);
-      });
-      
+      const { bed_ } = this.props.patient;
+      if (!bed_) {
+        return alert("The patient is not set on any bed yet.\nPlease set the patient on a bed.");
+      } else {
+        const { _sensor_node } = bed_;
+        if (!_sensor_node) {
+          return alert("There's no sensor on the bed.\nPlease deploy a sensor on the bed.");
+        } else {
+          fetchSensor(_sensor_node).then(() => {
+            const { sensor } = this.props;
+            this._mounted = true;
+            console.log(sensor.node_name);
+            this.timer(sensor.node_name);
+          });
+        }
+      }
     });
   }
   componentWillUnmount() {

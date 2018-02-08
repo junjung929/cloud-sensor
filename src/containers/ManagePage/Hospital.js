@@ -15,12 +15,17 @@ import {
   addFloor,
   editFloor,
   deleteFloor,
-  addFloorAt,
-  deleteFloorAt,
-} from '../../actions'
-import Modal from 'react-responsive-modal'
+} from "../../actions";
+import Modal from "react-responsive-modal";
 
-import { Table, Profile, getOrdinal, RenderField, RenderPhotoField, FormReset } from '../../components'
+import {
+  Table,
+  Profile,
+  getOrdinal,
+  RenderField,
+  RenderPhotoField,
+  FormReset
+} from "../../components";
 
 import { PreviewImg, Content, ImgPreview } from './styles'
 
@@ -88,28 +93,8 @@ class Hospital extends Component {
         'This behaviour will also affect all information which is childe components of this floor.\nAre you sure to delete?'
       )
     ) {
-      this.setState({ updating: true, updatingText: 'initial' })
-      this.props.deleteFloor(floorId).then(callback => {
-        this.props.deleteFloorAt(id, { floorId: floorId }).then(() => {
-          this.props.fetchRoomsAt(floorId).then(() => {
-            const { rooms_at } = this.props
-            if (!rooms_at) {
-              return
-            }
-            _.map(rooms_at, room => {
-              this.props.deleteRoom(room._id)
-              this.props.fetchBedsAt(room._id).then(() => {
-                const { beds_at } = this.props
-                if (!beds_at) {
-                  return
-                }
-                _.map(beds_at, bed => {
-                  this.props.deleteBed(bed._id)
-                })
-              })
-            })
-          })
-        })
+      this.setState({ updating: true, updatingText: "initial" });
+      this.props.deleteFloor(floorId, id).then(callback => {
         this.setState({
           updatingText: `${getOrdinal(number)} floor has been successfully deleted!`,
         })
@@ -121,13 +106,11 @@ class Hospital extends Component {
     const { id } = this.props.match.params
     console.log(values)
     this.props.addFloor(values, file).then(callback => {
-      this.props.addFloorAt(id, { floorId: callback._id }).then(() => {
-        this.setState({ updatingText: `${values.number} floor is added!` })
-        this.props.fetchFloorsAt(id)
-        this.onCloseModal()
-      })
-    })
-  }
+      this.setState({ updatingText: `${values.number} floor is added!` });
+      this.props.fetchFloorsAt(id);
+      this.onCloseModal();
+    });
+  };
   editFloor = (floorId, values, file) => {
     const { id } = this.props.match.params
     this.props.editFloor(floorId, values, file).then(err => {
@@ -143,7 +126,7 @@ class Hospital extends Component {
   }
   onFormSubmit = (data, mode, floorId) => {
     const { id } = this.props.match.params;
-    const temp = Object.assign(data, { hospital_ : id });
+    const temp = Object.assign(data, { hospital_: id });
     data = temp;
     // console.log(data)
     if (!data) {
@@ -286,7 +269,7 @@ class Hospital extends Component {
           <th scope="row" width="10%">
             {++i}
           </th>
-          <td>{getOrdinal(floor.number)} floor</td>
+          <td><Link to={`/manage/hospital=${floor.hospital_}/floor=${floor._id}`}>{getOrdinal(floor.number)} floor</Link></td>
           <td width="10%">
             <button
               className="btn btn-default"
@@ -432,7 +415,5 @@ export default reduxForm({
     addFloor,
     editFloor,
     deleteFloor,
-    addFloorAt,
-    deleteFloorAt,
   })(Hospital)
 )

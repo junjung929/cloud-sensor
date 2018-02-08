@@ -108,34 +108,7 @@ export function deleteHospital(id) {
   };
 }
 
-export function addFloorAt(id, floorId) {
-  const query = `/add_floor/${id}`;
-  const url = `${URL}${query}`;
-  const request = axios.post(url, floorId);
 
-  return dispatch => {
-    return request.then(({ data }) => {
-      dispatch({
-        type: ADD_FLOOR_AT,
-        payload: id
-      });
-    });
-  };
-}
-export function deleteFloorAt(id, floorId) {
-  const query = `/delete_floor/${id}`;
-  const url = `${URL}${query}`;
-  const request = axios.post(url, floorId);
-
-  return dispatch => {
-    return request.then(({ data }) => {
-      dispatch({
-        type: DELETE_FLOOR_AT,
-        payload: id
-      });
-    });
-  };
-}
 export function resetHospitalForm() {
   return dispatch => {
     dispatch({

@@ -77,7 +77,7 @@ class SearchResultPage extends Component {
                     <td>{birth}</td>
                     <td>{enter_date}</td>
                     <td>{leave_date}</td>
-                    <td>{patient.hospital_.name}</td>
+                    <td>{patient.hospital_ ?patient.hospital_.name:"Not set"}</td>
                     <td>
                         {this.onGoBtn(patient._id)}
                     </td>
