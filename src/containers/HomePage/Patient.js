@@ -1,18 +1,9 @@
-<<<<<<< HEAD
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { fetchPatient } from "../../actions";
 import styled from "styled-components";
 
 import { Table, BackToList } from "../../components";
-=======
-import React, { Component } from 'react'
-import { connect } from 'react-redux'
-import { fetchPatient } from '../../actions'
-import styled from 'styled-components'
-
-import { Table, BackToList } from '../../components'
->>>>>>> 3a949bb02b3651485a713c8ba756a2caf926b0e1
 
 const Info = styled.div`
   display: flex;
