@@ -10,7 +10,7 @@ import {
   fetchRoom,
   fetchBedsAt,
   fetchBed
-} from "actions";
+} from "../../actions";
 import { Link } from "react-router-dom";
 import { getOrdinal } from "../../components";
 import styled from "styled-components";

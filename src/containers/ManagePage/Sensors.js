@@ -16,7 +16,7 @@ import {
   addSensor,
   editSensor,
   deleteSensor
-} from "actions";
+} from "../../actions";
 import Modal from "react-responsive-modal";
 
 import {
@@ -27,7 +27,7 @@ import {
   RenderSelectField,
   RenderSelectGroupField,
   FormReset
-} from "components";
+} from "../../components";
 
 import { Content } from "./styles";
 

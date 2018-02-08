@@ -1,5 +1,3 @@
-export { default as CounterContainer } from './CounterContainer'
-
 /*Home page*/
 export { default as HomePage } from './HomePage/HomePage'
 

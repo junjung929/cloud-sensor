@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Sidebar, Carousel, Searchbar, SearchResult } from 'components'
+import { Sidebar, Carousel, Searchbar, SearchResult } from '../../components'
 import { Hospitals, Hospital, Floor, Room } from 'containers/HomePage'
 import { BrowserRouter as Router, Route } from 'react-router-dom'
 import styled from 'styled-components'

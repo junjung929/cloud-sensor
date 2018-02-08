@@ -16,7 +16,7 @@ import {
   addHospital,
   editHospital,
   deleteHospital
-} from "actions";
+} from "../../actions";
 import Modal from "react-responsive-modal";
 
 import {
@@ -25,7 +25,7 @@ import {
   RenderField,
   RenderPhotoField,
   FormReset
-} from "components";
+} from "../../components";
 
 import { PreviewImg, Content, ImgPreview } from "./styles";
 

@@ -3,11 +3,11 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Link } from "react-router-dom";
 import LoadingIndicator from "react-loading-indicator";
-import { fetchHospital, fetchFloorsAt } from "actions";
+import { fetchHospital, fetchFloorsAt } from "../../actions";
 import styled from "styled-components";
 
 //components
-import { Table, BackToList } from "components";
+import { Table, BackToList } from "../../components";
 
 const Content = styled.div`
   display: flex;

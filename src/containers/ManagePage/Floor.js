@@ -13,7 +13,7 @@ import {
   editRoom,
   deleteRoom,
   deleteBed
-} from "actions";
+} from "../../actions";
 import Modal from "react-responsive-modal";
 
 import {
@@ -24,7 +24,7 @@ import {
   RenderPhotoField,
   RenderSelectField,
   FormReset
-} from "components";
+} from "../../components";
 
 import { PreviewImg, Content, ImgPreview } from "./styles";
 

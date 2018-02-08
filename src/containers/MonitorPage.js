@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import { SearchResult } from 'components'
-import { Sensor } from 'containers'
+import { SearchResult } from '../components'
+import { Sensor } from '../containers'
 import { BrowserRouter as Router, Route } from 'react-router-dom'
 import styled from 'styled-components'
 

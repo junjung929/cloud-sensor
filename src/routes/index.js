@@ -1,7 +1,7 @@
 import React from 'react'
-import { HomePage, MonitorPage, ManagePage } from 'containers'
-import { Header, Sidebar, Carousel, Searchbar, SearchResult } from 'components'
-import { Patient } from 'containers/HomePage'
+import { HomePage, MonitorPage, ManagePage } from '../containers'
+import { Header, Sidebar, Carousel, Searchbar, SearchResult } from '../components'
+import { Patient } from '../containers/HomePage'
 import { BrowserRouter as Router, Route, Link } from 'react-router-dom'
 import styled from 'styled-components'
 import MultiMonitorPage from '../containers/MultiMonitorPage';

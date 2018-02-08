@@ -1,9 +1,9 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { fetchPatient } from "actions";
+import { fetchPatient } from "../../actions";
 import styled from "styled-components";
 
-import { Table, BackToList } from "components";
+import { Table, BackToList } from "../../components";
 
 const Info = styled.div`
   display: flex;

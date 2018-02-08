@@ -1,10 +1,6 @@
-// Counter
-export const INCREMENT_COUNTER = "INCREMENT_COUNTER";
-export const DECREMENT_COUNTER = "DECREMENT_COUNTER";
-
 // Server
-export const URL = "10.94.71.150";
-export const PORT = 3000;
+export const URL = "10.114.32.112";
+export const PORT = 8080;
 export const ROOT_URL = `http://${URL}:${PORT}`;
 
 // Hospital get request
