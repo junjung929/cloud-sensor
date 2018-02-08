@@ -1,11 +1,11 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import { Counter } from 'components'
+import { Counter } from '../components'
 import { createStructuredSelector, createSelector } from 'reselect'
 
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
-import * as CounterActions from 'actions/counter'
+import * as CounterActions from '../actions/counter'
 
 class CounterContainer extends React.Component {
   static propTypes = {
@@ -40,10 +40,7 @@ class CounterContainer extends React.Component {
 }
 
 const mapStateToProps = createStructuredSelector({
-  counter: createSelector(
-    (state) => state.counter,
-    (counterState) => counterState
-  ),
+  counter: createSelector(state => state.counter, counterState => counterState),
 })
 
 function mapDispatchToProps(dispatch) {
