@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import _ from "lodash";
 import React, { Component } from "react";
 import { connect } from "react-redux";
@@ -9,18 +8,6 @@ import styled from "styled-components";
 
 //components
 import { Table, BackToList } from "../../components";
-=======
-import _ from 'lodash'
-import React, { Component } from 'react'
-import { connect } from 'react-redux'
-import { Link } from 'react-router-dom'
-import LoadingIndicator from 'react-loading-indicator'
-import { fetchHospital, fetchFloorsAt } from '../../actions'
-import styled from 'styled-components'
-
-//components
-import { Table, BackToList } from '../../components'
->>>>>>> 3a949bb02b3651485a713c8ba756a2caf926b0e1
 
 const Content = styled.div`
   display: flex;
