@@ -445,12 +445,6 @@ export default reduxForm({
     addRoom,
     editRoom,
     deleteRoom,
-<<<<<<< HEAD
     deleteBed
-=======
-    addRoomAt,
-    deleteRoomAt,
-    deleteBed,
->>>>>>> 3a949bb02b3651485a713c8ba756a2caf926b0e1
   })(Floor)
 )
