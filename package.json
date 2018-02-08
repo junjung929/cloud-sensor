@@ -3,6 +3,7 @@
   "description": "",
   "version": "0.1.0",
   "author": "Jun Jung",
+  "private": true,
   "dependencies": {
     "axios": "^0.17.1",
     "dateformat": "^3.0.2",
