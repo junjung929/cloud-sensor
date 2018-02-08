@@ -44,6 +44,30 @@ export const RenderSelectField = field => {
     </div>
   );
 };
+export const RenderSelectGroupField = field => {
+  const {
+    required,
+    option,
+    label,
+    input,
+    placeholder,
+    meta: { touched, error }
+  } = field;
+  const className = `pull-left ${touched && error ? "has-danger" : ""}`;
+  return (
+    <div className={className}>
+      <select
+        className="form-control"
+        {...input}
+        required
+      >
+        <option value={placeholder.id}>{placeholder.name}</option>
+        {option}
+      </select>
+      <div className="text-help text-danger">{touched ? error : ""}</div>
+    </div>
+  );
+};
 export const RenderPhotoField = field => {
   const { input, label, onChange } = field;
   return (

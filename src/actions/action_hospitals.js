@@ -43,10 +43,15 @@ export function fetchHospital(id) {
 }
 // post
 export function addHospital(values, file) {
-  const { name, address, phone_number } = values;
-  const query = `/push/name=${name}/address=${address}/phone=${phone_number}`;
+  const query = `/push`;
   const url = `${URL}${query}`;
-  const request = axios.post(url, file);
+  const config = {
+    method: "post",
+    url,
+    data: file,
+    params: values
+  };
+  const request = axios(config);
 
   return dispatch => {
     return request.then(({ data }) => {
@@ -58,10 +63,15 @@ export function addHospital(values, file) {
   };
 }
 export function editHospital(id, values, file) {
-  const { name, address, phone_number } = values;
-  const query = `/update/id=${id}/name=${name}/address=${address}/phone=${phone_number}`;
+  const query = `/update/id=${id}`;
   const url = `${URL}${query}`;
-  const request = axios.post(url, file);
+  const config = {
+    method: "post",
+    url,
+    data: file,
+    params: values
+  };
+  const request = axios(config);
 
   return dispatch => {
     console.log(request);
