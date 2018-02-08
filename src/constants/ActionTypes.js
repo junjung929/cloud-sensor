@@ -1,18 +1,8 @@
-<<<<<<< HEAD
 // Server
 export const URL = "10.114.32.112";
 export const PORT = 8080;
 export const ROOT_URL = `http://${URL}:${PORT}`;
-=======
-// Counter
-export const INCREMENT_COUNTER = 'INCREMENT_COUNTER'
-export const DECREMENT_COUNTER = 'DECREMENT_COUNTER'
 
-// Server
-export const URL = '10.114.32.112'
-export const PORT = 3000
-export const ROOT_URL = `http://${URL}:${PORT}`
->>>>>>> 3a949bb02b3651485a713c8ba756a2caf926b0e1
 
 // Hospital get request
 export const FETCH_HOSPITALS = 'fetch_hospitals'
