@@ -1,9 +1,15 @@
 import React, { Component } from 'react';
 import { Hospitals, Hospital, Floor, Room, Patients, Sensors } from '../ManagePage';
+
 import { BrowserRouter as Router, Route } from 'react-router-dom'
 import styled from 'styled-components'
 
-const InnerContainer = styled.div`display: flex; justify-content: center; width:100%; flex-direction: column`;
+const InnerContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  flex-direction: column;
+`
 
 const ManagePage = ({ match }) => {
     const { url } = match;
@@ -17,5 +23,6 @@ const ManagePage = ({ match }) => {
             <Route exact path={`${url}/sensors`} component={Sensors} />
         </InnerContainer>
     )
+
 }
-export default ManagePage;
+export default ManagePage
