@@ -12,17 +12,9 @@ import {
   addRoom,
   editRoom,
   deleteRoom,
-<<<<<<< HEAD
   deleteBed
 } from "../../actions";
 import Modal from "react-responsive-modal";
-=======
-  addRoomAt,
-  deleteRoomAt,
-  deleteBed,
-} from '../../actions'
-import Modal from 'react-responsive-modal'
->>>>>>> 3a949bb02b3651485a713c8ba756a2caf926b0e1
 
 import {
   Table,
