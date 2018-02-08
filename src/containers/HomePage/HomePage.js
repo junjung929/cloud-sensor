@@ -1,12 +1,6 @@
-<<<<<<< HEAD
 import React, { Component } from 'react';
 import { Sidebar, Carousel, Searchbar, SearchResult } from '../../components'
 import { Hospitals, Hospital, Floor, Room } from 'containers/HomePage'
-=======
-import React, { Component } from 'react'
-import { Sidebar, Carousel, Searchbar, SearchResult } from '../../components'
-import { Hospitals, Hospital, Floor, Room } from '../HomePage'
->>>>>>> 3a949bb02b3651485a713c8ba756a2caf926b0e1
 import { BrowserRouter as Router, Route } from 'react-router-dom'
 import styled from 'styled-components'
 
