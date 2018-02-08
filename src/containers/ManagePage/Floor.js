@@ -23,13 +23,8 @@ import {
   RenderField,
   RenderPhotoField,
   RenderSelectField,
-<<<<<<< HEAD
   FormReset
 } from "../../components";
-=======
-  FormReset,
-} from '../../components'
->>>>>>> 3a949bb02b3651485a713c8ba756a2caf926b0e1
 
 import { PreviewImg, Content, ImgPreview } from './styles'
 
