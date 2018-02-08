@@ -30,13 +30,8 @@ import {
   RenderSelectField,
   RenderSelectGroupField,
   RenderPhotoField,
-<<<<<<< HEAD
   FormReset
 } from "../../components";
-=======
-  FormReset,
-} from '../../components'
->>>>>>> 3a949bb02b3651485a713c8ba756a2caf926b0e1
 
 import { PreviewImg, Content, ImgPreview, Info } from './styles'
 
@@ -59,21 +54,11 @@ class Room extends Component {
     // this.onEditFormSubmit = this.onEditFormSubmit.bind(this);
   }
   componentDidMount() {
-<<<<<<< HEAD
     const { room, bed } = this.props;
     const { room_id } = this.props.match.params;
     this.setState({ currRoom: room_id });
     this.props.fetchRoom(room_id);
     this.props.fetchBedsAt(room_id);
-=======
-    const { room, bed } = this.props
-    const { room_id } = this.props.match.params
-    this.setState({ currRoom: room_id })
-    this.props.fetchRoom(room_id)
-    this.props.fetchBedsAt(room_id)
-    this.props.fetchSensors()
-    this.props.fetchPatients()
->>>>>>> 3a949bb02b3651485a713c8ba756a2caf926b0e1
     // let { _id } = this.props.match.params
     // console.log(_id)
   }
@@ -119,7 +104,6 @@ class Room extends Component {
     ) {
       this.setState({ updating: true, updatingText: 'initial' })
       this.props.deleteBed(bedId).then(callback => {
-<<<<<<< HEAD
         this.setState({
           updatingText: `${getOrdinal(
             number
@@ -127,15 +111,6 @@ class Room extends Component {
         });
         this.props.fetchBedsAt(room_id);
       });
-=======
-        this.props.deleteBedAt(room_id, { bedId: bedId }).then(() => {
-          this.setState({
-            updatingText: `${getOrdinal(number)} bed has been successfully deleted!`,
-          })
-          this.props.fetchBedsAt(room_id)
-        })
-      })
->>>>>>> 3a949bb02b3651485a713c8ba756a2caf926b0e1
     }
   }
   addBed = (values, file) => {
@@ -175,11 +150,6 @@ class Room extends Component {
       room_: room_id
     });
     data = temp;
-<<<<<<< HEAD
-=======
-    console.log(data);
-
->>>>>>> 3a949bb02b3651485a713c8ba756a2caf926b0e1
     if (!data) {
       return alert('dfa')
     }
@@ -202,14 +172,9 @@ class Room extends Component {
   }
 
   selectOption(options) {
-<<<<<<< HEAD
     if(!options){return}
     if (options.length<1) {
       return <option>There is no item available</option>;
-=======
-    if (!options) {
-      return
->>>>>>> 3a949bb02b3651485a713c8ba756a2caf926b0e1
     }
     return _.map(options, option => {
       const optionName = option.node_name ? option.node_name : `${option.first_name} ${option.last_name}`
@@ -229,19 +194,11 @@ class Room extends Component {
     let title = '',
       submitHandler = '',
       placeholder = {
-<<<<<<< HEAD
         number: "Enter an integer number.",
         _sensor_node: { id: "", name: "Please select a sensor for this bed." },
         _patient: { id: "", name: "Please select a patient for this bed." },
         button: "Add"
       };
-=======
-        number: 'Enter an integer number.',
-        _sensor_node: 'Please select a sensor for this bed.',
-        _patient: 'Please select a patient for this bed.',
-        button: 'Add',
-      }
->>>>>>> 3a949bb02b3651485a713c8ba756a2caf926b0e1
     switch (mode) {
       case 'edit':
         if (!bed) {
@@ -249,7 +206,6 @@ class Room extends Component {
         }
         title = `${getOrdinal(bed.number)} bed Edit`
         submitHandler = data => {
-<<<<<<< HEAD
           this.onFormSubmit(data, mode, bed._id);
         };
         const { _patient, _sensor_node, number } = bed;
@@ -263,14 +219,6 @@ class Room extends Component {
           : placeholder._sensor_node.name;
         placeholder.button = "Edit";
         break;
-=======
-          this.onFormSubmit(data, mode, bed._id)
-        }
-
-        placeholder.number = bed.number
-        placeholder.button = 'Edit'
-        break
->>>>>>> 3a949bb02b3651485a713c8ba756a2caf926b0e1
       default:
         title = 'Add a bed'
         submitHandler = data => {
@@ -347,13 +295,10 @@ class Room extends Component {
     )
   }
   onOpenModal(bedId) {
-<<<<<<< HEAD
     const { modalMode } = this.state;
     this.props.fetchFreeSensors();
     this.props.fetchFreePatients();
-=======
     const { modalMode } = this.state
->>>>>>> 3a949bb02b3651485a713c8ba756a2caf926b0e1
     this.props.fetchBed(bedId).then(() => {
       const { bed } = this.props
       if (bed && modalMode === 'edit') {
@@ -509,15 +454,10 @@ class Room extends Component {
           <button
             className="btn btn-primary pull-left"
             onClick={() => {
-<<<<<<< HEAD
               this.setState({ modalMode: "add", open: true });
               this.props.fetchFreeSensors();
               this.props.fetchFreePatients();
               this.handleInitializeNull();
-=======
-              this.setState({ modalMode: 'add', open: true })
-              this.handleInitializeNull()
->>>>>>> 3a949bb02b3651485a713c8ba756a2caf926b0e1
             }}
           >
             Add
@@ -569,32 +509,19 @@ class Room extends Component {
 }
 
 function mapStateToProps(state) {
-<<<<<<< HEAD
   const { room, beds_at } = state.rooms;
   const { bed, add_bed, edit_bed } = state.beds;
   const { free_patients, patient } = state.patients;
   const { free_sensors } = state.sensors;
-=======
-  const { room, beds_at } = state.rooms
-  const { bed, add_bed, edit_bed } = state.beds
-  const { patients, patient } = state.patients
-  const { sensors } = state.sensors
->>>>>>> 3a949bb02b3651485a713c8ba756a2caf926b0e1
   return {
     room,
     beds_at,
     bed,
     add_bed,
     patient,
-<<<<<<< HEAD
     free_patients,
     free_sensors
   };
-=======
-    patients,
-    sensors,
-  }
->>>>>>> 3a949bb02b3651485a713c8ba756a2caf926b0e1
 }
 
 function validate(values) {
