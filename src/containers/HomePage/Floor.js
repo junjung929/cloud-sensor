@@ -1,5 +1,4 @@
 import _ from 'lodash'
-<<<<<<< HEAD
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
@@ -9,17 +8,6 @@ import styled from 'styled-components'
 
 //components
 import { Table, BackToList } from '../../components';
-=======
-import React, { Component } from 'react'
-import { connect } from 'react-redux'
-import { Link } from 'react-router-dom'
-import LoadingIndicator from 'react-loading-indicator'
-import { fetchRoomsAt, fetchFloor } from '../../actions'
-import styled from 'styled-components'
-
-//components
-import { Table, BackToList } from '../../components'
->>>>>>> 3a949bb02b3651485a713c8ba756a2caf926b0e1
 
 const Content = styled.div`
   display: flex;
