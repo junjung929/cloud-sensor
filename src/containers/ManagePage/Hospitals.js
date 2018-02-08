@@ -15,7 +15,6 @@ import {
   deleteBed,
   addHospital,
   editHospital,
-<<<<<<< HEAD
   deleteHospital
 } from "../../actions";
 import Modal from "react-responsive-modal";
@@ -27,13 +26,6 @@ import {
   RenderPhotoField,
   FormReset
 } from "../../components";
-=======
-  deleteHospital,
-} from '../../actions'
-import Modal from 'react-responsive-modal'
-
-import { Table, Profile, RenderField, RenderPhotoField, FormReset } from '../../components'
->>>>>>> 3a949bb02b3651485a713c8ba756a2caf926b0e1
 
 import { PreviewImg, Content, ImgPreview } from './styles'
 
@@ -94,36 +86,6 @@ class Hospitals extends Component {
     ) {
       this.setState({ updating: true, updatingText: 'initial' })
       this.props.deleteHospital(id).then(callback => {
-<<<<<<< HEAD
-=======
-        this.props.fetchFloorsAt(id).then(() => {
-          const { floors_at } = this.props
-          if (!floors_at || floors_at.length === 0) {
-            return
-          }
-          _.map(floors_at, floor => {
-            this.props.deleteFloor(floor._id)
-            this.props.fetchRoomsAt(floor._id).then(() => {
-              const { rooms_at } = this.props
-              if (!rooms_at) {
-                return
-              }
-              _.map(rooms_at, room => {
-                this.props.deleteRoom(room._id)
-                this.props.fetchBedsAt(room._id).then(() => {
-                  const { beds_at } = this.props
-                  if (!beds_at) {
-                    return
-                  }
-                  _.map(beds_at, bed => {
-                    this.props.deleteBed(bed._id)
-                  })
-                })
-              })
-            })
-          })
-        })
->>>>>>> 3a949bb02b3651485a713c8ba756a2caf926b0e1
         this.setState({
           updatingText: `${name} has been successfully deleted!`,
         })
