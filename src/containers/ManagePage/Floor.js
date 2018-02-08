@@ -93,24 +93,8 @@ class Floor extends Component {
         'This behaviour will also affect all information which is childe components of this room.\nAre you sure to delete?'
       )
     ) {
-<<<<<<< HEAD
       this.setState({ updating: true, updatingText: "initial" });
       this.props.deleteRoom(roomId, floor_id).then(callback => {
-=======
-      this.setState({ updating: true, updatingText: 'initial' })
-      this.props.deleteRoom(roomId).then(callback => {
-        this.props.deleteRoomAt(floor_id, { roomId: roomId }).then(() => {
-          this.props.fetchBedsAt(roomId).then(() => {
-            const { beds_at } = this.props
-            if (!beds_at) {
-              return
-            }
-            _.map(beds_at, bed => {
-              this.props.deleteBed(bed._id)
-            })
-          })
-        })
->>>>>>> 3a949bb02b3651485a713c8ba756a2caf926b0e1
         this.setState({
           updatingText: `${getOrdinal(number)} room has been successfully deleted!`,
         })
@@ -122,21 +106,11 @@ class Floor extends Component {
     const { floor_id } = this.props.match.params
     console.log(values)
     this.props.addRoom(values, file).then(callback => {
-<<<<<<< HEAD
       this.setState({ updatingText: `Room No. ${values.number} is added!` });
       this.props.fetchRoomsAt(floor_id);
       this.onCloseModal();
     });
   };
-=======
-      this.props.addRoomAt(floor_id, { roomId: callback._id }).then(() => {
-        this.setState({ updatingText: `Room No. ${values.number} is added!` })
-        this.props.fetchRoomsAt(floor_id)
-        this.onCloseModal()
-      })
-    })
-  }
->>>>>>> 3a949bb02b3651485a713c8ba756a2caf926b0e1
   editRoom = (roomId, values, file) => {
     const { floor_id } = this.props.match.params
     this.props.editRoom(roomId, values, file).then(err => {
