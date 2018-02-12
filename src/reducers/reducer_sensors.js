@@ -1,4 +1,3 @@
-import _ from "lodash";
 import {
   FETCH_SENSORS,
   FETCH_FREE_SENSORS,

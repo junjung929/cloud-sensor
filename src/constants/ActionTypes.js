@@ -70,7 +70,6 @@ export const ADD_PATIENT = "add_patient";
 export const EDIT_PATIENT = "edit_patient";
 export const DELETE_PATIENT = "delete_patient";
 
-
 // Sensor get request
 export const FETCH_SENSORS = "fetch_sensors";
 export const FETCH_FREE_SENSORS = "fetch_free_sensors";
@@ -83,6 +82,7 @@ export const DELETE_SENSOR = "delete_sensor";
 
 // Data get request
 export const FETCH_SENSOR_DATA = "fetch_sensor_data";
+export const FETCH_UPDATED_SENSOR_DATA = "fetch_updated_sensor_data";
 
 //file upload
 export const UPLOAD_FILE = "upload_file";

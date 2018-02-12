@@ -429,6 +429,7 @@ class Patients extends Component {
             option={this.selectOptionHospital()}
             onChange={e => {
               this.props.fetchFloorsAt(e.target.value);
+              if(this.state.modalMode !== "edit"){return}
               if (e.target.value === "") {
                 const additionalInit = {
                   floor_: "",
@@ -450,6 +451,7 @@ class Patients extends Component {
             option={this.selectOptionFloor()}
             onChange={e => {
               this.props.fetchRoomsAt(e.target.value);
+              if(this.state.modalMode !== "edit"){return}
               if (e.target.value === "") {
                 const additionalInit = {
                   hospital_: patient.hospital_,
@@ -471,6 +473,7 @@ class Patients extends Component {
             option={this.selectOptionRoom()}
             onChange={e => {
               this.props.fetchBedsAt(e.target.value);
+              if(this.state.modalMode !== "edit"){return}
               if (e.target.value === "") {
                 const additionalInit = {
                   hospital_: patient.hospital_,

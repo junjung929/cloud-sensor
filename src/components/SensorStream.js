@@ -44,7 +44,7 @@ const SensorStream = ({ data }) => {
                 text: 'All'
             }],
             inputEnabled: true,
-            selected: 0
+            selected: 1
         },
         title: {
             text: 'Sensor Graph'
@@ -80,14 +80,14 @@ const SensorStream = ({ data }) => {
                 tooltip: {
                     valueDecimals: 2
                 }
-            },
+            }/* ,
             {
                 name: 'Signal Strength',
                 data: data.signalStrength,
                 tooltip: {
                     valueDecimals: 2
                 }
-            }
+            } */
         ]
     };
 

@@ -23,11 +23,12 @@ export function fetchPatients() {
         type: FETCH_PATIENTS,
         payload: data
       });
+      return data;
     });
   };
 }
 export function fetchFreePatients() {
-  const query = `/free`
+  const query = `/free`;
   const url = `${URL}${query}`;
   const request = axios.get(url);
 

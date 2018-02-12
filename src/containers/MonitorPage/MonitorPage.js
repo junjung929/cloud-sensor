@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import { SearchResult } from 'components'
-import { Sensor } from 'containers'
+import { SearchResult } from '../../components'
+import { Monitor } from '../MonitorPage'
 import { BrowserRouter as Router, Route } from 'react-router-dom'
 import styled from 'styled-components'
 
@@ -11,7 +11,7 @@ const MonitorPage = ({ match }) => {
     return (
         <InnerContainer>
             <Route exact path={`${url}`} component={() => { return (<div>Please search a patient by name</div>) }} />
-            <Route path={`${url}/patient=:_id`} component={Sensor} />
+            <Route path={`${url}/patient=:_id`} component={Monitor} />
             <Route path={`${url}/search=:searchByName`} component={SearchResult} />
         </InnerContainer>
     )

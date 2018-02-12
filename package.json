@@ -15,6 +15,7 @@
     "react-responsive-modal": "^2.0.0",
     "react-router-dom": "^4.2.2",
     "react-scripts": "1.0.17",
+    "react-tag-autocomplete": "^5.5.0",
     "recompose": "^0.26.0",
     "redux": "^3.7.0",
     "redux-actions": "^2.2.1",
