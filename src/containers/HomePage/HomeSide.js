@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
-import Searchbar from './Searchbar';
+import Searchbar from '../../components/Searchbar';
+import { Icon } from "semantic-ui-react";
 import styled from 'styled-components';
 
 const windowHeight = window.innerHeight;
@@ -34,11 +35,11 @@ function Sidebar() {
             <Brand><a href="/"><BrandSpan>Cloud Sensor Monitor</BrandSpan></a></Brand>
             <Search><Searchbar url={`/home`} /></Search>
             <SideItemGroup>
-            <Link to="/home/view"><SideItem><Span>{/* <span class="glyphicon glyphicon-home"></span>  */}Home</Span></SideItem></Link>
-            <Link to="/monitor"><SideItem><Span>{/* <span class="glyphicon glyphicon-facetime-video"></span>  */}Monitor</Span></SideItem></Link>
-            <Link to="/multi"><SideItem><Span>Multi Monitor</Span></SideItem></Link>
-            <Link to="/manage"><SideItem><Span>Management</Span></SideItem></Link>
-            <Link to="/about"><SideItem><Span>About</Span></SideItem></Link>
+            <Link to="/home/view"><SideItem><Span><Icon name="home" /> Home</Span></SideItem></Link>
+            <Link to="/monitor"><SideItem><Span><Icon name="computer" /> Monitor</Span></SideItem></Link>
+            <Link to="/multi"><SideItem><Span><Icon name="computer" /> Multi Monitor</Span></SideItem></Link>
+            <Link to="/manage"><SideItem><Span><Icon name="settings" /> Management</Span></SideItem></Link>
+            <Link to="/about"><SideItem><Span><Icon name="help circle outline" /> About</Span></SideItem></Link>
             </SideItemGroup>
         </Side>
     )

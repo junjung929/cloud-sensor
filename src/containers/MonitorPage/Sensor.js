@@ -153,7 +153,7 @@ class Sensor extends Component {
       updateString = "unlimited";
     }
     return (
-      <PatientInfo>
+      <PatientInfo className={this.props.className} >
         <SensorStream data={this.state.sensorGraph} />
         <select
           onChange={() => {

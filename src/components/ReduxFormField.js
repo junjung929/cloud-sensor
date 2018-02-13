@@ -79,7 +79,7 @@ export const RenderPhotoField = field => {
   return (
     <div>
       <label>{label}</label>
-      <input className="form-control" type="file" onChange={input.onChange} />
+      <input className="form-control" type="file" accept="image/*" onChange={input.onChange} />
     </div>
   );
 };

@@ -71,6 +71,11 @@ class Hospitals extends Component {
 
     let reader = new FileReader();
     let file = e.target.files[0];
+    let fileValidateRex = /^(image)\/(.+)$/;
+    if (!fileValidateRex.exec(file.type)) {
+      alert("Please upload only image file!");
+      return;
+    }
     reader.onloadend = () => {
       this.setState({ file, imagePreviewUrl: reader.result });
     };
@@ -279,7 +284,9 @@ class Hospitals extends Component {
           <th scope="row" width="10%">
             {++i}
           </th>
-          <td><Link to={`/manage/hospital=${hospital._id}`}>{hospital.name}</Link></td>
+          <td>
+            <Link to={`/manage/hospital=${hospital._id}`}>{hospital.name}</Link>
+          </td>
           <td>{hospital.address}</td>
           <td width="10%">
             <div

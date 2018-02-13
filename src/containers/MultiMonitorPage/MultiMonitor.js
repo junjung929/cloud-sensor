@@ -47,7 +47,7 @@ class MultiMonitor extends Component {
   }
   renderSensors() {
     return _.map(this.state.tags, tag => {
-      return <Sensor key={`multi-${tag._id}`} patient={tag.patient} />;
+      return <Sensor className="col-md-6" key={`multi-${tag._id}`} patient={tag.patient} />;
     });
   }
   render() {

@@ -1,9 +1,7 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { fetchPatient } from "actions";
+import { fetchPatient } from "../../actions";
 import styled from "styled-components";
-
-import { Table, BackToList } from "components";
 
 const Info = styled.div`
   display: flex;
@@ -14,9 +12,6 @@ const Info = styled.div`
 const Content = styled.div``;
 
 class PatientDataPage extends Component {
-  constructor(props) {
-    super(props);
-  }
   componentWillMount() {
     const { _id } = this.props.match.params;
     this.props.fetchPatient(_id);

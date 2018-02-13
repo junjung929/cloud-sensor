@@ -54,8 +54,8 @@ class RoomPage extends Component {
             }
             let dateFormat = require('dateformat');
             let birth = dateFormat(patient.birth, "yyyy-mm-dd");
-            let enter_date = dateFormat(patient.enter_day, "yyyy-mm-dd");
-            let leave_date = dateFormat(patient.leave_day, "yyyy-mm-dd");
+            let enter_date = dateFormat(patient.enter_date, "yyyy-mm-dd");
+            let leave_date = dateFormat(patient.leave_date, "yyyy-mm-dd");
             return (
                 
                 <div key={bed._id} className="col-sm-4">

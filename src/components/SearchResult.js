@@ -1,7 +1,7 @@
 import _ from 'lodash'
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Link } from 'react-router-dom';
+// import { Link } from 'react-router-dom';
 import LoadingIndicator from 'react-loading-indicator';
 import { fetchPatientsSearched } from '../actions';
 import styled from 'styled-components';
@@ -27,7 +27,7 @@ class SearchResultPage extends Component {
     componentDidUpdate(){
         let { searchByName } = this.props.match.params;
         // if new search keyword is different with current keyword
-        if(this.state.searchByName != searchByName) {
+        if(this.state.searchByName !== searchByName) {
             // fetch the data again
             this.props.fetchPatientsSearched(searchByName);
             // set new value as current keyword
@@ -39,7 +39,7 @@ class SearchResultPage extends Component {
     onCountResult() {
         if(this.props.patients_searched ){
             let countResult = this.props.patients_searched.length;
-            if(countResult != this.state.countResult){
+            if(countResult !== this.state.countResult){
                 this.setState({countResult});
             }
         }

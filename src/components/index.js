@@ -1,6 +1,5 @@
 export { default as Counter } from "./Counter";
 export { default as Header } from "./Header";
-export { default as Sidebar } from "./Sidebar";
 export { default as Carousel } from "./Carousel";
 export { default as Searchbar } from "./Searchbar";
 export { default as Table } from "./Table";

@@ -7,8 +7,6 @@ import {
   ADD_ROOM,
   EDIT_ROOM,
   DELETE_ROOM,
-  ADD_BED_AT,
-  DELETE_BED_AT
 } from "../constants/ActionTypes";
 
 const URL = `${ROOT_URL}/api/rooms`;
@@ -108,35 +106,6 @@ export function deleteRoom(id, floor_) {
     return request.then(({ data }) => {
       dispatch({
         type: DELETE_ROOM,
-        payload: id
-      });
-    });
-  };
-}
-
-export function addBedAt(id, bedId) {
-  const query = `/add_bed/${id}`;
-  const url = `${URL}${query}`;
-  const request = axios.post(url, bedId);
-
-  return dispatch => {
-    return request.then(({ data }) => {
-      dispatch({
-        type: ADD_BED_AT,
-        payload: id
-      });
-    });
-  };
-}
-export function deleteBedAt(id, bedId) {
-  const query = `/delete_bed/${id}`;
-  const url = `${URL}${query}`;
-  const request = axios.post(url, bedId);
-
-  return dispatch => {
-    return request.then(({ data }) => {
-      dispatch({
-        type: DELETE_BED_AT,
         payload: id
       });
     });

@@ -6,20 +6,19 @@ import LoadingIndicator from "react-loading-indicator";
 import { fetchHospital, fetchFloorsAt } from "actions";
 import styled from "styled-components";
 
-//components
-import { Table, BackToList } from "components";
+import { Button, Card, Image, Icon } from "semantic-ui-react";
+import { getOrdinal } from "../../components";
+import { Content } from "./styles";
 
-const Content = styled.div`
-  display: flex;
-  justify-content: center;
-`;
+const WhiteImg = require("../../assets/white-image.png");
 
-class HospitalPage extends Component {
+class Hospital extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      _id: null
+      _id: null,
+      currItem: ""
     };
   }
   componentDidMount() {
@@ -37,33 +36,50 @@ class HospitalPage extends Component {
       this.setState({ _id });
     }
   }
-  /* backRoute(){
-        let path = [{ route: "/monitor", comment: "Monitor"}];
-        return path;
-    }*/
+  onItemClick(currId) {
+    const { currItem } = this.state;
+    if (currItem != currId) {
+      this.setState({ currItem: currId });
+    } else {
+      this.setState({ currItem: "" });
+    }
+  }
   renderFloorsList() {
-    let i = 0;
     const { url } = this.props.match;
     const { floors_at } = this.props;
     if (!floors_at) {
-      return;
+      return <div className="text-center">No result...</div>;
     }
-    if (floors_at.length === 0) {
-      return;
+    console.log(floors_at.length);
+    if (floors_at.length == 0) {
+      return <div className="text-center">No result...</div>;
     }
     return _.map(floors_at, floor => {
+      const { currItem } = this.state;
+      const imgSrc = floor.imgSrc ? floor.imgSrc : String(WhiteImg);
+      let toFloor = `${url}/floor=${floor._id}`;
+      let spread = "Open";
+      if (currItem === floor._id) {
+        toFloor = url;
+        spread = "Close";
+      }
+      const extra = (
+        <Link to={toFloor} onClick={() => this.onItemClick(floor._id)}>
+          {spread}
+        </Link>
+      );
       return (
-        <div key={floor._id} className="col-sm-4">
-          <div className="text-center">
-            <h3 className="">
-              <strong>{floor.number} floor</strong>
-            </h3>
-            <p>Number of Rooms: {floor._room_list.length}</p>
-            <Link to={`${url}/floor=${floor._id}`} className="btn btn-default">
-              Go
-            </Link>
-          </div>
-        </div>
+        <Card key={`card-${floor._id}`}>
+          <Image src={imgSrc} alt={`floor-${floor.number}-profile-image`} />
+          <Card.Content>
+            <Card.Header>{getOrdinal(floor.number)} floor</Card.Header>
+            <Card.Meta>Floors</Card.Meta>
+            <Card.Description>
+              Number of Rooms: {floor._room_list.length}
+            </Card.Description>
+          </Card.Content>
+          <Card.Content extra>{extra}</Card.Content>
+        </Card>
       );
     });
   }
@@ -77,11 +93,12 @@ class HospitalPage extends Component {
       );
     }
     return (
-      <div id="hospital" className="table-wrapper">
-        {/* <BackToList route={this.backRoute()} /><div className="btn btn-primary active">{this.props.hospital.name}</div> */}
+      <Content id="hospital">
         <h3 className="text-center">{hospital.name}</h3>
-        <Content>{this.renderFloorsList()}</Content>
-      </div>
+        <Card.Group style={{ justifyContent: "center" }}>
+          {this.renderFloorsList()}
+        </Card.Group>
+      </Content>
     );
   }
 }
@@ -93,5 +110,5 @@ function mapStateToProps(state) {
 }
 
 export default connect(mapStateToProps, { fetchHospital, fetchFloorsAt })(
-  HospitalPage
+  Hospital
 );

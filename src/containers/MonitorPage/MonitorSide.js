@@ -2,7 +2,7 @@ import React from 'react';
 import { Searchbar } from '../../components'
 import { SideInner, A, H3, SideSearch, Content } from "./styles";
 import { Link, Route } from "react-router-dom";
-import { Patient } from "../HomePage";
+import { Patient } from "../MonitorPage";
 
 
 const MonitorSide = ({ match }) => {

@@ -16,8 +16,6 @@ import {
   addPatient,
   editPatient,
   deletePatient,
-  addPatientAt,
-  deletePatientAt
 } from "actions";
 import Modal from "react-responsive-modal";
 
@@ -786,7 +784,5 @@ export default reduxForm({
     addPatient,
     editPatient,
     deletePatient,
-    addPatientAt,
-    deletePatientAt
   })(Patients)
 );

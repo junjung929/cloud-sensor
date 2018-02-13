@@ -7,8 +7,6 @@ import {
   ADD_HOSPITAL,
   EDIT_HOSPITAL,
   DELETE_HOSPITAL,
-  ADD_FLOOR_AT,
-  DELETE_FLOOR_AT,
   RESET_HOSPITAL_FORM
 } from "../constants/ActionTypes";
 

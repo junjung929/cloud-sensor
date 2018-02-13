@@ -1,7 +1,7 @@
 import _ from "lodash";
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { Field, reduxForm, initialize } from "redux-form";
+import { Field, reduxForm } from "redux-form";
 import { Link } from "react-router-dom";
 import LoadingIndicator from "react-loading-indicator";
 import {
@@ -12,22 +12,17 @@ import {
   addBed,
   editBed,
   deleteBed,
-  addBedAt,
-  deleteBedAt,
   fetchFreePatients,
   fetchPatient,
   editSensor,
-  deleteSensorAt
 } from "actions";
 import Modal from "react-responsive-modal";
 
 import {
   Table,
-  Profile,
   getOrdinal,
   RenderField,
   RenderSelectField,
-  RenderSelectGroupField,
   RenderPhotoField,
   FormReset
 } from "components";
@@ -53,7 +48,6 @@ class Room extends Component {
     // this.onEditFormSubmit = this.onEditFormSubmit.bind(this);
   }
   componentDidMount() {
-    const { room, bed } = this.props;
     const { room_id } = this.props.match.params;
     this.setState({ currRoom: room_id });
     this.props.fetchRoom(room_id);
@@ -113,7 +107,7 @@ class Room extends Component {
     }
   };
   addBed = (values, file) => {
-    const { id, floor_id, room_id } = this.props.match.params;
+    const { room_id } = this.props.match.params;
     // console.log(values);
     this.props.addBed(values, file).then(callback => {
       const { err } = callback;
@@ -151,7 +145,7 @@ class Room extends Component {
     if (!data) {
       return alert("dfa");
     }
-    const { file, onSubmit } = this.state;
+    const { file } = this.state;
 
     //file config
     const newData = new FormData();
@@ -159,19 +153,21 @@ class Room extends Component {
     newData.set("file", file);
     this.setState({ updating: true, updatingText: "initial" });
     switch (mode) {
-      case "add":
-        // console.log(data);
-        this.addBed(data, newData);
-        break;
       case "edit":
         this.editBed(bedId, data, newData);
+        break;
+      default:
+        // console.log(data);
+        this.addBed(data, newData);
         break;
     }
   };
 
   selectOption(options) {
-    if(!options){return}
-    if (options.length<1) {
+    if (!options) {
+      return;
+    }
+    if (options.length < 1) {
       return <option>There is no item available</option>;
     }
     return _.map(options, option => {
@@ -208,7 +204,7 @@ class Room extends Component {
         submitHandler = data => {
           this.onFormSubmit(data, mode, bed._id);
         };
-        const { _patient, _sensor_node, number } = bed;
+        const { _patient, _sensor_node } = bed;
         placeholder._patient.id = _patient ? _patient._id : "";
         placeholder._patient.name = _patient
           ? `${_patient.first_name} ${_patient.last_name}`
@@ -321,7 +317,7 @@ class Room extends Component {
   }
   renderPatient() {
     const { patient } = this.props;
-
+    const fullName = `${patient.first_name} ${patient.last_name}`;
     if (!patient) {
       return <LoadingIndicator />;
     }
@@ -335,11 +331,10 @@ class Room extends Component {
           src={patient.imgSrc}
           className="img-circle"
           style={{ width: 150, height: 150 }}
+          alt={`patient ${fullName}`}
         />
         <div>
-          <h3>
-            {patient.first_name} {patient.last_name}
-          </h3>
+          <h3>{fullName}</h3>
           <p>Address: {patient.address}</p>
           <p>Tel. {patient.phone_number}</p>
           <p>Birthday: {birth}</p>
@@ -426,7 +421,7 @@ class Room extends Component {
   }
   render() {
     const { room } = this.props;
-    const { open, updating, updatingText, currBed, modalMode } = this.state;
+    const { open, updating, updatingText, modalMode } = this.state;
     const tableHeadRow = (
       <tr>
         <td>No.</td>
@@ -496,8 +491,6 @@ class Room extends Component {
             switch (updatingText) {
               case "initial":
                 return <LoadingIndicator />;
-
-                break;
               default:
                 return (
                   <div>
@@ -530,6 +523,7 @@ function mapStateToProps(state) {
     beds_at,
     bed,
     add_bed,
+    edit_bed,
     patient,
     free_patients,
     free_sensors
@@ -560,11 +554,8 @@ export default reduxForm({
     addBed,
     editBed,
     deleteBed,
-    addBedAt,
-    deleteBedAt,
     fetchFreePatients,
     fetchPatient,
     editSensor,
-    deleteSensorAt
   })(Room)
 );
