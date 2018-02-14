@@ -26,13 +26,16 @@ class MultiMonitor extends Component {
       });
     });
   }
-  handleDelete(i) {
+  componentWillUnmount(){
+    console.log("unmo")
+  }
+  handleDelete = i => {
     const tags = this.state.tags.slice(0);
     tags.splice(i, 1);
     this.setState({ tags });
-  }
+  };
 
-  handleAddition(tag) {
+  handleAddition = tag => {
     let isSameTag = false;
     _.map(this.state.tags, oldTag => {
       if (oldTag._id === tag._id) {
@@ -45,7 +48,7 @@ class MultiMonitor extends Component {
     }
     const tags = [].concat(this.state.tags, tag);
     this.setState({ tags });
-  }
+  };
   renderSensors() {
     const { tags } = this.state;
     if (tags.length === 0) {
@@ -60,7 +63,7 @@ class MultiMonitor extends Component {
     return _.map(this.state.tags, tag => {
       return (
         <Sensor
-          className="col-md-6"
+          className="col-sm-6"
           key={`multi-${tag._id}`}
           patient={tag.patient}
           title={tag.name}

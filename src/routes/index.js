@@ -5,8 +5,8 @@ import { HomePage, HomeSide } from "../containers/HomePage";
 import { MonitorPage, MonitorSide } from "../containers/MonitorPage";
 import { ManagePage, ManageSide } from "../containers/ManagePage";
 import {
-  MultiMonitorPage
-  // MultiMonitorSide
+  MultiMonitorPage,
+  MultiMonitorSide
 } from "../containers/MultiMonitorPage";
 import { Carousel, Searchbar } from "../components";
 
@@ -55,7 +55,7 @@ class Routes extends Component {
           key={`menu-${menu.to}`}
           to={menu.to}
           title={menu.title}
-          // onClick={this.onClickGeneral}
+          onClick={menu.name === "home" ? this.onClickGeneral : null}
         >
           <Menu.Item>
             <Icon name={menu.name} />
@@ -129,14 +129,12 @@ class Routes extends Component {
     return (
       <Router>
         <div>
-          {/* <Header /> */}
           <Route exact path="/" component={Redirect} />
           <Route
             path="/(.+)"
             render={({ match }) => {
               const { url } = match;
               let onClick = null;
-              console.log(url);
               const homeUrlValidateRex = /^(\/home).+$/;
               const aboutUrlValidateRex = /^(\/about)$/;
               const multiUrlValidateRex = /^(\/multi)$/;
@@ -163,7 +161,7 @@ class Routes extends Component {
                   >
                     <Route path="/home" component={HomeSide} />
                     <Route path="/monitor" component={MonitorSide} />
-                    <Route path="/multi" component={HomeSide} />
+                    <Route path="/multi" component={MultiMonitorSide} />
                     <Route path="/manage" component={ManageSide} />
                   </Sidebar>
                   <Route path="/home" component={() => this.HomeMenu()} />
@@ -179,7 +177,7 @@ class Routes extends Component {
                   <Route path="/about" component={() => this.HomeMenu()} />
                   <HomeContainer id="home" onClick={this.onClickGeneral}>
                     <div style={{ height: "40px" }} />
-                    <Carousel />
+                    <Route path="/home" component={Carousel} />
                     <Container>
                       <Search>
                         <Route
