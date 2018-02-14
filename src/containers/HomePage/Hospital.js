@@ -4,9 +4,8 @@ import { connect } from "react-redux";
 import { Link } from "react-router-dom";
 import LoadingIndicator from "react-loading-indicator";
 import { fetchHospital, fetchFloorsAt } from "actions";
-import styled from "styled-components";
 
-import { Button, Card, Image, Icon } from "semantic-ui-react";
+import { Card, Image, Icon } from "semantic-ui-react";
 import { getOrdinal } from "../../components";
 import { Content } from "./styles";
 
@@ -30,7 +29,7 @@ class Hospital extends Component {
   }
   componentDidUpdate() {
     const { _id } = this.props.match.params;
-    if (_id != this.state._id) {
+    if (_id !== this.state._id) {
       this.props.fetchHospital(_id);
       this.props.fetchFloorsAt(_id);
       this.setState({ _id });
@@ -38,7 +37,7 @@ class Hospital extends Component {
   }
   onItemClick(currId) {
     const { currItem } = this.state;
-    if (currItem != currId) {
+    if (currItem !== currId) {
       this.setState({ currItem: currId });
     } else {
       this.setState({ currItem: "" });
@@ -50,8 +49,7 @@ class Hospital extends Component {
     if (!floors_at) {
       return <div className="text-center">No result...</div>;
     }
-    console.log(floors_at.length);
-    if (floors_at.length == 0) {
+    if (floors_at.length === 0) {
       return <div className="text-center">No result...</div>;
     }
     return _.map(floors_at, floor => {
@@ -70,12 +68,17 @@ class Hospital extends Component {
       );
       return (
         <Card key={`card-${floor._id}`}>
-          <Image src={imgSrc} alt={`floor-${floor.number}-profile-image`} />
           <Card.Content>
+            <Image
+              floated="right"
+              size="mini"
+              src={imgSrc}
+              alt={`floor-${floor.number}-profile-image`}
+            />
             <Card.Header>{getOrdinal(floor.number)} floor</Card.Header>
             <Card.Meta>Floors</Card.Meta>
             <Card.Description>
-              Number of Rooms: {floor._room_list.length}
+              <p>Number of Rooms: {floor._room_list.length}</p>{" "}
             </Card.Description>
           </Card.Content>
           <Card.Content extra>{extra}</Card.Content>
@@ -94,7 +97,10 @@ class Hospital extends Component {
     }
     return (
       <Content id="hospital">
-        <h3 className="text-center">{hospital.name}</h3>
+        <h3 className="text-center">
+          <Icon name="hospital" />
+          {hospital.name}
+        </h3>
         <Card.Group style={{ justifyContent: "center" }}>
           {this.renderFloorsList()}
         </Card.Group>

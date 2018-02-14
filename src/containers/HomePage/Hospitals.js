@@ -6,7 +6,7 @@ import LoadingIndicator from "react-loading-indicator";
 import { fetchHospitals } from "../../actions";
 
 import { Content } from "./styles";
-import { Button, Card, Image, Icon } from "semantic-ui-react";
+import { Card, Image, Icon } from "semantic-ui-react";
 
 const WhiteImg = require("../../assets/white-image.png");
 
@@ -26,7 +26,7 @@ class Hospitals extends Component {
   componentDidUpdate() {}
   onItemClick(currId) {
     const { currItem } = this.state;
-    if (currItem != currId) {
+    if (currItem !== currId) {
       this.setState({ currItem: currId });
     } else {
       this.setState({ currItem: "" });
@@ -62,8 +62,8 @@ class Hospitals extends Component {
               <Card.Header>{hospital.name}</Card.Header>
               <Card.Meta>Hospitals</Card.Meta>
               <Card.Description>
-                Address: {hospital.address}
-                Tel. {hospital.phone_number}
+                <p>Address: {hospital.address}</p>
+                <p>Tel. {hospital.phone_number}</p>
               </Card.Description>
             </Card.Content>
             <Card.Content extra>{extra}</Card.Content>

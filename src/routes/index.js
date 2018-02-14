@@ -1,30 +1,18 @@
+import _ from "lodash";
 import React, { Component } from "react";
 import { BrowserRouter as Router, Route, Link } from "react-router-dom";
 import { HomePage, HomeSide } from "../containers/HomePage";
 import { MonitorPage, MonitorSide } from "../containers/MonitorPage";
 import { ManagePage, ManageSide } from "../containers/ManagePage";
 import {
-  MultiMonitorPage,
-  MultiMonitorSide
+  MultiMonitorPage
+  // MultiMonitorSide
 } from "../containers/MultiMonitorPage";
-import {
-  Header,
-  HomeSidebar,
-  Carousel,
-  Searchbar,
-  SearchResult
-} from "../components";
-import styled from "styled-components";
-import {
-  Sidebar,
-  Segment,
-  Button,
-  Menu,
-  Icon,
-  Container
-} from "semantic-ui-react";
+import { Carousel, Searchbar } from "../components";
 
-import { Side, HomeContainer, HomeContent, Search } from "./styles";
+import { Sidebar, Menu, Icon, Container } from "semantic-ui-react";
+
+import { HomeContainer, Search } from "./styles";
 
 class Routes extends Component {
   constructor(props) {
@@ -34,11 +22,110 @@ class Routes extends Component {
       toggle: 0
     };
   }
-
+  HomeMenu = () => {
+    let menuBarIcon = "sidebar";
+    if (this.state.visible === true) {
+      menuBarIcon = "triangle left";
+    }
+    return (
+      <Menu
+        id="toggleMenu"
+        style={{
+          position: "fixed",
+          zIndex: 1000,
+          width: "100%",
+          margin: 0,
+          top: 0,
+          borderRadius: 0
+        }}
+      >
+        <Link to="/">
+          <Menu.Item header>Sensor Monitor</Menu.Item>
+        </Link>
+        <Menu.Item onClick={this.toggleVisibility}>
+          <Icon name={menuBarIcon} />Menu
+        </Menu.Item>
+      </Menu>
+    );
+  };
+  renderMenus = menus => {
+    return _.map(menus, menu => {
+      return (
+        <Link
+          key={`menu-${menu.to}`}
+          to={menu.to}
+          title={menu.title}
+          // onClick={this.onClickGeneral}
+        >
+          <Menu.Item>
+            <Icon name={menu.name} />
+          </Menu.Item>
+        </Link>
+      );
+    });
+  };
+  OtherMenu = menuBarText => {
+    let menuBarIcon = "sidebar";
+    if (this.state.visible === true) {
+      menuBarIcon = "triangle left";
+    }
+    const menus = [
+      {
+        to: "/home/view",
+        title: "Go Home page",
+        name: "home"
+      },
+      {
+        to: "/monitor",
+        title: "Go Monitoring page",
+        name: "computer"
+      },
+      {
+        to: "/multi",
+        title: "Go Multi Monitoring page",
+        name: "users"
+      },
+      {
+        to: "/manage",
+        title: "Go Management page",
+        name: "settings"
+      },
+      {
+        to: "/about",
+        title: "Go About page",
+        name: "help circle outline"
+      }
+    ];
+    return (
+      <Menu
+        id="toggleMenu"
+        style={{
+          position: "fixed",
+          zIndex: 1000,
+          width: "100%",
+          margin: 0,
+          top: 0,
+          borderRadius: 0
+        }}
+      >
+        <Link to="/" title="Go Homepage">
+          <Menu.Item header>Sensor Monitor</Menu.Item>
+        </Link>
+        <Menu.Item onClick={this.toggleVisibility}>
+          <Icon name={menuBarIcon} />
+          {menuBarText}
+        </Menu.Item>
+        {this.renderMenus(menus)}
+      </Menu>
+    );
+  };
   toggleVisibility = () => this.setState({ visible: !this.state.visible });
+  onClickGeneral = () => {
+    if (this.state.visible === true)
+      this.setState({ visible: !this.state.visible });
+  };
   render() {
     const { visible } = this.state;
-
     return (
       <Router>
         <div>
@@ -46,69 +133,78 @@ class Routes extends Component {
           <Route exact path="/" component={Redirect} />
           <Route
             path="/(.+)"
-            render={() => (
-              <div>
-                <Sidebar
-                  as={Menu}
-                  animation="push"
-                  width="wide"
-                  visible={visible}
-                  icon="labeled"
-                  vertical
-                  inverted
-                  style={{ top: "40px" }}
-                >
-                  <Route path="/home" component={HomeSide} />
-                  <Route path="/monitor" component={MonitorSide} />
-                  <Route path="/multi" component={MultiMonitorSide} />
-                  <Route path="/manage" component={ManageSide} />
-                </Sidebar>
-                <Menu
-                  id="toggleMenu"
-                  style={{
-                    position: "fixed",
-                    zIndex: 1000,
-                    width: "100%",
-                    margin: 0,
-                    top: 0,
-                    borderRadius: 0
-                  }}
-                >
-                  <Link to="/">
-                    <Menu.Item header>Sensor Monitor</Menu.Item>
-                  </Link>
-                  <Menu.Item onClick={this.toggleVisibility}>
-                    <Icon name="sidebar" />Menu
-                  </Menu.Item>
-                </Menu>
-
-                <HomeContainer id="home">
-                  <div style={{ height: "40px" }} />
-                  <Carousel />
-                  <Container>
-                    <Search>
-                      <Route
-                        path="/home"
-                        component={() => {
-                          return <Searchbar url={`/home`} />;
-                        }}
-                      />
-                      <Route
-                        path="/monitor"
-                        component={() => {
-                          return <Searchbar url={`/monitor`} />;
-                        }}
-                      />
-                    </Search>
-                    <Route path="/home" component={HomePage} />
-                    <Route path="/monitor" component={MonitorPage} />
-                    <Route path="/multi" component={MultiMonitorPage} />
-                    <Route path="/manage" component={ManagePage} />
-                    <Route path="/about" component={temp} />
-                  </Container>
-                </HomeContainer>
-              </div>
-            )}
+            render={({ match }) => {
+              const { url } = match;
+              let onClick = null;
+              console.log(url);
+              const homeUrlValidateRex = /^(\/home).+$/;
+              const aboutUrlValidateRex = /^(\/about)$/;
+              const multiUrlValidateRex = /^(\/multi)$/;
+              if (
+                homeUrlValidateRex.exec(url) ||
+                aboutUrlValidateRex.exec(url) ||
+                multiUrlValidateRex.exec(url)
+              ) {
+                onClick = this.onClickGeneral;
+              }
+              return (
+                <div>
+                  <Sidebar
+                    id="Sidebar"
+                    as={Menu}
+                    animation="push"
+                    width="wide"
+                    visible={visible}
+                    icon="labeled"
+                    vertical
+                    inverted
+                    style={{ top: "40px" }}
+                    onClick={onClick}
+                  >
+                    <Route path="/home" component={HomeSide} />
+                    <Route path="/monitor" component={MonitorSide} />
+                    <Route path="/multi" component={HomeSide} />
+                    <Route path="/manage" component={ManageSide} />
+                  </Sidebar>
+                  <Route path="/home" component={() => this.HomeMenu()} />
+                  <Route
+                    path="/monitor"
+                    component={() => this.OtherMenu("Patient Info")}
+                  />
+                  <Route path="/multi" component={() => this.HomeMenu()} />
+                  <Route
+                    path="/manage"
+                    component={() => this.OtherMenu("See List")}
+                  />
+                  <Route path="/about" component={() => this.HomeMenu()} />
+                  <HomeContainer id="home" onClick={this.onClickGeneral}>
+                    <div style={{ height: "40px" }} />
+                    <Carousel />
+                    <Container>
+                      <Search>
+                        <Route
+                          path="/home"
+                          component={() => {
+                            return <Searchbar url={`/home`} />;
+                          }}
+                        />
+                        <Route
+                          path="/monitor"
+                          component={() => {
+                            return <Searchbar url={`/monitor`} />;
+                          }}
+                        />
+                      </Search>
+                      <Route path="/home" component={HomePage} />
+                      <Route path="/monitor" component={MonitorPage} />
+                      <Route path="/multi" component={MultiMonitorPage} />
+                      <Route path="/manage" component={ManagePage} />
+                      <Route path="/about" component={temp} />
+                    </Container>
+                  </HomeContainer>
+                </div>
+              );
+            }}
           />
         </div>
       </Router>

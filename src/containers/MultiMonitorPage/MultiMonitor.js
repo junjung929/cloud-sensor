@@ -4,6 +4,7 @@ import { connect } from "react-redux";
 import { fetchHospitals, fetchPatients } from "../../actions";
 import ReactTags from "react-tag-autocomplete";
 import { Sensor } from "../MonitorPage";
+import { Content } from "./styles";
 
 class MultiMonitor extends Component {
   constructor(props) {
@@ -46,8 +47,25 @@ class MultiMonitor extends Component {
     this.setState({ tags });
   }
   renderSensors() {
+    const { tags } = this.state;
+    if (tags.length === 0) {
+      return (
+        <div className="text-center">
+          <h2>Multi Monitor Page</h2>
+          <h4>You can take care of multiple patients at the same time</h4>
+          <h4>Please search patients with name</h4>
+        </div>
+      );
+    }
     return _.map(this.state.tags, tag => {
-      return <Sensor className="col-md-6" key={`multi-${tag._id}`} patient={tag.patient} />;
+      return (
+        <Sensor
+          className="col-md-6"
+          key={`multi-${tag._id}`}
+          patient={tag.patient}
+          title={tag.name}
+        />
+      );
     });
   }
   render() {
@@ -59,7 +77,9 @@ class MultiMonitor extends Component {
           handleDelete={this.handleDelete.bind(this)}
           handleAddition={this.handleAddition.bind(this)}
         />
-        <div style={{ zIndex: "0" }}>{this.renderSensors()}</div>
+        <Content style={{ zIndex: "0", padding: "20px" }}>
+          {this.renderSensors()}
+        </Content>
       </div>
     );
   }

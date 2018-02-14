@@ -1,8 +1,7 @@
 import _ from "lodash";
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { Field, reduxForm, initialize } from "redux-form";
-import { Link } from "react-router-dom";
+import { Field, reduxForm } from "redux-form";
 import LoadingIndicator from "react-loading-indicator";
 import {
   fetchHospitals,
@@ -15,17 +14,15 @@ import {
   fetchPatient,
   addPatient,
   editPatient,
-  deletePatient,
+  deletePatient
 } from "actions";
 import Modal from "react-responsive-modal";
 
 import {
   getOrdinal,
   Table,
-  Profile,
   RenderField,
   RenderPhotoField,
-  RenderSelectField,
   RenderSelectGroupField,
   FormReset
 } from "components";
@@ -52,7 +49,7 @@ class Patients extends Component {
     // this.onEditFormSubmit = this.onEditFormSubmit.bind(this);
   }
   componentDidMount() {
-    const { hospitals, hospital } = this.props;
+    const { hospitals } = this.props;
     if (!hospitals) {
       this.props.fetchHospitals();
     }
@@ -98,7 +95,7 @@ class Patients extends Component {
     console.log(file);
   }
   deletePatient = patientId => e => {
-    onClick: if (
+    if (
       window.confirm(
         "This behaviour will also affect all information which is childe components of this room.\nAre you sure to delete?"
       )
@@ -122,7 +119,6 @@ class Patients extends Component {
       if (callback.err) {
         return this.setState({ updatingText: `${callback.err}` });
       }
-      this.props;
       this.setState({
         updatingText: `Patient ${values.first_name} ${
           values.last_name
@@ -141,7 +137,6 @@ class Patients extends Component {
         return this.setState({ updatingText: `${err}, please try again.` });
       }
       this.props.fetchPatient(patientId).then(() => {
-        const { patient } = this.props;
         this.setState({
           updatingText: `Patient ${values.first_name} ${
             values.last_name
@@ -157,7 +152,7 @@ class Patients extends Component {
     if (!data) {
       return alert("Please enter valid input");
     }
-    const { file, onSubmit } = this.state;
+    const { file } = this.state;
 
     //file config
     const newData = new FormData();
@@ -165,17 +160,14 @@ class Patients extends Component {
     newData.set("file", file);
     this.setState({ updating: true, updatingText: "initial" });
     switch (mode) {
-      case "add":
-        console.log(data);
-        this.addPatient(data, newData);
-        break;
       case "edit":
         this.editPatient(patientId, data, newData);
         break;
+      default:
+        this.addPatient(data, newData);
     }
   };
   onOpenModal(id) {
-    const { modalMode } = this.state;
     let iniData = {};
     this.props
       .fetchPatient(id)
@@ -427,7 +419,9 @@ class Patients extends Component {
             option={this.selectOptionHospital()}
             onChange={e => {
               this.props.fetchFloorsAt(e.target.value);
-              if(this.state.modalMode !== "edit"){return}
+              if (this.state.modalMode !== "edit") {
+                return;
+              }
               if (e.target.value === "") {
                 const additionalInit = {
                   floor_: "",
@@ -449,7 +443,9 @@ class Patients extends Component {
             option={this.selectOptionFloor()}
             onChange={e => {
               this.props.fetchRoomsAt(e.target.value);
-              if(this.state.modalMode !== "edit"){return}
+              if (this.state.modalMode !== "edit") {
+                return;
+              }
               if (e.target.value === "") {
                 const additionalInit = {
                   hospital_: patient.hospital_,
@@ -471,7 +467,9 @@ class Patients extends Component {
             option={this.selectOptionRoom()}
             onChange={e => {
               this.props.fetchBedsAt(e.target.value);
-              if(this.state.modalMode !== "edit"){return}
+              if (this.state.modalMode !== "edit") {
+                return;
+              }
               if (e.target.value === "") {
                 const additionalInit = {
                   hospital_: patient.hospital_,
@@ -508,7 +506,7 @@ class Patients extends Component {
     );
   }
   renderPatients() {
-    const { fetchPatientsAt, patients_at, patients } = this.props;
+    const { patients_at, patients } = this.props;
     let i = 0;
     if (!patients_at) {
       return _.map(patients, patient => {
@@ -604,8 +602,8 @@ class Patients extends Component {
     });
   }
   render() {
-    const { hospitals, patients_at, patients, patient } = this.props;
-    const { open, updating, updatingText, currPatient, modalMode } = this.state;
+    const { hospitals, patients } = this.props;
+    const { open, updating, updatingText, modalMode } = this.state;
     const tableHeadRow = (
       <tr>
         <td>No.</td>
@@ -677,8 +675,6 @@ class Patients extends Component {
             switch (updatingText) {
               case "initial":
                 return <LoadingIndicator />;
-
-                break;
               default:
                 return (
                   <div>
@@ -703,15 +699,9 @@ class Patients extends Component {
 
 function mapStateToProps(state) {
   const { hospitals, floors_at } = state.hospitals;
-  const { floor, add_floor, edit_floor, rooms_at } = state.floors;
+  const { rooms_at } = state.floors;
   const { beds_at } = state.rooms;
-  const {
-    patients,
-    patient,
-    patients_at,
-    add_patient,
-    edit_patient
-  } = state.patients;
+  const { patients, patient, patients_at, add_patient } = state.patients;
 
   return {
     hospitals,
@@ -783,6 +773,6 @@ export default reduxForm({
     fetchPatient,
     addPatient,
     editPatient,
-    deletePatient,
+    deletePatient
   })(Patients)
 );

@@ -13,14 +13,8 @@ import {
 } from "actions";
 import { Link } from "react-router-dom";
 import { getOrdinal } from "../../components";
-import styled from "styled-components";
+import { Segment, List } from "semantic-ui-react";
 
-const ListGroup = styled.ul`
-  padding-left: 2vw;
-`;
-const ListGroupItem = styled.li`
-  list-style-type: none;
-`;
 class HospitalsList extends Component {
   constructor(props) {
     super(props);
@@ -39,40 +33,42 @@ class HospitalsList extends Component {
     }
   }
   onBedClick(id) {
-    const { bed, fetchBed } = this.props;
+    const { fetchBed } = this.props;
     const { bedSelected } = this.state;
     fetchBed(id);
     this.setState({ bedSelected: id === bedSelected ? null : id });
   }
   onRoomClick(id) {
-    const { room, fetchRoom, fetchBedsAt } = this.props;
+    const { fetchRoom, fetchBedsAt } = this.props;
     const { roomSelected } = this.state;
     fetchRoom(id);
     fetchBedsAt(id);
     this.setState({ roomSelected: id === roomSelected ? null : id });
   }
   onFloorClick(id) {
-    const { floor, fetchFloor, fetchRoomsAt } = this.props;
-    const { floorSelected, roomSelected, room } = this.state;
+    const { fetchFloor, fetchRoomsAt } = this.props;
+    const { floorSelected } = this.state;
     fetchFloor(id);
     fetchRoomsAt(id);
-    this.setState({ floorSelected: id === floorSelected ? null : id, roomSelected: null });
+    this.setState({
+      floorSelected: id === floorSelected ? null : id,
+      roomSelected: null
+    });
   }
   onHospitalClick(id) {
-    const { hospital, fetchHospital, fetchFloorsAt } = this.props;
-    const { hospitalSelected, floorSelected, roomSelected } = this.state;
+    const { fetchHospital, fetchFloorsAt } = this.props;
+    const { hospitalSelected } = this.state;
     fetchHospital(id);
     fetchFloorsAt(id);
-    this.setState({ hospitalSelected: id === hospitalSelected ? null : id, floorSelected: null, roomSelected: null });
+    this.setState({
+      hospitalSelected: id === hospitalSelected ? null : id,
+      floorSelected: null,
+      roomSelected: null
+    });
   }
   renderBedsList() {
     const { beds_at } = this.props;
-    const {
-      hospitalSelected,
-      floorSelected,
-      roomSelected,
-      bedSelected
-    } = this.state;
+    const { bedSelected } = this.state;
     let items = <div />;
     if (!beds_at) {
       return <div />;
@@ -86,19 +82,10 @@ class HospitalsList extends Component {
       }
 
       return (
-        <ListGroup key={_id}>
-          <Link
-            style={{ textDecoration: "none", color: "white" }}
-            to={`/manage/hospital=${hospitalSelected}/floor=${floorSelected}/room=${roomSelected}/bed=${_id}/`}
-            onClick={() => {
-              this.onBedClick(_id);
-            }}
-          >
-            {" "}
-            - {getOrdinal(number)} bed
-          </Link>
-          {items}
-        </ListGroup>
+        <List.Item key={_id} style={{ textAlign: "left" }}>
+          {getOrdinal(number)} bed
+          <List size="small">{items}</List>
+        </List.Item>
       );
     });
   }
@@ -118,7 +105,7 @@ class HospitalsList extends Component {
       }
 
       return (
-        <ListGroup key={_id}>
+        <List.Item key={_id} style={{ textAlign: "left" }}>
           <Link
             style={{ textDecoration: "none", color: "white" }}
             to={`/manage/hospital=${hospitalSelected}/floor=${floorSelected}/room=${_id}/`}
@@ -127,10 +114,10 @@ class HospitalsList extends Component {
             }}
           >
             {" "}
-            - Room {number}
+            Room {number}
           </Link>
-          {items}
-        </ListGroup>
+          <List size="small">{items}</List>
+        </List.Item>
       );
     });
   }
@@ -142,7 +129,7 @@ class HospitalsList extends Component {
       return <div />;
     }
     return _.map(floors_at, floor => {
-      const { _id, number, hospital_ } = floor;
+      const { _id, number } = floor;
       if (floorSelected === _id) {
         items = this.renderRoomsList();
       } else {
@@ -150,7 +137,7 @@ class HospitalsList extends Component {
       }
 
       return (
-        <ListGroup key={_id}>
+        <List.Item key={_id} style={{ textAlign: "left" }}>
           <Link
             style={{ textDecoration: "none", color: "white" }}
             to={`/manage/hospital=${hospitalSelected}/floor=${_id}/`}
@@ -158,11 +145,10 @@ class HospitalsList extends Component {
               this.onFloorClick(_id);
             }}
           >
-            {" "}
-            - {getOrdinal(number)} floor
+            {getOrdinal(number)} floor
           </Link>
-          {items}
-        </ListGroup>
+          <List size="small">{items}</List>
+        </List.Item>
       );
     });
   }
@@ -170,33 +156,52 @@ class HospitalsList extends Component {
     const { hospitals } = this.props;
     const { hospitalSelected } = this.state;
     let items = <div />;
+    let selected = false;
     return _.map(hospitals, hospital => {
       const { _id, name } = hospital;
       if (hospitalSelected === _id) {
         items = this.renderFloorsList();
+        selected = true;
       } else {
         items = <div />;
+        selected = false;
       }
 
       return (
-        <ListGroup key={_id}>
+        <List.Item key={_id} style={{ textAlign: "left" }}>
           <Link
-            style={{ textDecoration: "none", color: "white" }}
             to={`/manage/hospital=${_id}/`}
             onClick={() => {
               this.onHospitalClick(_id);
             }}
           >
-            {" "}
-            - {name}
+            <List
+              key={_id}
+              style={
+                selected
+                  ? {
+                      backgroundColor: "#00A4A4",
+                      marginLeft: "-14px",
+                      marginRight: "-14px"
+                    }
+                  : {}
+              }
+            >
+              {name}
+            </List>
           </Link>
-          {items}
-        </ListGroup>
+          <List size="small">{items}</List>
+        </List.Item>
       );
     });
   }
+
   render() {
-    return <ListGroup>{this.renderHospitalsList()}</ListGroup>;
+    return (
+      <Segment inverted style={{ width: "100%", textAlign: "left" }}>
+        <List size="huge">{this.renderHospitalsList()}</List>
+      </Segment>
+    );
   }
 }
 

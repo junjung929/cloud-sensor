@@ -6,7 +6,7 @@ import LoadingIndicator from "react-loading-indicator";
 import { fetchRoomsAt, fetchFloor } from "../../actions";
 
 import { Content } from "./styles";
-import { Button, Card, Image, Icon } from "semantic-ui-react";
+import { Card, Image, Icon } from "semantic-ui-react";
 import { getOrdinal } from "../../components";
 
 const WhiteImg = require("../../assets/white-image.png");
@@ -29,7 +29,7 @@ class FloorPage extends Component {
   }
   componentDidUpdate() {
     const { floor } = this.props.match.params;
-    if (floor != this.state.floor) {
+    if (floor !== this.state.floor) {
       this.props.fetchRoomsAt(floor);
       this.props.fetchFloor(floor);
       this.setState({ floor });
@@ -37,7 +37,7 @@ class FloorPage extends Component {
   }
   onItemClick(currId) {
     const { currItem } = this.state;
-    if (currItem != currId) {
+    if (currItem !== currId) {
       this.setState({ currItem: currId });
     } else {
       this.setState({ currItem: "" });
@@ -62,7 +62,6 @@ class FloorPage extends Component {
   renderRoomsList() {
     const { url } = this.props.match;
     const { rooms_at } = this.props;
-    let i = 0;
     if (rooms_at.length === 0) {
       return <div className="text-center">No result...</div>;
     }
@@ -82,8 +81,13 @@ class FloorPage extends Component {
       );
       return (
         <Card key={`card-${room._id}`}>
-          <Image src={imgSrc} alt={`room-${room.number}-profile-image`} />
           <Card.Content>
+            <Image
+              floated="right"
+              size="mini"
+              src={imgSrc}
+              alt={`room-${room.number}-profile-image`}
+            />
             <Card.Header>Room No.{room.number}</Card.Header>
             <Card.Meta>Rooms</Card.Meta>
             <Card.Description>

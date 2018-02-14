@@ -16,7 +16,7 @@ injectGlobal`
     font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
   }
 
-  th {
+  th, td {
     text-align: center
   }
   a:hover, a:active, a:visited {

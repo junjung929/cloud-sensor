@@ -19,10 +19,11 @@ class Monitor extends Component {
     if (!patient) {
       return <LoadingIndicator />;
     }
+    const fullname = `${patient.first_name} ${patient.last_name}`
     return (
       <PatientInfo>
         <MonitorTable patient={patient} />
-        <Sensor patient={patient} />
+        <Sensor patient={patient} title={fullname} />
       </PatientInfo>
     );
   }

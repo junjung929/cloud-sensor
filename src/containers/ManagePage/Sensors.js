@@ -1,8 +1,7 @@
 import _ from "lodash";
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { Field, reduxForm, initialize } from "redux-form";
-import { Link } from "react-router-dom";
+import { Field, reduxForm } from "redux-form";
 import LoadingIndicator from "react-loading-indicator";
 import {
   fetchHospitals,
@@ -22,9 +21,7 @@ import Modal from "react-responsive-modal";
 import {
   getOrdinal,
   Table,
-  Profile,
   RenderField,
-  RenderSelectField,
   RenderSelectGroupField,
   FormReset
 } from "components";
@@ -49,7 +46,7 @@ class Sensors extends Component {
     // this.onEditFormSubmit = this.onEditFormSubmit.bind(this);
   }
   componentDidMount() {
-    const { hospitals, hospital } = this.props;
+    const { hospitals } = this.props;
     if (!hospitals) {
       this.props.fetchHospitals();
     }
@@ -59,7 +56,6 @@ class Sensors extends Component {
   }
   handleInitialize() {
     const { node_name, hospital_, floor_, room_, bed_ } = this.props.sensor;
-    const { sensor } = this.props;
     const iniData = {
       node_name,
       hospital_: hospital_ ? hospital_._id : "",
@@ -74,7 +70,7 @@ class Sensors extends Component {
     this.props.initialize(iniData);
   }
   deleteSensor = sensorId => e => {
-    onClick: if (
+    if (
       window.confirm(
         "This behaviour will also affect all information which is childe components of this room.\nAre you sure to delete?"
       )
@@ -96,7 +92,6 @@ class Sensors extends Component {
       if (callback.err) {
         return this.setState({ updatingText: `${callback.err}` });
       }
-      this.props;
       this.setState({
         updatingText: `${values.node_name} is added!`
       });
@@ -113,7 +108,6 @@ class Sensors extends Component {
         return this.setState({ updatingText: `${err} please try again.` });
       }
       this.props.fetchSensor(sensorId).then(() => {
-        const { sensor } = this.props;
         this.setState({
           updatingText: `${values.node_name} is edited!`
         });
@@ -127,21 +121,18 @@ class Sensors extends Component {
     if (!data) {
       return alert("Please enter valid input");
     }
-    const { onSubmit } = this.state;
 
     this.setState({ updating: true, updatingText: "initial" });
     switch (mode) {
-      case "add":
-        console.log(data);
-        this.addSensor(data);
-        break;
       case "edit":
         this.editSensor(sensorId, data);
         break;
+      default:
+        console.log(data);
+        this.addSensor(data);
     }
   };
   onOpenModal(id) {
-    const { modalMode } = this.state;
     let iniData = {};
     this.props
       .fetchSensor(id)
@@ -349,17 +340,19 @@ class Sensors extends Component {
             placeholder={placeholder.room_}
             component={RenderSelectGroupField}
             option={this.selectOptionRoom()}
-            onChange={e =>{ this.props.fetchBedsAt(e.target.value)
+            onChange={e => {
+              this.props.fetchBedsAt(e.target.value);
               if (e.target.value === "") {
-              const iniData = {
-                node_name: sensor.node_name,
-                hospital_: sensor.hospital_,
-                floor_: sensor.floor_,
-                room_: "",
-                bed_: ""
-              };
-              this.props.initialize(iniData);
-            }}}
+                const iniData = {
+                  node_name: sensor.node_name,
+                  hospital_: sensor.hospital_,
+                  floor_: sensor.floor_,
+                  room_: "",
+                  bed_: ""
+                };
+                this.props.initialize(iniData);
+              }
+            }}
           />
           <Field
             label=""
@@ -385,7 +378,7 @@ class Sensors extends Component {
     );
   }
   renderSensors() {
-    const { fetchSensorsAt, sensors_at, sensors } = this.props;
+    const { sensors_at, sensors } = this.props;
     let i = 0;
     if (!sensors_at) {
       return _.map(sensors, sensor => {
@@ -473,8 +466,8 @@ class Sensors extends Component {
     });
   }
   render() {
-    const { hospitals, sensors_at, sensors, sensor } = this.props;
-    const { open, updating, updatingText, currSensor, modalMode } = this.state;
+    const { hospitals } = this.props;
+    const { open, updating, updatingText, modalMode } = this.state;
     const tableHeadRow = (
       <tr>
         <td>No.</td>
@@ -546,8 +539,6 @@ class Sensors extends Component {
             switch (updatingText) {
               case "initial":
                 return <LoadingIndicator />;
-
-                break;
               default:
                 return (
                   <div>
@@ -572,15 +563,9 @@ class Sensors extends Component {
 
 function mapStateToProps(state) {
   const { hospitals, floors_at } = state.hospitals;
-  const { floor, add_floor, edit_floor, rooms_at } = state.floors;
+  const { rooms_at } = state.floors;
   const { beds_at } = state.rooms;
-  const {
-    sensors,
-    sensor,
-    sensors_at,
-    add_sensor,
-    edit_sensor
-  } = state.sensors;
+  const { sensors, sensor, sensors_at, add_sensor } = state.sensors;
 
   return {
     hospitals,

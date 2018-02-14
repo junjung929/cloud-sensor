@@ -52,6 +52,7 @@ export function fetchPatient(id) {
         type: FETCH_PATIENT,
         payload: data
       });
+      return data;
     });
   };
 }

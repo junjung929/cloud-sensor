@@ -1,19 +1,18 @@
 import React from "react";
-import { Link } from "react-router-dom";
-import { SideInner, A, H3, Content } from "./styles";
+import { SideInner, H3, Content } from "../../components/styles";
+import { Link /* Route */ } from "react-router-dom";
+
 const MultiMonitorSide = ({ match }) => {
-  const { url } = match;
+  // const { url } = match;
+
   return (
     <SideInner>
-      <A href="/">
-        <span className="glyphicon glyphicon-chevron-left" />Home
-      </A>
-      <Link to="/monitor">
-        <H3>Monitor Page</H3>
+      <Link to="/multi">
+        <H3>Multi Monitor Page</H3>
       </Link>
       <Content>
         {/* <Route exact path={`${url}`} component={temp} /> */}
-        {/* <Route path={`${url}`} component={} /> */}
+        {/* <Route path={`${url}/patient=:_id`} component={Patient} /> */}
       </Content>
     </SideInner>
   );

@@ -14,7 +14,7 @@ import {
   deleteBed,
   fetchFreePatients,
   fetchPatient,
-  editSensor,
+  editSensor
 } from "actions";
 import Modal from "react-responsive-modal";
 
@@ -90,7 +90,7 @@ class Room extends Component {
 
   deleteBed = (bedId, number) => e => {
     const { room_id } = this.props.match.params;
-    onClick: if (
+    if (
       window.confirm(
         "This behaviour will also affect all information which is childe components of this bed.\nAre you sure to delete?"
       )
@@ -556,6 +556,6 @@ export default reduxForm({
     deleteBed,
     fetchFreePatients,
     fetchPatient,
-    editSensor,
+    editSensor
   })(Room)
 );

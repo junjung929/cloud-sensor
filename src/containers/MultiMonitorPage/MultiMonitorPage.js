@@ -1,6 +1,6 @@
-import React, { Component } from "react";
-import { Link, Route } from "react-router-dom";
-import { Sidebar, Carousel, Searchbar, SearchResult } from "../../components";
+import React from "react";
+import { Route } from "react-router-dom";
+import { SearchResult } from "../../components";
 import { MultiMonitor } from "../MultiMonitorPage";
 import styled from "styled-components";
 

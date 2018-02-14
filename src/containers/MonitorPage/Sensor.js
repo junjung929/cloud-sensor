@@ -9,8 +9,7 @@ import {
 import styled from "styled-components";
 
 import LoadingIndicator from "react-loading-indicator";
-import { Table, BackToList, SensorStream } from "../../components/";
-import { clearInterval, clearTimeout } from "timers";
+import { SensorStream } from "../../components/";
 
 const TENSEC = 10000;
 const DEFAULT = TENSEC * 6;
@@ -38,8 +37,7 @@ class Sensor extends Component {
     this.onSensorDataHandler = this.onSensorDataHandler.bind(this);
   }
   componentDidMount() {
-    const { _id } = this.props.patient;
-    const { fetchPatient, fetchSensor } = this.props;
+    const { fetchSensor } = this.props;
     const { bed_ } = this.props.patient;
     if (!bed_) {
       return alert(
@@ -83,7 +81,6 @@ class Sensor extends Component {
     return sensorGraph;
   };
   onSensorDataUpdateHandler = node => {
-    let { sensor_data } = this.props;
     this.props.fetchUpdatedSensorData(node).then(data => {
       if (data.time !== this.state.latestTime) {
         this.onSensorDataPushHandler({ data });
@@ -102,7 +99,7 @@ class Sensor extends Component {
         return;
       }
       let { sensor_data } = this.props;
-      let { sensorGraph } = this.state;
+
       console.log("Sensor mount status: ", this._mounted);
       this.onSensorDataPushHandler(sensor_data);
       this.onSensorDataUpdateHandler(node);
@@ -138,7 +135,7 @@ class Sensor extends Component {
           <LoadingIndicator />
         </div>
       );
-    let data = null;
+
     const { updateSec } = this.state;
     let updateString;
     if (updateSec === 10000) {
@@ -153,8 +150,8 @@ class Sensor extends Component {
       updateString = "unlimited";
     }
     return (
-      <PatientInfo className={this.props.className} >
-        <SensorStream data={this.state.sensorGraph} />
+      <PatientInfo className={this.props.className}>
+        <SensorStream data={this.state.sensorGraph} title={this.props.title}/>
         <select
           onChange={() => {
             this.onHandleChange();

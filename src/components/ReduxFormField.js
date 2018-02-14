@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React from "react";
 
 export const RenderField = field => {
   const { label, input, type, placeholder, meta: { touched, error } } = field;
@@ -50,14 +50,7 @@ export const RenderSelectField = field => {
   );
 };
 export const RenderSelectGroupField = field => {
-  const {
-    required,
-    option,
-    label,
-    input,
-    placeholder,
-    meta: { touched, error }
-  } = field;
+  const { option, input, placeholder, meta: { touched, error } } = field;
   const className = `pull-left ${touched && error ? "has-danger" : ""}`;
   return (
     <div className={className}>
@@ -75,11 +68,16 @@ export const RenderSelectGroupField = field => {
   );
 };
 export const RenderPhotoField = field => {
-  const { input, label, onChange } = field;
+  const { input, label } = field;
   return (
     <div>
       <label>{label}</label>
-      <input className="form-control" type="file" accept="image/*" onChange={input.onChange} />
+      <input
+        className="form-control"
+        type="file"
+        accept="image/*"
+        onChange={input.onChange}
+      />
     </div>
   );
 };

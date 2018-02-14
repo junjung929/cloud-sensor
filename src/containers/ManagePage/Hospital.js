@@ -1,7 +1,7 @@
 import _ from "lodash";
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { Field, reduxForm, initialize } from "redux-form";
+import { Field, reduxForm } from "redux-form";
 import { Link } from "react-router-dom";
 import LoadingIndicator from "react-loading-indicator";
 import {
@@ -14,13 +14,12 @@ import {
   deleteBed,
   addFloor,
   editFloor,
-  deleteFloor,
+  deleteFloor
 } from "actions";
 import Modal from "react-responsive-modal";
 
 import {
   Table,
-  Profile,
   getOrdinal,
   RenderField,
   RenderPhotoField,
@@ -47,7 +46,6 @@ class Hospital extends Component {
     // this.onEditFormSubmit = this.onEditFormSubmit.bind(this);
   }
   componentDidMount() {
-    const { hospital, floor } = this.props;
     const { id } = this.props.match.params;
     this.setState({ currHospital: id });
     this.props.fetchHospital(id);
@@ -88,7 +86,7 @@ class Hospital extends Component {
 
   deleteFloor = (floorId, number) => e => {
     const { id } = this.props.match.params;
-    onClick: if (
+    if (
       window.confirm(
         "This behaviour will also affect all information which is childe components of this floor.\nAre you sure to delete?"
       )
@@ -134,7 +132,7 @@ class Hospital extends Component {
     if (!data) {
       return alert("dfa");
     }
-    const { file, onSubmit } = this.state;
+    const { file } = this.state;
 
     //file config
     const newData = new FormData();
@@ -142,13 +140,12 @@ class Hospital extends Component {
     newData.set("file", file);
     this.setState({ updating: true, updatingText: "initial" });
     switch (mode) {
-      case "add":
-        console.log(data);
-        this.addFloor(data, newData);
-        break;
       case "edit":
         this.editFloor(floorId, data, newData);
         break;
+      default:
+        console.log(data);
+        this.addFloor(data, newData);
     }
   };
 
@@ -278,7 +275,11 @@ class Hospital extends Component {
           <th scope="row" width="10%">
             {++i}
           </th>
-          <td><Link to={`/manage/hospital=${floor.hospital_}/floor=${floor._id}`}>{getOrdinal(floor.number)} floor</Link></td>
+          <td>
+            <Link to={`/manage/hospital=${floor.hospital_}/floor=${floor._id}`}>
+              {getOrdinal(floor.number)} floor
+            </Link>
+          </td>
           <td width="10%">
             <button
               className="btn btn-default"
@@ -305,7 +306,7 @@ class Hospital extends Component {
   }
   render() {
     const { hospital } = this.props;
-    const { open, updating, updatingText, currFloor, modalMode } = this.state;
+    const { open, updating, updatingText, modalMode } = this.state;
     const tableHeadRow = (
       <tr>
         <td>No.</td>
@@ -362,8 +363,6 @@ class Hospital extends Component {
             switch (updatingText) {
               case "initial":
                 return <LoadingIndicator />;
-
-                break;
               default:
                 return (
                   <div>
@@ -388,7 +387,7 @@ class Hospital extends Component {
 
 function mapStateToProps(state) {
   const { hospital, floors_at } = state.hospitals;
-  const { floor, add_floor, edit_floor, rooms_at } = state.floors;
+  const { floor, add_floor, rooms_at } = state.floors;
   const { beds_at } = state.rooms;
   return {
     hospital,
@@ -426,6 +425,6 @@ export default reduxForm({
     deleteBed,
     addFloor,
     editFloor,
-    deleteFloor,
+    deleteFloor
   })(Hospital)
 );

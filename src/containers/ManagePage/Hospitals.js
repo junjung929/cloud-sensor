@@ -1,7 +1,7 @@
 import _ from "lodash";
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { Field, reduxForm, initialize } from "redux-form";
+import { Field, reduxForm } from "redux-form";
 import { Link } from "react-router-dom";
 import LoadingIndicator from "react-loading-indicator";
 import {
@@ -19,13 +19,7 @@ import {
 } from "actions";
 import Modal from "react-responsive-modal";
 
-import {
-  Table,
-  Profile,
-  RenderField,
-  RenderPhotoField,
-  FormReset
-} from "components";
+import { Table, RenderField, RenderPhotoField, FormReset } from "components";
 
 import { PreviewImg, Content, ImgPreview } from "./styles";
 
@@ -46,7 +40,7 @@ class Hospitals extends Component {
     // this.onEditFormSubmit = this.onEditFormSubmit.bind(this);
   }
   componentDidMount() {
-    const { hospitals, hospital } = this.props;
+    const { hospitals } = this.props;
     if (!hospitals) {
       this.props.fetchHospitals();
     }
@@ -84,7 +78,7 @@ class Hospitals extends Component {
   }
 
   deleteHospital = (id, name) => e => {
-    onClick: if (
+    if (
       window.confirm(
         "This behaviour will also affect all information which is childe components of this hospital.\nAre you sure to delete?"
       )
@@ -122,7 +116,7 @@ class Hospitals extends Component {
     if (!data) {
       return alert("dfa");
     }
-    const { file, onSubmit } = this.state;
+    const { file } = this.state;
 
     //file config
     const newData = new FormData();
@@ -130,18 +124,17 @@ class Hospitals extends Component {
     newData.set("file", file);
     this.setState({ updating: true, updatingText: "initial" });
     switch (mode) {
-      case "add":
-        this.addHospital(data, newData);
-        break;
       case "edit":
         this.editHospital(id, data, newData);
         break;
+      default:
+        this.addHospital(data, newData);
     }
   };
 
   renderModal(mode) {
     // console.log(this.props.initialize)
-    const { hospital, handleSubmit } = this.props;
+    const { handleSubmit, hospital } = this.props;
     let { imagePreviewUrl } = this.state;
     let $imagePreview = null;
     let title = "",
@@ -313,14 +306,8 @@ class Hospitals extends Component {
     });
   }
   render() {
-    const { hospitals, hospital } = this.props;
-    const {
-      open,
-      updating,
-      updatingText,
-      currHospital,
-      modalMode
-    } = this.state;
+    const { hospitals } = this.props;
+    const { open, updating, updatingText, modalMode } = this.state;
     const tableHeadRow = (
       <tr>
         <td>No.</td>
@@ -378,8 +365,6 @@ class Hospitals extends Component {
             switch (updatingText) {
               case "initial":
                 return <LoadingIndicator />;
-
-                break;
               default:
                 return (
                   <div>
@@ -403,14 +388,8 @@ class Hospitals extends Component {
 }
 
 function mapStateToProps(state) {
-  const {
-    hospitals,
-    hospital,
-    add_hospital,
-    edit_hospital,
-    floors_at
-  } = state.hospitals;
-  const { floor, add_floor, edit_floor, rooms_at } = state.floors;
+  const { hospitals, hospital, add_hospital, floors_at } = state.hospitals;
+  const { rooms_at } = state.floors;
   const { beds_at } = state.rooms;
 
   return {

@@ -1,15 +1,11 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { fetchPatient } from "../../actions";
-import styled from "styled-components";
 
-const Info = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-`;
-const Content = styled.div``;
+import { Content } from "./styles";
+import { Card, Image } from "semantic-ui-react";
+
+const WhiteImg = require("../../assets/white-image.png");
 
 class PatientDataPage extends Component {
   componentWillMount() {
@@ -32,26 +28,37 @@ class PatientDataPage extends Component {
     const birth = dateFormat(patient.birth, "yyyy-mm-dd");
     const enter_date = dateFormat(patient.enter_date, "yyyy-mm-dd");
     const leave_date = dateFormat(patient.leave_date, "yyyy-mm-dd");
-
+    const imgSrc = patient.imgSrc ? patient.imgSrc : String(WhiteImg);
+    const fullName = `${patient.first_name} ${patient.last_name}`;
     return (
-      <Info>
-        <img
-          src={patient.imgSrc}
-          className="img-circle"
-          style={{ width: 150, height: 150 }}
-        />
-        <Content>
-          <h3>
-            {patient.first_name} {patient.last_name}
-          </h3>
-          <p>Address: {patient.address}</p>
-          <p>Tel. {patient.phone_number}</p>
-          <p>Birthday: {birth}</p>
-          <p>Enter Date: {enter_date}</p>
-          <p>Leave Date: {leave_date}</p>
-          <p>Hospital: {patient.hospital_.name}</p>
-        </Content>
-      </Info>
+      <Content>
+        <Card
+          key={`card-${patient._id}`}
+          style={{
+            marginLeft: "auto",
+            marginRight: "auto",
+            boxShadow: "none",
+            background: "inherit"
+          }}
+        >
+          <Image
+            style={{ marginLeft: "auto", marginRight: "auto" }}
+            size="small"
+            src={imgSrc}
+            alt={`patient-${fullName}-profile-image`}
+          />
+          <Card.Content>
+            <Card.Header style={{ color: "white" }}>{fullName}</Card.Header>
+            <Card.Meta style={{ color: "grey" }}>Patients</Card.Meta>
+            <Card.Description style={{ color: "white" }}>
+              <p>Tel. {patient.phone_number}</p>
+              <p>Birthday: {birth}</p>
+              <p>Enter Date: {enter_date}</p>
+              <p>Leave Date: {leave_date}</p>
+            </Card.Description>
+          </Card.Content>
+        </Card>
+      </Content>
     );
   }
 }
