@@ -55,7 +55,7 @@ class Hospital extends Component {
     return _.map(floors_at, floor => {
       const { currItem } = this.state;
       const imgSrc = floor.imgSrc ? floor.imgSrc : String(WhiteImg);
-      let toFloor = `${url}/floor=${floor._id}`;
+      let toFloor = `${url}/floor=${floor._id}#rooms`;
       let spread = "Open";
       if (currItem === floor._id) {
         toFloor = url;

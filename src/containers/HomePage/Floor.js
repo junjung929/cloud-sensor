@@ -68,7 +68,7 @@ class FloorPage extends Component {
     return _.map(rooms_at, room => {
       const { currItem } = this.state;
       const imgSrc = room.imgSrc ? room.imgSrc : String(WhiteImg);
-      let toRoom = `${url}/room=${room._id}`;
+      let toRoom = `${url}/room=${room._id}#beds`;
       let spread = "Open";
       if (currItem === room._id) {
         toRoom = url;
@@ -115,7 +115,7 @@ class FloorPage extends Component {
       );
     }
     return (
-      <Content id="Rooms">
+      <Content id="rooms">
         <h3 className="text-center">
           <Icon name="hospital" />
           {getOrdinal(floor.number)} floor

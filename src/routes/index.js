@@ -169,7 +169,10 @@ class Routes extends Component {
                     path="/monitor"
                     component={() => this.OtherMenu("Patient Info")}
                   />
-                  <Route path="/multi" component={() => this.HomeMenu()} />
+                  <Route
+                    path="/multi"
+                    component={() => this.OtherMenu("See List")}
+                  />
                   <Route
                     path="/manage"
                     component={() => this.OtherMenu("See List")}

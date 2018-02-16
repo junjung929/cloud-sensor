@@ -6,21 +6,24 @@ import styled from "styled-components";
 const Graph = styled.div`
   min-height: 400px;
 `;
-const SensorStream = ({ data, title }) => {
+const SensorStream = ({ data, title, visible, className }) => {
   if (!data) {
     return <LoadingIndicator />;
   }
-  // console.log("sensor", data.HR);
   let config = {
     xAxis: {
-      // range: 60 // 1min
+      title: "Date",
+      type: "datetime",
+      dateTimeLabelFormats: {
+        month: "%e. %b",
+        year: "%b"
+      }
     },
-    chart: {
-      zoomType: "x"
+    yAxis: {
+      title: "Strength"
     },
+    chart: {},
     rangeSelector: {
-      // enabled: false
-      allButtonsEnabled: true,
       buttons: [
         {
           count: 1,
@@ -63,46 +66,51 @@ const SensorStream = ({ data, title }) => {
     },
     series: [
       {
-        name: "Heart Rate",
+        name: "Heart Rate(HR)",
         data: data.HR,
         tooltip: {
-          valueDecimals: 2
-        }
+          valueDecimals: 0
+        },
+        visible: visible.HR
       },
       {
-        name: "Respiration Rate",
+        name: "Respiration Rate(RR)",
         data: data.RR,
         tooltip: {
-          valueDecimals: 2
-        }
+          valueDecimals: 0
+        },
+        visible: visible.RR
       },
       {
-        name: "Relative Stroke Volume",
+        name: "Relative Stroke Volume(RSV)",
         data: data.SV,
         tooltip: {
-          valueDecimals: 2
-        }
+          valueDecimals: 0
+        },
+        visible: visible.SV
       },
       {
-        name: "Heart Rate Variability",
+        name: "Heart Rate Variability(HRV)",
         data: data.HRV,
         tooltip: {
-          valueDecimals: 2
-        }
-      } /* ,
-            {
-                name: 'Signal Strength',
-                data: data.signalStrength,
-                tooltip: {
-                    valueDecimals: 2
-                }
-            } */
+          valueDecimals: 0
+        },
+        visible: visible.HRV
+      },
+      {
+        name: "Signal Strength",
+        data: data.signalStrength,
+        tooltip: {
+          valueDecimals: 0
+        },
+        visible: visible.signalStrength
+      }
     ]
   };
 
   return (
-    <Graph>
-      <ReactHighstrock config={config} ref={a => (this.crg = a)} />
+    <Graph className={className}>
+      <ReactHighstrock config={config} />
     </Graph>
   );
 };

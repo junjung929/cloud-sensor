@@ -10,6 +10,15 @@ import styled from "styled-components";
 
 import LoadingIndicator from "react-loading-indicator";
 import { SensorStream } from "../../components/";
+import {
+  Checkbox,
+  Segment,
+  Dropdown,
+  Label,
+  Sidebar,
+  Button,
+  Icon
+} from "semantic-ui-react";
 
 const TENSEC = 10000;
 const DEFAULT = TENSEC * 6;
@@ -32,7 +41,15 @@ class Sensor extends Component {
         // B2B2: [] //beat2beat time
         latestTime: 0
       },
-      updateSec: DEFAULT
+      updateSec: DEFAULT,
+      toggle: false,
+      visible: {
+        HR: true,
+        RR: true,
+        SV: true,
+        HRV: true,
+        signalStrength: false
+      }
     };
     this.onSensorDataHandler = this.onSensorDataHandler.bind(this);
   }
@@ -63,6 +80,9 @@ class Sensor extends Component {
     this._mounted = false;
     console.log(this._mounted);
   }
+
+  toggleVisibility = () => this.setState({ toggle: !this.state.toggle });
+
   onSensorDataPushHandler = sensorData => {
     let { sensorGraph } = this.state;
     let latestTime;
@@ -127,6 +147,30 @@ class Sensor extends Component {
         this.setState({ updateSec: DEFAULT });
     }
   }
+
+  renderGraphOption = items => {
+    return _.map(items, item => {
+      return (
+        <Segment key={`sensor-checkbox-${item.key}`}>
+          <Label className="">{item.label}</Label>
+          <Checkbox
+            className="pull-right"
+            slider
+            defaultChecked={item.visible}
+            onChange={() => {
+              let { visible } = this.state;
+              Object.keys(visible).forEach(key => {
+                if (key === item.key) {
+                  visible[key] = !item.visible;
+                }
+              });
+              this.setState({ visible });
+            }}
+          />
+        </Segment>
+      );
+    });
+  };
   render() {
     const { sensor_data } = this.props;
     if (!sensor_data)
@@ -136,7 +180,7 @@ class Sensor extends Component {
         </div>
       );
 
-    const { updateSec } = this.state;
+    const { updateSec, visible } = this.state;
     let updateString;
     if (updateSec === 10000) {
       updateString = "10 sec";
@@ -151,21 +195,58 @@ class Sensor extends Component {
     }
     return (
       <PatientInfo className={this.props.className}>
-        <SensorStream data={this.state.sensorGraph} title={this.props.title}/>
-        <select
-          onChange={() => {
-            this.onHandleChange();
-          }}
-          className="pull-right"
-          id="timeInterval"
-        >
-          <option>Update in {updateString}</option>
-          <option value="tenSec">10 seconds</option>
-          <option value="oneMin">1 minute</option>
-          <option value="tenMin">10 minutes</option>
-          <option value="anHour">1 hour</option>
-          <option value="stop">Stop updating</option>
-        </select>
+        <Sidebar.Pushable as={Segment}>
+          <Sidebar
+            as={Segment.Group}
+            animation="push"
+            width="thin"
+            visible={this.state.toggle}
+            icon="labeled"
+          >
+            {this.renderGraphOption([
+              { key: "HR", label: "HR", visible: visible.HR },
+              { key: "RR", label: "RR", visible: visible.RR },
+              { key: "SV", label: "RSV", visible: visible.SV },
+              { key: "HRV", label: "HRV", visible: visible.HRV },
+              {
+                key: "signalStrength",
+                label: "SS",
+                visible: visible.signalStrength
+              }
+            ])}
+          </Sidebar>
+          <Sidebar.Pusher>
+            <SensorStream
+              data={this.state.sensorGraph}
+              title={this.props.title}
+              visible={this.state.visible}
+            />
+          </Sidebar.Pusher>
+        </Sidebar.Pushable>
+
+        <div className="divisionLine" />
+        <Button onClick={this.toggleVisibility}>
+          <Icon name="eye" />Visibility
+        </Button>
+        <div className="pull-right">
+          <Label>Update in: </Label>
+          <Dropdown
+            onChange={() => {
+              this.onHandleChange();
+            }}
+            id="timeInterval"
+            selection
+            upward
+            placeholder={updateString}
+            options={[
+              { key: "tenSec", value: "tenSec", text: "10 seconds" },
+              { key: "oneMin", value: "oneMin", text: "1 minute" },
+              { key: "tenMin", value: "tenMin", text: "1 minutes" },
+              { key: "anHour", value: "anHour", text: "1 hour" },
+              { key: "stop", value: "stop", text: "infinite" }
+            ]}
+          />
+        </div>
       </PatientInfo>
     );
   }

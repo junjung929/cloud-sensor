@@ -43,7 +43,7 @@ class Hospitals extends Component {
       if (i < 3) {
         const { currItem } = this.state;
         const imgSrc = hospital.imgSrc ? hospital.imgSrc : String(WhiteImg);
-        let toHospital = `${url}/hospital=${hospital._id}`;
+        let toHospital = `${url}/hospital=${hospital._id}#hospital`;
         let spread = "Open";
         if (currItem === hospital._id) {
           toHospital = url;

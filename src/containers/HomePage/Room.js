@@ -96,7 +96,7 @@ class RoomPage extends Component {
       );
     }
     return (
-      <Content id="hospitals">
+      <Content id="beds">
         <h3 className="text-center">
           <Icon name="hospital" />Room No.{room.number}
         </h3>
