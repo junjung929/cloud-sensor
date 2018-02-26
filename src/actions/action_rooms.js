@@ -6,15 +6,20 @@ import {
   FETCH_ROOM,
   ADD_ROOM,
   EDIT_ROOM,
-  DELETE_ROOM,
+  DELETE_ROOM
 } from "../constants/ActionTypes";
 
 const URL = `${ROOT_URL}/api/rooms`;
 
-export function fetchRoomsAt(id) {
+export function fetchRoomsAt(id, perPage, page) {
   const query = `/floor=${id}`;
   const url = `${URL}${query}`;
-  const request = axios.get(url);
+  const config = {
+    method: "get",
+    url,
+    params: { perPage, page }
+  };
+  const request = axios(config);
 
   return dispatch => {
     return request.then(({ data }) => {
@@ -98,7 +103,7 @@ export function deleteRoom(id, floor_) {
   const config = {
     method: "delete",
     url,
-    params: {floor_}
+    params: { floor_ }
   };
   const request = axios(config);
 

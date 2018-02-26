@@ -20,8 +20,11 @@ import {
 import Modal from "react-responsive-modal";
 
 import { Table, RenderField, RenderPhotoField, FormReset } from "components";
-
 import { PreviewImg, Content, ImgPreview } from "./styles";
+import { Button, Icon } from "semantic-ui-react";
+
+const PERPAGE = 3;
+const PAGE = 0;
 
 class Hospitals extends Component {
   constructor(props) {
@@ -34,18 +37,17 @@ class Hospitals extends Component {
       updatingText: null,
       currHospital: null,
       file: null,
-      imagePreviewUrl: null
+      imagePreviewUrl: null,
+      page: 0
     };
     this.onFormSubmit = this.onFormSubmit.bind(this);
-    // this.onEditFormSubmit = this.onEditFormSubmit.bind(this);
   }
   componentDidMount() {
-    const { hospitals } = this.props;
-    if (!hospitals) {
-      this.props.fetchHospitals();
-    }
-    // let { _id } = this.props.match.params
-    // console.log(_id)
+    this.props.fetchHospitals(PERPAGE, PAGE);
+  }
+  refetchHospitals() {
+    const { page } = this.state;
+    this.props.fetchHospitals(PERPAGE, page-1);
   }
   handleInitialize() {
     const { name, address, phone_number } = this.props.hospital;
@@ -88,14 +90,14 @@ class Hospitals extends Component {
         this.setState({
           updatingText: `${name} has been successfully deleted!`
         });
-        this.props.fetchHospitals();
+        this.refetchHospitals();
       });
     }
   };
   addHospital = (values, file) => {
     this.props.addHospital(values, file).then(callback => {
       this.setState({ updatingText: `${values.name} is added!` });
-      this.props.fetchHospitals();
+      this.refetchHospitals();
       this.onCloseModal();
     });
   };
@@ -107,7 +109,7 @@ class Hospitals extends Component {
 
       this.setState({ updatingText: `${values.name} is edited!` });
 
-      this.props.fetchHospitals();
+      this.refetchHospitals();
       this.onCloseModal();
     });
   };
@@ -271,53 +273,40 @@ class Hospitals extends Component {
         </tr>
       );
     }
-    return _.map(hospitals, hospital => {
-      return (
-        <tr key={hospital._id} id={hospital._id}>
-          <th scope="row" width="10%">
-            {++i}
-          </th>
-          <td>
-            <Link to={`/manage/hospital=${hospital._id}`}>{hospital.name}</Link>
-          </td>
-          <td>{hospital.address}</td>
-          <td width="10%">
-            <div
-              className="btn btn-default"
-              onClick={() => {
-                this.setState({ modalMode: "edit" }, () => {
-                  this.onOpenModal(hospital._id);
-                });
-              }}
-            >
-              Open
-            </div>
-          </td>
-          <td width="10%">
-            <div
-              className="btn btn-danger"
-              onClick={this.deleteHospital(hospital._id, hospital.name)}
-            >
-              Delete
-            </div>
-          </td>
-        </tr>
-      );
+    const { page } = hospitals;
+    return _.map(hospitals.hospitals, hospital => {
+      return [
+        PERPAGE * page + ++i,
+        <Link to={`/manage/hospital=${hospital._id}`}>{hospital.name}</Link>,
+        hospital.address,
+        <Button
+          icon
+          title="Open and Edit"
+          fluid
+          color="linkedin"
+          onClick={() => {
+            this.setState({ modalMode: "edit" }, () => {
+              this.onOpenModal(hospital._id);
+            });
+          }}
+        >
+          <Icon name="edit" />
+        </Button>,
+        <Button
+          icon
+          fluid
+          color="red"
+          onClick={this.deleteHospital(hospital._id, hospital.name)}
+        >
+          <Icon name="delete" />
+        </Button>
+      ];
     });
   }
   render() {
     const { hospitals } = this.props;
     const { open, updating, updatingText, modalMode } = this.state;
-    const tableHeadRow = (
-      <tr>
-        <td>No.</td>
-        <td>Name</td>
-        <td>Address</td>
-        <td>Edit</td>
-        <td>Delete</td>
-      </tr>
-    );
-    const tableBody = this.renderHospitals();
+
     let modalContent = <LoadingIndicator />;
     if (!hospitals) {
       return (
@@ -326,6 +315,9 @@ class Hospitals extends Component {
         </div>
       );
     }
+    const tableHeadRow = ["No.", "Name", "Address", "Edit", "Delete"];
+    const tableBody = this.renderHospitals();
+    const { pages } = hospitals;
     if (modalMode !== null) {
       modalContent = this.renderModal(modalMode);
     }
@@ -334,17 +326,30 @@ class Hospitals extends Component {
         <h3 className="text-center">Hospitals</h3>
 
         <Content>
-          <button
-            className="btn btn-primary pull-left"
+          <Button
+            icon
+            color="blue"
+            labelPosition="left"
             onClick={() => {
               this.setState({ modalMode: "add", open: true });
               this.handleInitializeNull();
             }}
           >
+            <Icon name="plus" />
             Add
-          </button>
+          </Button>
           <div className="divisionLine" />
-          <Table tableHeadRow={tableHeadRow} tableBody={tableBody} />
+          <Table
+            onPageChange={(e, { activePage }) => {
+              this.setState({ page: activePage });
+              setTimeout(() => {
+                this.refetchHospitals();
+              }, 100);
+            }}
+            tableHeadRow={tableHeadRow}
+            tableBody={tableBody}
+            pages={pages}
+          />
         </Content>
         <Modal
           open={open}

@@ -12,18 +12,27 @@ import {
 
 const URL = `${ROOT_URL}/api/hospitals`;
 // get
-export function fetchHospitals() {
+export function fetchHospitals(perPage, page) {
   const url = `${URL}`;
-  const request = axios.get(url);
+  const config = {
+    method: "get",
+    url,
+    params: { perPage, page }
+  };
+  const request = axios(config);
 
   return dispatch => {
-    return request.then(({ data }) => {
-      dispatch({
-        type: FETCH_HOSPITALS,
-        payload: data
+    return request
+      .then(({ data }) => {
+        dispatch({
+          type: FETCH_HOSPITALS,
+          payload: data
+        });
+        return data;
+      })
+      .catch(err => {
+        return err;
       });
-      return data;
-    });
   };
 }
 export function fetchHospital(id) {
@@ -88,8 +97,8 @@ export function editHospital(id, values, file) {
           payload: "SUCCESS"
         });
       })
-      .catch((a) => {
-        console.log(a)
+      .catch(a => {
+        console.log(a);
       });
   };
 }

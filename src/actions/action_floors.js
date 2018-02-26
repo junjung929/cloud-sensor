@@ -6,14 +6,19 @@ import {
   FETCH_FLOOR,
   ADD_FLOOR,
   EDIT_FLOOR,
-  DELETE_FLOOR,
+  DELETE_FLOOR
 } from "../constants/ActionTypes";
 
 const URL = `${ROOT_URL}/api/floors`;
-export function fetchFloorsAt(id) {
+export function fetchFloorsAt(id, perPage, page) {
   const query = `/hospital=${id}`;
   const url = `${URL}${query}`;
-  const request = axios.get(url);
+  const config = {
+    method: "get",
+    url,
+    params: { perPage, page }
+  };
+  const request = axios(config);
 
   return dispatch => {
     return request.then(({ data }) => {
@@ -56,7 +61,7 @@ export function addFloor(values, file) {
         type: ADD_FLOOR,
         payload: data
       });
-      return data
+      return data;
     });
   };
 }
@@ -75,11 +80,11 @@ export function editFloor(id, values, file) {
     console.log(request);
     return request
       .then(({ data }) => {
-    console.log(request);
-        
+        console.log(request);
+
         dispatch({
           type: EDIT_FLOOR,
-          payload: 'SUCCESS'
+          payload: "SUCCESS"
         });
       })
       .catch(({ response }) => {
@@ -97,7 +102,7 @@ export function deleteFloor(id, hospital_) {
   const config = {
     method: "delete",
     url,
-    params: {hospital_}
+    params: { hospital_ }
   };
   const request = axios(config);
 

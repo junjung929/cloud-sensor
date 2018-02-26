@@ -2,15 +2,15 @@ import _ from "lodash";
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Link } from "react-router-dom";
-import LoadingIndicator from "react-loading-indicator";
 import { fetchHospital, fetchFloorsAt } from "actions";
 
-import { Card, Image, Icon } from "semantic-ui-react";
+import { Card, Image, Icon, Button, Dimmer, Loader } from "semantic-ui-react";
 import { getOrdinal } from "../../components";
 import { Content } from "./styles";
 
 const WhiteImg = require("../../assets/white-image.png");
-
+const PERPAGE = 3;
+const PAGE = 0;
 class Hospital extends Component {
   constructor(props) {
     super(props);
@@ -24,12 +24,13 @@ class Hospital extends Component {
     console.log("Hospital page mounted");
     const { _id } = this.props.match.params;
     this.props.fetchHospital(_id);
-    this.props.fetchFloorsAt(_id);
+    this.props.fetchFloorsAt(_id, PERPAGE, PAGE);
     this.setState({ _id });
   }
   componentDidUpdate() {
     const { _id } = this.props.match.params;
     if (_id !== this.state._id) {
+      window.scrollTo(0, document.body.scrollHeight);
       this.props.fetchHospital(_id);
       this.props.fetchFloorsAt(_id);
       this.setState({ _id });
@@ -49,10 +50,11 @@ class Hospital extends Component {
     if (!floors_at) {
       return <div className="text-center">No result...</div>;
     }
-    if (floors_at.length === 0) {
+    const { floors } = floors_at;
+    if (floors.length === 0) {
       return <div className="text-center">No result...</div>;
     }
-    return _.map(floors_at, floor => {
+    return _.map(floors, floor => {
       const { currItem } = this.state;
       const imgSrc = floor.imgSrc ? floor.imgSrc : String(WhiteImg);
       let toFloor = `${url}/floor=${floor._id}#rooms`;
@@ -67,7 +69,7 @@ class Hospital extends Component {
         </Link>
       );
       return (
-        <Card key={`card-${floor._id}`}>
+        <Card key={`card-${floor._id}`} className="fadeIn">
           <Card.Content>
             <Image
               floated="right"
@@ -87,14 +89,16 @@ class Hospital extends Component {
     });
   }
   render() {
-    let { hospital } = this.props;
-    if (!hospital) {
+    const { floors_at, hospital } = this.props;
+    const { _id } = this.props.match.params;
+    if (!floors_at || !hospital) {
       return (
-        <div className="text-center">
-          <LoadingIndicator />
-        </div>
+        <Dimmer active>
+          <Loader>Loading</Loader>
+        </Dimmer>
       );
     }
+    const { page, pages } = floors_at;
     return (
       <Content id="hospital">
         <h3 className="text-center">
@@ -104,6 +108,22 @@ class Hospital extends Component {
         <Card.Group style={{ justifyContent: "center" }}>
           {this.renderFloorsList()}
         </Card.Group>
+        <Button.Group className="pull-right" style={{ margin: "10px" }}>
+          <Button
+            icon="angle left"
+            disabled={page > 0 ? false : true}
+            onClick={() => {
+              this.props.fetchFloorsAt(_id, PERPAGE, page - 1);
+            }}
+          />
+          <Button
+            icon="angle right"
+            disabled={page < Math.floor(pages) ? false : true}
+            onClick={() => {
+              this.props.fetchFloorsAt(_id, PERPAGE, page + 1);
+            }}
+          />
+        </Button.Group>
       </Content>
     );
   }

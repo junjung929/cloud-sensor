@@ -13,7 +13,7 @@ import {
 } from "actions";
 import { Link } from "react-router-dom";
 import { getOrdinal } from "../../components";
-import { Segment, List } from "semantic-ui-react";
+import { Dimmer, Loader, Segment, List } from "semantic-ui-react";
 
 class HospitalsList extends Component {
   constructor(props) {
@@ -25,12 +25,6 @@ class HospitalsList extends Component {
       roomSelected: null,
       bedSelected: null
     };
-  }
-  componentDidMount() {
-    const { hospitals, fetchHospitals } = this.props;
-    if (!hospitals) {
-      fetchHospitals();
-    }
   }
   onBedClick(id) {
     const { fetchBed } = this.props;
@@ -71,9 +65,14 @@ class HospitalsList extends Component {
     const { bedSelected } = this.state;
     let items = <div />;
     if (!beds_at) {
-      return <div />;
+      return (
+        <Dimmer>
+          <Loader>Loading</Loader>
+        </Dimmer>
+      );
     }
-    return _.map(beds_at, bed => {
+    const { beds } = beds_at;
+    return _.map(beds, bed => {
       const { _id, number } = bed;
       if (bedSelected === _id) {
         // items = this.renderBedsList();
@@ -94,9 +93,14 @@ class HospitalsList extends Component {
     const { hospitalSelected, floorSelected, roomSelected } = this.state;
     let items = <div />;
     if (!rooms_at) {
-      return <div />;
+      return (
+        <Dimmer>
+          <Loader>Loading</Loader>
+        </Dimmer>
+      );
     }
-    return _.map(rooms_at, room => {
+    const { rooms } = rooms_at;
+    return _.map(rooms, room => {
       const { _id, number } = room;
       if (roomSelected === _id) {
         items = this.renderBedsList();
@@ -126,9 +130,14 @@ class HospitalsList extends Component {
     const { hospitalSelected, floorSelected } = this.state;
     let items = <div />;
     if (!floors_at) {
-      return <div />;
+      return (
+        <Dimmer>
+          <Loader>Loading</Loader>
+        </Dimmer>
+      );
     }
-    return _.map(floors_at, floor => {
+    const { floors } = floors_at;
+    return _.map(floors, floor => {
       const { _id, number } = floor;
       if (floorSelected === _id) {
         items = this.renderRoomsList();
@@ -157,7 +166,14 @@ class HospitalsList extends Component {
     const { hospitalSelected } = this.state;
     let items = <div />;
     let selected = false;
-    return _.map(hospitals, hospital => {
+    if (!hospitals) {
+      return (
+        <Dimmer>
+          <Loader>Loading</Loader>
+        </Dimmer>
+      );
+    }
+    return _.map(hospitals.hospitals, hospital => {
       const { _id, name } = hospital;
       if (hospitalSelected === _id) {
         items = this.renderFloorsList();

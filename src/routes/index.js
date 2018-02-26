@@ -10,7 +10,7 @@ import {
 } from "../containers/MultiMonitorPage";
 import { Carousel, Searchbar } from "../components";
 
-import { Sidebar, Menu, Icon, Container } from "semantic-ui-react";
+import { Sidebar, Menu, Icon, Container, Dropdown } from "semantic-ui-react";
 
 import { HomeContainer, Search } from "./styles";
 
@@ -57,14 +57,15 @@ class Routes extends Component {
           title={menu.title}
           onClick={menu.name === "home" ? this.onClickGeneral : null}
         >
-          <Menu.Item>
+          <Dropdown.Item>
             <Icon name={menu.name} />
-          </Menu.Item>
+            {menu.header}
+          </Dropdown.Item>
         </Link>
       );
     });
   };
-  OtherMenu = menuBarText => {
+  OtherMenu = (menuBarText, menuBarCloseText) => {
     let menuBarIcon = "sidebar";
     if (this.state.visible === true) {
       menuBarIcon = "triangle left";
@@ -73,27 +74,32 @@ class Routes extends Component {
       {
         to: "/home/view",
         title: "Go Home page",
-        name: "home"
+        name: "home",
+        header: "Home"
       },
       {
         to: "/monitor",
         title: "Go Monitoring page",
-        name: "computer"
+        name: "computer",
+        header: "Monitor"
       },
       {
         to: "/multi",
         title: "Go Multi Monitoring page",
-        name: "users"
+        name: "users",
+        header: "Multi Monitor"
       },
       {
         to: "/manage",
         title: "Go Management page",
-        name: "settings"
+        name: "settings",
+        header: "Management"
       },
       {
         to: "/about",
         title: "Go About page",
-        name: "help circle outline"
+        name: "help circle outline",
+        header: "About"
       }
     ];
     return (
@@ -111,11 +117,16 @@ class Routes extends Component {
         <Link to="/" title="Go Homepage">
           <Menu.Item header>Sensor Monitor</Menu.Item>
         </Link>
-        <Menu.Item onClick={this.toggleVisibility}>
+        <Menu.Item
+          onClick={this.toggleVisibility}
+          className={this.state.visible ? "fadeIn" : ""}
+        >
           <Icon name={menuBarIcon} />
-          {menuBarText}
+          {this.state.visible ? menuBarCloseText : menuBarText}
         </Menu.Item>
-        {this.renderMenus(menus)}
+        <Dropdown item text="Menus">
+          <Dropdown.Menu>{this.renderMenus(menus)}</Dropdown.Menu>
+        </Dropdown>
       </Menu>
     );
   };
@@ -167,15 +178,17 @@ class Routes extends Component {
                   <Route path="/home" component={() => this.HomeMenu()} />
                   <Route
                     path="/monitor"
-                    component={() => this.OtherMenu("Patient Info")}
+                    component={() =>
+                      this.OtherMenu("Patient Info", "Close Info")
+                    }
                   />
                   <Route
                     path="/multi"
-                    component={() => this.OtherMenu("See List")}
+                    component={() => this.OtherMenu("See List", "Close List")}
                   />
                   <Route
                     path="/manage"
-                    component={() => this.OtherMenu("See List")}
+                    component={() => this.OtherMenu("See List", "Close List")}
                   />
                   <Route path="/about" component={() => this.HomeMenu()} />
                   <HomeContainer id="home" onClick={this.onClickGeneral}>

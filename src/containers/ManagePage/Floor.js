@@ -290,7 +290,8 @@ class Floor extends Component {
         </tr>
       );
     }
-    return _.map(rooms_at, room => {
+    const { rooms } = rooms_at;
+    return _.map(rooms, room => {
       return (
         <tr key={room._id} id={room._id}>
           <th scope="row" width="10%">

@@ -96,7 +96,9 @@ class Sensor extends Component {
       }
     });
     latestTime = _.findLast(sensorData).time;
-    this.setState({ latestTime, sensorGraph });
+    if(this._mounted){
+      this.setState({ latestTime, sensorGraph });
+    }
 
     return sensorGraph;
   };

@@ -269,7 +269,8 @@ class Hospital extends Component {
         </tr>
       );
     }
-    return _.map(floors_at, floor => {
+    const { floors } = floors_at;
+    return _.map(floors, floor => {
       return (
         <tr key={floor._id} id={floor._id}>
           <th scope="row" width="10%">

@@ -18,11 +18,11 @@ const HomePage = ({ match }) => {
       <Route path={`${url}/view`} component={Hospitals} />
       <Route path={`${url}/view/hospital=:_id`} component={Hospital} />
       <Route
-        path={`${url}/view/hospital=:_id/floor=:floor`}
+        path={`${url}/view/hospital=:_id/floor=:floor_id`}
         component={Floor}
       />
       <Route
-        path={`${url}/view/hospital=:_id/floor=:floor/room=:room`}
+        path={`${url}/view/hospital=:_id/floor=:floor/room=:room_id`}
         component={Room}
       />
       <Route path={`${url}/search=`} component={SearchResult} />

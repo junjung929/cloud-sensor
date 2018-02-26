@@ -2,36 +2,38 @@ import _ from "lodash";
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Link } from "react-router-dom";
-import LoadingIndicator from "react-loading-indicator";
 import { fetchBedsAt, fetchRoom } from "../../actions";
 
 import { Content } from "./styles";
-import { Card, Image, Icon } from "semantic-ui-react";
+import { Card, Image, Icon, Button, Loader, Dimmer } from "semantic-ui-react";
 import { getOrdinal } from "../../components";
 
 const WhiteImg = require("../../assets/white-image.png");
+const PERPAGE = 3;
+const PAGE = 0;
 
 class RoomPage extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      room: null
+      room_id: null
     };
   }
   componentDidMount() {
-    const { room } = this.props.match.params;
+    const { room_id } = this.props.match.params;
     console.log("Room mounted");
-    this.props.fetchBedsAt(room);
-    this.props.fetchRoom(room);
-    this.setState({ room });
+    this.props.fetchBedsAt(room_id, PERPAGE, PAGE);
+    this.props.fetchRoom(room_id);
+    this.setState({ room_id });
   }
   componentDidUpdate() {
-    const { room } = this.props.match.params;
-    if (room !== this.state.room) {
-      this.props.fetchBedsAt(room);
-      this.props.fetchRoom(room);
-      this.setState({ room });
+    const { room_id } = this.props.match.params;
+    if (room_id !== this.state.room_id) {
+      window.scrollTo(0, document.body.scrollHeight);
+      this.props.fetchBedsAt(room_id);
+      this.props.fetchRoom(room_id);
+      this.setState({ room_id });
     }
   }
   componentWillUnmount() {
@@ -43,7 +45,10 @@ class RoomPage extends Component {
     if (beds_at.length === 0) {
       return <div className="text-center">No result...</div>;
     }
-    return _.map(beds_at, bed => {
+    const { beds } = beds_at;
+    console.log(beds);
+    return _.map(beds, bed => {
+      console.log(bed);
       const { _patient } = bed;
       if (!_patient) {
         if (i === 0) {
@@ -88,13 +93,15 @@ class RoomPage extends Component {
   }
   render() {
     const { beds_at, room } = this.props;
+    const { room_id } = this.props.match.params;
     if (!beds_at || !room) {
       return (
-        <div className="text-center">
-          <LoadingIndicator />
-        </div>
+        <Dimmer active>
+          <Loader>Loading</Loader>
+        </Dimmer>
       );
     }
+    const { pages, page } = beds_at;
     return (
       <Content id="beds">
         <h3 className="text-center">
@@ -103,6 +110,22 @@ class RoomPage extends Component {
         <Card.Group style={{ justifyContent: "center" }}>
           {this.renderPatientsList()}
         </Card.Group>
+        <Button.Group className="pull-right" style={{ margin: "10px" }}>
+          <Button
+            icon="angle left"
+            disabled={page > 0 ? false : true}
+            onClick={() => {
+              this.props.fetchBedsAt(room_id, PERPAGE, page - 1);
+            }}
+          />
+          <Button
+            icon="angle right"
+            disabled={page < Math.floor(pages) ? false : true}
+            onClick={() => {
+              this.props.fetchBedsAt(room_id, PERPAGE, page + 1);
+            }}
+          />
+        </Button.Group>
       </Content>
     );
   }

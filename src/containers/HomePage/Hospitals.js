@@ -2,14 +2,14 @@ import _ from "lodash";
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Link } from "react-router-dom";
-import LoadingIndicator from "react-loading-indicator";
 import { fetchHospitals } from "../../actions";
 
 import { Content } from "./styles";
-import { Card, Image, Icon } from "semantic-ui-react";
+import { Card, Image, Icon, Button, Dimmer, Loader } from "semantic-ui-react";
 
 const WhiteImg = require("../../assets/white-image.png");
-
+const PERPAGE = 3;
+const PAGE = 0;
 class Hospitals extends Component {
   constructor(props) {
     super(props);
@@ -18,7 +18,7 @@ class Hospitals extends Component {
     };
   }
   componentDidMount() {
-    this.props.fetchHospitals();
+    this.props.fetchHospitals(PERPAGE, PAGE);
     console.log("Monitor page mounted");
     // let { _id } = this.props.match.params
     // console.log(_id)
@@ -34,7 +34,7 @@ class Hospitals extends Component {
   }
   renderHospitals() {
     const { url } = this.props.match;
-    const { hospitals } = this.props;
+    const { hospitals } = this.props.hospitals;
     let i = 0;
     if (hospitals.length === 0) {
       return <div className="text-center">No result...</div>;
@@ -56,7 +56,7 @@ class Hospitals extends Component {
         );
 
         return (
-          <Card key={`card-${hospital._id}`}>
+          <Card key={`card-${hospital._id}`} className="fadeIn">
             <Image src={imgSrc} alt={`${hospital.name}-profile-image`} />
             <Card.Content>
               <Card.Header>{hospital.name}</Card.Header>
@@ -78,11 +78,13 @@ class Hospitals extends Component {
     const { hospitals } = this.props;
     if (!hospitals) {
       return (
-        <div className="text-center">
-          <LoadingIndicator />
-        </div>
+        <Dimmer active>
+          <Loader>Loading</Loader>
+        </Dimmer>
       );
     }
+    const { page, pages } = this.props.hospitals;
+
     return (
       <Content id="hospitals">
         <h3 className="text-center">
@@ -91,6 +93,22 @@ class Hospitals extends Component {
         <Card.Group style={{ justifyContent: "center" }}>
           {this.renderHospitals()}
         </Card.Group>
+        <Button.Group className="pull-right" style={{ margin: "10px" }}>
+          <Button
+            icon="angle left"
+            disabled={page > 0 ? false : true}
+            onClick={() => {
+              this.props.fetchHospitals(PERPAGE, page - 1);
+            }}
+          />
+          <Button
+            icon="angle right"
+            disabled={page < Math.floor(pages) ? false : true}
+            onClick={() => {
+              this.props.fetchHospitals(PERPAGE, page + 1);
+            }}
+          />
+        </Button.Group>
       </Content>
     );
   }

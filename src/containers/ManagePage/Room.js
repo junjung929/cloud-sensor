@@ -361,7 +361,8 @@ class Room extends Component {
         </tr>
       );
     }
-    return _.map(beds_at, bed => {
+    const { beds } = beds_at;
+    return _.map(beds, bed => {
       const { _id, number, _sensor_node, _patient } = bed;
       let patientAtBed = "Empty",
         sensorAtBed = "Empty";

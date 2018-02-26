@@ -6,14 +6,22 @@ import {
   FETCH_BED,
   ADD_BED,
   EDIT_BED,
-  DELETE_BED,
+  DELETE_BED
 } from "../constants/ActionTypes";
 
 const URL = `${ROOT_URL}/api/beds`;
-export function fetchBedsAt(id) {
+export function fetchBedsAt(id, perPage, page) {
   const query = `/room=${id}`;
   const url = `${URL}${query}`;
-  const request = axios.get(url);
+  const config = {
+    method: "get",
+    url,
+    params: {
+      perPage,
+      page
+    }
+  };
+  const request = axios(config);
 
   return dispatch => {
     return request.then(({ data }) => {

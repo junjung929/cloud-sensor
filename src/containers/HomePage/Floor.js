@@ -2,37 +2,39 @@ import _ from "lodash";
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Link } from "react-router-dom";
-import LoadingIndicator from "react-loading-indicator";
 import { fetchRoomsAt, fetchFloor } from "../../actions";
 
 import { Content } from "./styles";
-import { Card, Image, Icon } from "semantic-ui-react";
+import { Card, Image, Icon, Dimmer, Loader, Button } from "semantic-ui-react";
 import { getOrdinal } from "../../components";
 
 const WhiteImg = require("../../assets/white-image.png");
+const PERPAGE = 3;
+const PAGE = 0;
 
 class FloorPage extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      floor: null,
+      floor_id: null,
       currItem: ""
     };
   }
   componentDidMount() {
     console.log("Floor page mounted");
-    const { floor } = this.props.match.params;
-    this.props.fetchRoomsAt(floor);
-    this.props.fetchFloor(floor);
-    this.setState({ floor });
+    const { floor_id } = this.props.match.params;
+    this.props.fetchRoomsAt(floor_id, PERPAGE, PAGE);
+    this.props.fetchFloor(floor_id);
+    this.setState({ floor_id });
   }
   componentDidUpdate() {
-    const { floor } = this.props.match.params;
-    if (floor !== this.state.floor) {
-      this.props.fetchRoomsAt(floor);
-      this.props.fetchFloor(floor);
-      this.setState({ floor });
+    const { floor_id } = this.props.match.params;
+    if (floor_id !== this.state.floor_id) {
+      window.scrollTo(0, document.body.scrollHeight);
+      this.props.fetchRoomsAt(floor_id);
+      this.props.fetchFloor(floor_id);
+      this.setState({ floor_id });
     }
   }
   onItemClick(currId) {
@@ -65,7 +67,8 @@ class FloorPage extends Component {
     if (rooms_at.length === 0) {
       return <div className="text-center">No result...</div>;
     }
-    return _.map(rooms_at, room => {
+    const { rooms } = rooms_at;
+    return _.map(rooms, room => {
       const { currItem } = this.state;
       const imgSrc = room.imgSrc ? room.imgSrc : String(WhiteImg);
       let toRoom = `${url}/room=${room._id}#beds`;
@@ -80,7 +83,7 @@ class FloorPage extends Component {
         </Link>
       );
       return (
-        <Card key={`card-${room._id}`}>
+        <Card key={`card-${room._id}`} className="fadeIn">
           <Card.Content>
             <Image
               floated="right"
@@ -107,13 +110,15 @@ class FloorPage extends Component {
 
   render() {
     const { rooms_at, floor } = this.props;
+    const { floor_id } = this.props.match.params;
     if (!rooms_at || !floor) {
       return (
-        <div className="text-center">
-          <LoadingIndicator />
-        </div>
+        <Dimmer active>
+          <Loader>Loading</Loader>
+        </Dimmer>
       );
     }
+    const { page, pages } = rooms_at;
     return (
       <Content id="rooms">
         <h3 className="text-center">
@@ -123,6 +128,22 @@ class FloorPage extends Component {
         <Card.Group style={{ justifyContent: "center" }}>
           {this.renderRoomsList()}
         </Card.Group>
+        <Button.Group className="pull-right" style={{ margin: "10px" }}>
+          <Button
+            icon="angle left"
+            disabled={page > 0 ? false : true}
+            onClick={() => {
+              this.props.fetchRoomsAt(floor_id, PERPAGE, page - 1);
+            }}
+          />
+          <Button
+            icon="angle right"
+            disabled={page < Math.floor(pages) ? false : true}
+            onClick={() => {
+              this.props.fetchRoomsAt(floor_id, PERPAGE, page + 1);
+            }}
+          />
+        </Button.Group>
       </Content>
     );
   }
