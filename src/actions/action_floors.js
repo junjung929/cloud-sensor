@@ -21,12 +21,23 @@ export function fetchFloorsAt(id, perPage, page) {
   const request = axios(config);
 
   return dispatch => {
-    return request.then(({ data }) => {
-      dispatch({
-        type: FETCH_FLOORS_AT,
-        payload: data
+    return request
+      .then(({ data }) => {
+        dispatch({
+          type: FETCH_FLOORS_AT,
+          payload: data
+        });
+        return data;
+      })
+      .catch(({ message }) => {
+        dispatch({
+          type: FETCH_FLOORS_AT,
+          payload: {
+            err: message
+          }
+        });
+        return message;
       });
-    });
   };
 }
 export function fetchFloor(id) {

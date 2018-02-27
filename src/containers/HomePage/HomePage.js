@@ -16,13 +16,13 @@ const HomePage = ({ match }) => {
   return (
     <InnerContainer>
       <Route path={`${url}/view`} component={Hospitals} />
-      <Route path={`${url}/view/hospital=:_id`} component={Hospital} />
+      <Route path={`${url}/view/hospital=:hospital_id`} component={Hospital} />
       <Route
-        path={`${url}/view/hospital=:_id/floor=:floor_id`}
+        path={`${url}/view/hospital=:hospital_id/floor=:floor_id`}
         component={Floor}
       />
       <Route
-        path={`${url}/view/hospital=:_id/floor=:floor/room=:room_id`}
+        path={`${url}/view/hospital=:hospital_id/floor=:floor_id/room=:room_id`}
         component={Room}
       />
       <Route path={`${url}/search=`} component={SearchResult} />

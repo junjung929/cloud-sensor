@@ -3,48 +3,40 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import { fetchUpdatedSensorData } from "../../actions";
 import { Table } from "../../components/";
-import LoadingIndicator from "react-loading-indicator";
+import { Loading } from "./Components";
 
 class MonitorTable extends Component {
   componentDidMount() {}
-  tableBody() {
-    const { updated_sensor_data } = this.props;
+  tableBody = ({ first_name }, { data }) => {
     let i = 0;
 
-    if (!updated_sensor_data) {
-      return (
-        <td key={i++} colSpan="100%">
-          <LoadingIndicator />
-        </td>
-      );
+    if (!data) {
+      return;
     }
-    const { data } = updated_sensor_data;
-    return _.map(data, element => {
-      if (i > 4) {
-        return;
-      }
-      return <td key={i++}>{_.findLast(element)[1]}</td>;
-    });
-  }
+    return [
+      [<strong>{first_name}</strong>].concat(
+        _.map(data, element => {
+          if (i++ < 5) return _.findLast(element)[1];
+        })
+      )
+    ];
+  };
 
   render() {
-    const {patient} = this.props;
-    let tableHeadRow = (
-      <tr>
-        <th>Name</th>
-        <th>Heart rate (bpm)</th>
-        <th>Respiration rate (rpm)</th>
-        <th>Relative stroke volume (um)</th>
-        <th>Heart rate variability (ms)</th>
-        <th>Measured signal strength</th>
-      </tr>
-    );
-    let tableBody = (
-      <tr>
-        <th scope="row">{patient.first_name}</th>
-        {this.tableBody()}
-      </tr>
-    );
+    const { patient } = this.props;
+    const { updated_sensor_data } = this.props;
+    if (!updated_sensor_data) {
+      return <Loading />;
+    }
+    const tableHeadRow = [
+      "Name",
+      "Heart rate (bpm)",
+      "Respiration rate (rpm)",
+      "Relative stroke volume (um)",
+      "Heart rate variability (ms)",
+      "Measured signal strength"
+    ];
+    const tableBody = this.tableBody(patient, updated_sensor_data);
     return <Table tableHeadRow={tableHeadRow} tableBody={tableBody} />;
   }
 }

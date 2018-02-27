@@ -20,7 +20,6 @@ export function fetchHospitals(perPage, page) {
     params: { perPage, page }
   };
   const request = axios(config);
-
   return dispatch => {
     return request
       .then(({ data }) => {
@@ -30,8 +29,14 @@ export function fetchHospitals(perPage, page) {
         });
         return data;
       })
-      .catch(err => {
-        return err;
+      .catch(({ message }) => {
+        dispatch({
+          type: FETCH_HOSPITALS,
+          payload: {
+            err: message
+          }
+        });
+        return message;
       });
   };
 }

@@ -1,6 +1,6 @@
 import _ from "lodash";
 import React, { Component } from "react";
-import { BrowserRouter as Router, Route, Link } from "react-router-dom";
+import { BrowserRouter as Router, Route, Link, Switch } from "react-router-dom";
 import { HomePage, HomeSide } from "../containers/HomePage";
 import { MonitorPage, MonitorSide } from "../containers/MonitorPage";
 import { ManagePage, ManageSide } from "../containers/ManagePage";
@@ -8,9 +8,18 @@ import {
   MultiMonitorPage,
   MultiMonitorSide
 } from "../containers/MultiMonitorPage";
+import { NotFound } from "../components";
 import { Carousel, Searchbar } from "../components";
 
-import { Sidebar, Menu, Icon, Container, Dropdown } from "semantic-ui-react";
+import {
+  Sidebar,
+  Menu,
+  Icon,
+  Container,
+  Dropdown,
+  Dimmer,
+  Loader
+} from "semantic-ui-react";
 
 import { HomeContainer, Search } from "./styles";
 
@@ -139,7 +148,7 @@ class Routes extends Component {
     const { visible } = this.state;
     return (
       <Router>
-        <div>
+        <Switch>
           <Route exact path="/" component={Redirect} />
           <Route
             path="/(.+)"
@@ -195,39 +204,52 @@ class Routes extends Component {
                     <div style={{ height: "40px" }} />
                     <Route path="/home" component={Carousel} />
                     <Container>
-                      <Search>
-                        <Route
-                          path="/home"
-                          component={() => {
-                            return <Searchbar url={`/home`} />;
-                          }}
-                        />
-                        <Route
-                          path="/monitor"
-                          component={() => {
-                            return <Searchbar url={`/monitor`} />;
-                          }}
-                        />
-                      </Search>
-                      <Route path="/home" component={HomePage} />
-                      <Route path="/monitor" component={MonitorPage} />
-                      <Route path="/multi" component={MultiMonitorPage} />
-                      <Route path="/manage" component={ManagePage} />
-                      <Route path="/about" component={temp} />
+                      <Route
+                        path="/home"
+                        component={() => {
+                          return (
+                            <Search id="searchbar">
+                              <Searchbar url={`/home`} />
+                            </Search>
+                          );
+                        }}
+                      />
+                      <Route
+                        path="/monitor"
+                        component={() => {
+                          return (
+                            <Search id="searchbar">
+                              <Searchbar url={`/monitor`} />
+                            </Search>
+                          );
+                        }}
+                      />
+                      <Switch>
+                        <Route path="/home" component={HomePage} />
+                        <Route path="/monitor" component={MonitorPage} />
+                        <Route path="/multi" component={MultiMonitorPage} />
+                        <Route path="/manage" component={ManagePage} />
+                        <Route path="/about" component={temp} />
+                        <Route path="*" component={NotFound} />
+                      </Switch>
                     </Container>
                   </HomeContainer>
                 </div>
               );
             }}
           />
-        </div>
+        </Switch>
       </Router>
     );
   }
 }
 const Redirect = () => {
   window.location.replace("/home/view");
-  return <div>Redirecting to HomePage</div>;
+  return (
+    <Dimmer active>
+      <Loader>Loading</Loader>
+    </Dimmer>
+  );
 };
 
 const temp = () => {

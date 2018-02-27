@@ -24,12 +24,23 @@ export function fetchBedsAt(id, perPage, page) {
   const request = axios(config);
 
   return dispatch => {
-    return request.then(({ data }) => {
-      dispatch({
-        type: FETCH_BEDS_AT,
-        payload: data
+    return request
+      .then(({ data }) => {
+        dispatch({
+          type: FETCH_BEDS_AT,
+          payload: data
+        });
+        return data;
+      })
+      .catch(({ message }) => {
+        dispatch({
+          type: FETCH_BEDS_AT,
+          payload: {
+            err: message
+          }
+        });
+        return message;
       });
-    });
   };
 }
 export function fetchBed(id) {

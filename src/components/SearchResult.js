@@ -1,29 +1,35 @@
 import _ from "lodash";
 import React, { Component } from "react";
 import { connect } from "react-redux";
-// import { Link } from 'react-router-dom';
-import LoadingIndicator from "react-loading-indicator";
+import { Link } from "react-router-dom";
 import { fetchPatientsSearched } from "../actions";
+
 import styled from "styled-components";
 
-import { Table, BackToList } from "../components";
+import { Button, Icon, Loader, Dimmer } from "semantic-ui-react";
+import { Table } from "../components";
+
 const TableWrapper = styled.div`
   width: 100%;
   padding: 0 3vw 0 3vw;
 `;
+
+const PERPAGE = 5;
+const PAGE = 0;
 
 class SearchResultPage extends Component {
   constructor(props) {
     super(props);
     this.state = {
       searchByName: null,
-      countResult: 0
+      countResult: 0,
+      page: 0
     };
     this.onCountResult = this.onCountResult.bind(this, false);
   }
   componentDidMount() {
     let { searchByName } = this.props.match.params;
-    this.props.fetchPatientsSearched(searchByName);
+    this.props.fetchPatientsSearched(searchByName, PERPAGE, PAGE);
     this.setState({ searchByName });
     this.onCountResult();
   }
@@ -32,7 +38,7 @@ class SearchResultPage extends Component {
     // if new search keyword is different with current keyword
     if (this.state.searchByName !== searchByName) {
       // fetch the data again
-      this.props.fetchPatientsSearched(searchByName);
+      this.props.fetchPatientsSearched(searchByName, PERPAGE, PAGE);
       // set new value as current keyword
       this.setState({ searchByName });
     }
@@ -41,99 +47,93 @@ class SearchResultPage extends Component {
 
   onCountResult() {
     if (this.props.patients_searched) {
-      let countResult = this.props.patients_searched.length;
+      const countResult = this.props.patients_searched.length;
       if (countResult !== this.state.countResult) {
         this.setState({ countResult });
       }
     }
   }
-  onGoBtn(id) {
-    const { match } = this.props;
-    switch (match) {
-    }
-    return (
-      <a href={`/monitor/patient=${id}`} className="btn btn-default">
-        Go
-      </a>
-    );
-  }
-  renderPatient() {
+  renderPatient = (patients, pages, page) => {
     let i = 0;
-    const { patients_searched } = this.props;
-    if (!patients_searched) {
-      return <div>No result...</div>;
-    }
-    if (patients_searched.length === 0) {
+    if (!patients || patients.length < 1) {
       return;
     }
-    return _.map(patients_searched, patient => {
-      let dateFormat = require("dateformat");
-      let birth = dateFormat(patient.birth, "yyyy-mm-dd");
-      let enter_date = dateFormat(patient.enter_date, "yyyy-mm-dd");
-      let leave_date = dateFormat(patient.leave_date, "yyyy-mm-dd");
-      return (
-        <tr key={patient._id}>
-          <th scope="row">{++i}</th>
-          <td>
-            {patient.first_name} {patient.last_name}
-          </td>
-          <td>{patient.phone_number}</td>
-          <td>{birth}</td>
-          <td>{enter_date}</td>
-          <td>{leave_date}</td>
-          <td>{patient.hospital_ ? patient.hospital_.name : "Not set"}</td>
-          <td>{this.onGoBtn(patient._id)}</td>
-        </tr>
-      );
+    return _.map(patients, patient => {
+      const dateFormat = require("dateformat");
+      const birth = dateFormat(patient.birth, "yyyy-mm-dd");
+      const enter_date = dateFormat(patient.enter_date, "yyyy-mm-dd");
+      const leave_date = dateFormat(patient.leave_date, "yyyy-mm-dd");
+      return [
+        PERPAGE * page + ++i,
+        `${patient.first_name} ${patient.last_name}`,
+        patient.phone_number,
+        birth,
+        enter_date,
+        leave_date,
+        patient.hospital_ ? patient.hospital_.name : "Not set",
+        <Button
+          as={Link}
+          color="blue"
+          basic
+          to={`/monitor/patient=${patient._id}`}
+          icon
+          fluid
+          title="Go to Monitor"
+        >
+          <Icon name="computer" />
+        </Button>
+      ];
     });
-  }
+  };
   render() {
+    const { patients_searched } = this.props;
+    const { searchByName } = this.state;
     if (!this.props.patients_searched) {
       return (
-        <div className="text-center">
-          <LoadingIndicator />
-        </div>
+        <Dimmer active>
+          <Loader>Loading</Loader>
+        </Dimmer>
       );
     }
-    let tableHeadRow = (
-      <tr>
-        <th>No.</th>
-        <th>Name</th>
-        <th>Tel</th>
-        <th>Birthday</th>
-        <th>Enter Date</th>
-        <th>Leave Date</th>
-        <th>Hospital</th>
-        <th />
-      </tr>
-    );
-    let tableBody = this.renderPatient();
-    if (!tableBody || !tableBody[0]) {
-      tableBody = (
-        <tr>
-          <td colSpan="100%" className="text-center">
-            No result... <BackToList />
-          </td>
-        </tr>
-      );
-    }
-    /* 
-        if(this.state.countResult == 0){
-            return (<p colSpan="100%" className="text-center">No result... <BackToList /></p>);
-        }    */
+    const { patients, pages, page } = patients_searched;
+    const tableHeadRow = [
+      "No.",
+      "Name",
+      "Tel",
+      "Birthday",
+      "Enter Date",
+      "Leave Date",
+      "Hospital",
+      ""
+    ];
+    const tableBody = this.renderPatient(patients, pages, page);
     return (
       <TableWrapper>
-        <BackToList />
         <h3 style={{ marginTop: 0 }} className="text-center">
           Result of '{this.state.searchByName}'
         </h3>
-        <Table tableHeadRow={tableHeadRow} tableBody={tableBody} />
+        <Table
+          tableHeadRow={tableHeadRow}
+          tableBody={tableBody}
+          pages={pages}
+          onPageChange={(e, { activePage }) => {
+            const currpage = activePage;
+            setTimeout(() => {
+              this.props.fetchPatientsSearched(
+                searchByName,
+                PERPAGE,
+                currpage - 1
+              );
+            }, 100);
+          }}
+        />
       </TableWrapper>
     );
   }
 }
 function mapStateToProps(state) {
-  return { patients_searched: state.patients.patients_searched };
+  const { patients_searched } = state.patients;
+  return { patients_searched };
 }
 
 export default connect(mapStateToProps, { fetchPatientsSearched })(

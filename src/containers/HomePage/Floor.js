@@ -2,47 +2,37 @@ import _ from "lodash";
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Link } from "react-router-dom";
-import { fetchRoomsAt, fetchFloor } from "../../actions";
+import { fetchRoomsAt } from "../../actions";
 
-import { Content } from "./styles";
-import { Card, Image, Icon, Dimmer, Loader, Button } from "semantic-ui-react";
-import { getOrdinal } from "../../components";
+import { SubProfile, NoResult, getOrdinal } from "../../components";
+import { Content, ContentErr, Loading } from "./Components";
 
-const WhiteImg = require("../../assets/white-image.png");
 const PERPAGE = 3;
 const PAGE = 0;
 
-class FloorPage extends Component {
+class Floor extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      floor_id: null,
-      currItem: ""
+      floor_id: null
     };
   }
   componentDidMount() {
     console.log("Floor page mounted");
     const { floor_id } = this.props.match.params;
-    this.props.fetchRoomsAt(floor_id, PERPAGE, PAGE);
-    this.props.fetchFloor(floor_id);
     this.setState({ floor_id });
+    this.props.fetchRoomsAt(floor_id, PERPAGE, PAGE).then(() => {
+      window.scrollTo(0, document.body.scrollHeight);
+    });
   }
   componentDidUpdate() {
     const { floor_id } = this.props.match.params;
     if (floor_id !== this.state.floor_id) {
-      window.scrollTo(0, document.body.scrollHeight);
-      this.props.fetchRoomsAt(floor_id);
-      this.props.fetchFloor(floor_id);
       this.setState({ floor_id });
-    }
-  }
-  onItemClick(currId) {
-    const { currItem } = this.state;
-    if (currItem !== currId) {
-      this.setState({ currItem: currId });
-    } else {
-      this.setState({ currItem: "" });
+      this.props.fetchRoomsAt(floor_id, PERPAGE, PAGE).then(() => {
+        window.scrollTo(0, document.body.scrollHeight);
+      });
     }
   }
   getFreeRooms(room) {
@@ -61,99 +51,92 @@ class FloorPage extends Component {
     }
     return freeRooms;
   }
-  renderRoomsList() {
-    const { url } = this.props.match;
-    const { rooms_at } = this.props;
-    if (rooms_at.length === 0) {
-      return <div className="text-center">No result...</div>;
+  renderRoomsList = (url, rooms) => {
+    // get current floor id
+    const { pathname } = this.props.location;
+    let currItem = pathname.split("room=").pop();
+    const sliceTill = currItem.search(/\//);
+    if (sliceTill > 0) {
+      currItem = currItem.slice(0, sliceTill);
     }
-    const { rooms } = rooms_at;
+
+    if (!rooms || rooms.length === 0) {
+      return <NoResult />;
+    }
     return _.map(rooms, room => {
-      const { currItem } = this.state;
-      const imgSrc = room.imgSrc ? room.imgSrc : String(WhiteImg);
       let toRoom = `${url}/room=${room._id}#beds`;
       let spread = "Open";
       if (currItem === room._id) {
         toRoom = url;
         spread = "Close";
       }
-      const extra = (
-        <Link to={toRoom} onClick={() => this.onItemClick(room._id)}>
-          {spread}
-        </Link>
-      );
+      const extra = <Link to={toRoom}>{spread}</Link>;
       return (
-        <Card key={`card-${room._id}`} className="fadeIn">
-          <Card.Content>
-            <Image
-              floated="right"
-              size="mini"
-              src={imgSrc}
-              alt={`room-${room.number}-profile-image`}
-            />
-            <Card.Header>Room No.{room.number}</Card.Header>
-            <Card.Meta>Rooms</Card.Meta>
-            <Card.Description>
+        <SubProfile
+          key={`room-profile-${room._id}`}
+          color="olive"
+          floated="right"
+          size="mini"
+          src={room.imgSrc}
+          header={`Room No.${room.number}`}
+          alt={`Room No.${room.number}`}
+          meta="Rooms"
+          description={
+            <div>
               <p>Number of Beds: {room._bed_list.length}</p>
               <p>
                 Number of Patients:{" "}
                 {room._bed_list.length - this.getFreeRooms(room)}
               </p>
               <p>Number of Free Beds: {this.getFreeRooms(room)}</p>
-            </Card.Description>
-          </Card.Content>
-          <Card.Content extra>{extra}</Card.Content>
-        </Card>
+            </div>
+          }
+          extra={extra}
+        />
       );
     });
-  }
+  };
 
   render() {
-    const { rooms_at, floor } = this.props;
+    const { rooms_at, floors_at } = this.props;
     const { floor_id } = this.props.match.params;
-    if (!rooms_at || !floor) {
-      return (
-        <Dimmer active>
-          <Loader>Loading</Loader>
-        </Dimmer>
-      );
+    const { url } = this.props.match;
+    if (!rooms_at || !floors_at) {
+      return <Loading />;
+    }
+    if (rooms_at.err) {
+      return <ContentErr id="rooms" message={rooms_at.err} />;
     }
     const { page, pages } = rooms_at;
+    const floor = floors_at.floors.find(floor => {
+      return floor._id === floor_id;
+    });
+    if (!floor) {
+      return <div />;
+    }
     return (
-      <Content id="rooms">
-        <h3 className="text-center">
-          <Icon name="hospital" />
-          {getOrdinal(floor.number)} floor
-        </h3>
-        <Card.Group style={{ justifyContent: "center" }}>
-          {this.renderRoomsList()}
-        </Card.Group>
-        <Button.Group className="pull-right" style={{ margin: "10px" }}>
-          <Button
-            icon="angle left"
-            disabled={page > 0 ? false : true}
-            onClick={() => {
-              this.props.fetchRoomsAt(floor_id, PERPAGE, page - 1);
-            }}
-          />
-          <Button
-            icon="angle right"
-            disabled={page < Math.floor(pages) ? false : true}
-            onClick={() => {
-              this.props.fetchRoomsAt(floor_id, PERPAGE, page + 1);
-            }}
-          />
-        </Button.Group>
-      </Content>
+      <Content
+        id="rooms"
+        icon="hospital"
+        header={`${getOrdinal(floor.number)} floor`}
+        cards={() => this.renderRoomsList(url, rooms_at.rooms)}
+        url={url}
+        page={page}
+        pages={pages}
+        onLeftClick={() => {
+          this.props.fetchRoomsAt(PERPAGE, page - 1);
+        }}
+        onRightClick={() => {
+          this.props.fetchRoomsAt(PERPAGE, page + 1);
+        }}
+      />
     );
   }
 }
 function mapStateToProps(state) {
-  // console.log("hospitals log", hospitals[ownProps.match.params._id]);
-  const { rooms_at, floor } = state.floors;
-  return { rooms_at, floor };
+  const { floors_at } = state.hospitals;
+  const { rooms_at } = state.floors;
+  return { rooms_at, floors_at };
 }
 
-export default connect(mapStateToProps, { fetchRoomsAt, fetchFloor })(
-  FloorPage
-);
+export default connect(mapStateToProps, { fetchRoomsAt })(Floor);

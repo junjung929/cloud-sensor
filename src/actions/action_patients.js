@@ -56,18 +56,35 @@ export function fetchPatient(id) {
     });
   };
 }
-export function fetchPatientsSearched(searchByName) {
+export function fetchPatientsSearched(searchByName, perPage, page) {
   const query = `/searchByName=${searchByName}`;
   const url = `${URL}${query}`;
-  const request = axios.get(url);
+  const config = {
+    method: "get",
+    url,
+    params: {
+      perPage,
+      page
+    }
+  };
+  const request = axios(config);
 
   return dispatch => {
-    return request.then(({ data }) => {
-      dispatch({
-        type: FETCH_PATIENTS_SEACHED,
-        payload: data
+    return request
+      .then(({ data }) => {
+        dispatch({
+          type: FETCH_PATIENTS_SEACHED,
+          payload: data
+        });
+        return data;
+      })
+      .catch(({ message }) => {
+        dispatch({
+          type: FETCH_PATIENTS_SEACHED,
+          payload: { err: message }
+        });
+        return message;
       });
-    });
   };
 }
 export function fetchPatientsAt(id) {
