@@ -8,7 +8,6 @@ import {
 } from "../../actions";
 import styled from "styled-components";
 
-import LoadingIndicator from "react-loading-indicator";
 import { SensorStream } from "../../components/";
 import {
   Checkbox,
@@ -19,6 +18,8 @@ import {
   Button,
   Icon
 } from "semantic-ui-react";
+
+import { Loader } from "semantic-ui-react";
 
 const TENSEC = 10000;
 const DEFAULT = TENSEC * 6;
@@ -96,7 +97,7 @@ class Sensor extends Component {
       }
     });
     latestTime = _.findLast(sensorData).time;
-    if(this._mounted){
+    if (this._mounted) {
       this.setState({ latestTime, sensorGraph });
     }
 
@@ -178,7 +179,7 @@ class Sensor extends Component {
     if (!sensor_data)
       return (
         <div className="text-center">
-          <LoadingIndicator />
+          <Loader active inline />
         </div>
       );
 

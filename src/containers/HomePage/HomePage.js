@@ -1,5 +1,5 @@
 import React from "react";
-import { SearchResult } from "components";
+import { SearchResult, Searchbar } from "../../components";
 import { Hospitals, Hospital, Floor, Room } from "containers/HomePage";
 import { Route } from "react-router-dom";
 import styled from "styled-components";
@@ -15,6 +15,7 @@ const HomePage = ({ match }) => {
   const { url } = match;
   return (
     <InnerContainer>
+      <Searchbar url={url} />
       <Route path={`${url}/view`} component={Hospitals} />
       <Route path={`${url}/view/hospital=:hospital_id`} component={Hospital} />
       <Route

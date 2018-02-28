@@ -1,30 +1,22 @@
 import React from "react";
-import { SearchResult } from "../../components";
+import { SearchResult, Searchbar } from "../../components";
 import { Monitor } from "../MonitorPage";
 import { Route } from "react-router-dom";
-import styled from "styled-components";
-
-const InnerContainer = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  flex-direction: column;
-`;
-
+import { Segment, Header } from "semantic-ui-react";
 const MonitorPage = ({ match }) => {
   const { url } = match;
   return (
-    <InnerContainer>
+    <Segment basic textAlign="center" style={{ marginTop: "20px" }}>
+      <Header as="h2">Monitoring Page</Header>
+      <Searchbar url={url} />
       <Route
         exact
         path={`${url}`}
         component={() => {
           return (
-            <div className="text-center">
-              <h2>Monitor Page</h2>
-              <h4>You can take care of a patient</h4>
-              <h4>Please search a patient with name</h4>
+            <div style={{ marginTop: "20px" }}>
+              <Header as="h4">You can take care of a patient</Header>
+              <Header as="h4">Please search a patient with name</Header>
             </div>
           );
         }}
@@ -32,7 +24,7 @@ const MonitorPage = ({ match }) => {
       <Route path={`${url}/patient=:_id`} component={Monitor} />
       <Route path={`${url}/search=`} component={SearchResult} />
       <Route path={`${url}/search=:searchByName`} component={SearchResult} />
-    </InnerContainer>
+    </Segment>
   );
 };
 export default MonitorPage;

@@ -4,7 +4,7 @@ import { injectGlobal } from "styled-components";
 injectGlobal`
   html,
   body {
-    height: 100%;
+    max-height: 100vh;
     width: 100%;
     min-width: 100%;
     top: 0px !important;
@@ -16,6 +16,10 @@ injectGlobal`
     font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
   }
 
+  #home {
+    padding-top: 40px;
+    min-height: 100vh;
+  }
   th, td {
     text-align: center
   }

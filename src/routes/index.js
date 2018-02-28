@@ -21,8 +21,6 @@ import {
   Loader
 } from "semantic-ui-react";
 
-import { HomeContainer, Search } from "./styles";
-
 class Routes extends Component {
   constructor(props) {
     super(props);
@@ -200,30 +198,9 @@ class Routes extends Component {
                     component={() => this.OtherMenu("See List", "Close List")}
                   />
                   <Route path="/about" component={() => this.HomeMenu()} />
-                  <HomeContainer id="home" onClick={this.onClickGeneral}>
-                    <div style={{ height: "40px" }} />
+                  <div id="home" onClick={this.onClickGeneral}>
                     <Route path="/home" component={Carousel} />
                     <Container>
-                      <Route
-                        path="/home"
-                        component={() => {
-                          return (
-                            <Search id="searchbar">
-                              <Searchbar url={`/home`} />
-                            </Search>
-                          );
-                        }}
-                      />
-                      <Route
-                        path="/monitor"
-                        component={() => {
-                          return (
-                            <Search id="searchbar">
-                              <Searchbar url={`/monitor`} />
-                            </Search>
-                          );
-                        }}
-                      />
                       <Switch>
                         <Route path="/home" component={HomePage} />
                         <Route path="/monitor" component={MonitorPage} />
@@ -233,7 +210,7 @@ class Routes extends Component {
                         <Route path="*" component={NotFound} />
                       </Switch>
                     </Container>
-                  </HomeContainer>
+                  </div>
                 </div>
               );
             }}

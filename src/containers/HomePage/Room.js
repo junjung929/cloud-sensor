@@ -80,7 +80,7 @@ class Room extends Component {
     const { url } = this.props.match;
     const { room_id } = this.props.match.params;
     if (!beds_at || !rooms_at) {
-      return <Loading />;
+      return <Loading inverted />;
     }
 
     if (beds_at.err) {

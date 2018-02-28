@@ -77,7 +77,7 @@ class Hospital extends Component {
     const { hospital_id } = this.props.match.params;
     const { url } = this.props.match;
     if (!floors_at || !hospitals) {
-      return <Loading />;
+      return <Loading inverted />;
     }
     if (floors_at.err) {
       return <ContentErr id="floors" message={floors_at.err} />;

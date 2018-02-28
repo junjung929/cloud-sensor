@@ -1,7 +1,3 @@
-// Counter
-export const INCREMENT_COUNTER = "INCREMENT_COUNTER";
-export const DECREMENT_COUNTER = "DECREMENT_COUNTER";
-
 // Server
 export const URL = "10.114.32.112";
 export const PORT = 8080;

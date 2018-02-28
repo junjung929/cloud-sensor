@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { Content as ContentStyle } from "./styles";
-import { Card, Icon, Button, Dimmer, Loader } from "semantic-ui-react";
+import { Header, Card, Icon, Button, Dimmer, Loader } from "semantic-ui-react";
 import { Err } from "../../components";
 
 export const Content = ({
@@ -17,16 +17,16 @@ export const Content = ({
 }) => {
   return (
     <ContentStyle id={id}>
-      <h3 className="text-center">
+      <Header as="h3" textAlign="center" style={{ marginBottom: "20px" }}>
         <Icon name={icon} />
         {header}
-      </h3>
+      </Header>
       <Card.Group style={{ justifyContent: "center" }}>{cards()}</Card.Group>
       {Math.ceil(pages) > 1 ? (
         <Button.Group
           as={Link}
           to={url}
-          className="pull-right"
+          floated="right"
           style={{ margin: "10px" }}
         >
           <Button
@@ -51,10 +51,10 @@ export const ContentErr = ({ id, message }) => {
     </ContentStyle>
   );
 };
-export const Loading = () => {
+export const Loading = ({ inverted }) => {
   return (
-    <Dimmer active>
-      <Loader>Loading</Loader>
+    <Dimmer active inverted={inverted}>
+      <Loader inverted={inverted}>Loading</Loader>
     </Dimmer>
   );
 };

@@ -102,7 +102,7 @@ class Floor extends Component {
     const { floor_id } = this.props.match.params;
     const { url } = this.props.match;
     if (!rooms_at || !floors_at) {
-      return <Loading />;
+      return <Loading inverted />;
     }
     if (rooms_at.err) {
       return <ContentErr id="rooms" message={rooms_at.err} />;
