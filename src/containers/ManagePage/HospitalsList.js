@@ -29,7 +29,9 @@ class HospitalsList extends Component {
     };
   }
   componentDidMount() {
-    this.props.fetchHospitals(PERPAGE, PAGE);
+    if (!this.props.hospitals) {
+      this.props.fetchHospitals(PERPAGE, PAGE);
+    }
   }
   onBedClick(id) {
     const { fetchBed } = this.props;
