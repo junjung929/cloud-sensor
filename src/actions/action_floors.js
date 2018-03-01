@@ -27,7 +27,7 @@ export function fetchFloorsAt(id, perPage, page) {
           type: FETCH_FLOORS_AT,
           payload: data
         });
-        return data;
+        return { data };
       })
       .catch(({ message }) => {
         dispatch({
@@ -88,18 +88,14 @@ export function editFloor(id, values, file) {
   const request = axios(config);
 
   return dispatch => {
-    console.log(request);
     return request
       .then(({ data }) => {
-        console.log(request);
-
         dispatch({
           type: EDIT_FLOOR,
           payload: "SUCCESS"
         });
       })
       .catch(({ response }) => {
-        console.log(response.data.err);
         return response.data.err;
       });
   };
@@ -118,11 +114,15 @@ export function deleteFloor(id, hospital_) {
   const request = axios(config);
 
   return dispatch => {
-    return request.then(({ data }) => {
-      dispatch({
-        type: DELETE_FLOOR,
-        payload: id
+    return request
+      .then(({ data }) => {
+        dispatch({
+          type: DELETE_FLOOR,
+          payload: id
+        });
+      })
+      .catch(err => {
+        console.log(err);
       });
-    });
   };
 }

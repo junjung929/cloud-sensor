@@ -1,8 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { Content as ContentStyle } from "./styles";
-import { Card, Icon, Button, Dimmer, Loader } from "semantic-ui-react";
-import { Err } from "../../components";
+import { Card, Icon, Button } from "semantic-ui-react";
 
 export const Content = ({
   id,
@@ -42,19 +41,5 @@ export const Content = ({
         </Button.Group>
       ) : null}
     </ContentStyle>
-  );
-};
-export const ContentErr = ({ id, message }) => {
-  return (
-    <ContentStyle id={id} className="text-center">
-      <Err header={message} />
-    </ContentStyle>
-  );
-};
-export const Loading = () => {
-  return (
-    <Dimmer active>
-      <Loader>Loading</Loader>
-    </Dimmer>
   );
 };

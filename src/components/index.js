@@ -9,9 +9,8 @@ export { default as SearchResult } from "./SearchResult";
 export { default as getOrdinal } from "./ordinal";
 export { Profile, SubProfile } from "./Profile";
 
-
 export { default as NoResult } from "./NoResult";
 export { default as NotFound } from "./NotFound";
-export { default as Err } from "./Err";
+export { ContentErr, Loading } from "./LoadingNErr";
 
 export * from "./ReduxFormField";

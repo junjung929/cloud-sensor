@@ -1,19 +1,46 @@
+import _ from "lodash";
 import React from "react";
+import { Field } from "redux-form";
+import { Form, Header } from "semantic-ui-react";
 
+/* export const RenderForm = ({ formId, onSubmit, fields }) => {
+  return (
+    <Form id={formId} onSubmit={handleSubmit(onSubmit)}>
+      {RenderFields(fields)}
+    </Form>
+  );
+}; */
+export const RenderFields = fields => {
+  return _.map(fields, field => {
+    const { label, name, component, onChange, type, placeholder } = field;
+    return (
+      <Field
+        key={`hospital-form-field-${name}`}
+        label={label}
+        name={name}
+        component={component}
+        onChange={onChange}
+        type={type}
+        placeholder={placeholder}
+      />
+    );
+  });
+};
 export const RenderField = field => {
   const { label, input, type, placeholder, meta: { touched, error } } = field;
-  const className = `form-group ${touched && error ? "has-danger" : ""}`;
   return (
-    <div className={className}>
-      <label>{label}</label>
-      <input
-        className="form-control"
+    <div>
+      <Form.Input
+        label={label}
         type={type}
         {...input}
         placeholder={placeholder}
         required
+        error={touched && error ? true : false}
       />
-      <div className="text-help text-danger">{touched ? error : ""}</div>
+      <Header as="h6" color="red" style={{ marginTop: "-10px" }}>
+        {touched ? error : ""}
+      </Header>
     </div>
   );
 };
@@ -70,15 +97,12 @@ export const RenderSelectGroupField = field => {
 export const RenderPhotoField = field => {
   const { input, label } = field;
   return (
-    <div>
-      <label>{label}</label>
-      <input
-        className="form-control"
-        type="file"
-        accept="image/*"
-        onChange={input.onChange}
-      />
-    </div>
+    <Form.Input
+      label={label}
+      type="file"
+      accept="image/*"
+      onChange={input.onChange}
+    />
   );
 };
 

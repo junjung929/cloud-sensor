@@ -4,8 +4,8 @@ import { connect } from "react-redux";
 import { Link } from "react-router-dom";
 import { fetchHospitals } from "../../actions";
 
-import { Profile, NoResult } from "../../components";
-import { Content, ContentErr, Loading } from "./Components";
+import { Profile, NoResult, ContentErr, Loading } from "../../components";
+import { Content } from "./Components";
 
 const PERPAGE = 3;
 const PAGE = 0;

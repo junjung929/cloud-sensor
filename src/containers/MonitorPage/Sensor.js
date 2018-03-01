@@ -9,7 +9,7 @@ import {
 import styled from "styled-components";
 
 import LoadingIndicator from "react-loading-indicator";
-import { SensorStream } from "../../components/";
+import { SensorStream, ContentErr } from "../../components/";
 import {
   Checkbox,
   Segment,
@@ -49,7 +49,8 @@ class Sensor extends Component {
         SV: true,
         HRV: true,
         signalStrength: false
-      }
+      },
+      err: null
     };
     this.onSensorDataHandler = this.onSensorDataHandler.bind(this);
   }
@@ -57,12 +58,14 @@ class Sensor extends Component {
     const { fetchSensor } = this.props;
     const { bed_ } = this.props.patient;
     if (!bed_) {
+      this.setState({ err: "The patient is not set on any bed yet." });
       return alert(
         "The patient is not set on any bed yet.\nPlease set the patient on a bed."
       );
     } else {
       const { _sensor_node } = bed_;
       if (!_sensor_node) {
+        this.setState({ err: "There's no sensor on the bed." });
         return alert(
           "There's no sensor on the bed.\nPlease deploy a sensor on the bed."
         );
@@ -96,7 +99,7 @@ class Sensor extends Component {
       }
     });
     latestTime = _.findLast(sensorData).time;
-    if(this._mounted){
+    if (this._mounted) {
       this.setState({ latestTime, sensorGraph });
     }
 
@@ -174,6 +177,9 @@ class Sensor extends Component {
     });
   };
   render() {
+    if (this.state.err) {
+      return <ContentErr header={this.state.err} />;
+    }
     const { sensor_data } = this.props;
     if (!sensor_data)
       return (

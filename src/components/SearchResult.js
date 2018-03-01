@@ -7,7 +7,7 @@ import { fetchPatientsSearched } from "../actions";
 import styled from "styled-components";
 
 import { Button, Icon, Loader, Dimmer } from "semantic-ui-react";
-import { Table } from "../components";
+import { Table, getOrdinal } from "../components";
 
 const TableWrapper = styled.div`
   width: 100%;
@@ -71,6 +71,8 @@ class SearchResultPage extends Component {
         enter_date,
         leave_date,
         patient.hospital_ ? patient.hospital_.name : "Not set",
+        patient.room_ ? patient.room_.number : "Not set",
+        patient.bed_ ? getOrdinal(patient.bed_.number) : "Not set",
         <Button
           as={Link}
           color="blue"
@@ -78,7 +80,12 @@ class SearchResultPage extends Component {
           to={`/monitor/patient=${patient._id}`}
           icon
           fluid
-          title="Go to Monitor"
+          title={
+            patient.bed_
+              ? "Go to Monitor"
+              : "This patient is not assigned to any bed yet"
+          }
+          disabled={patient.bed_ ? false : true}
         >
           <Icon name="computer" />
         </Button>
@@ -104,6 +111,8 @@ class SearchResultPage extends Component {
       "Enter Date",
       "Leave Date",
       "Hospital",
+      "Room",
+      "Bed",
       ""
     ];
     const tableBody = this.renderPatient(patients, pages, page);
@@ -113,8 +122,8 @@ class SearchResultPage extends Component {
           Result of '{this.state.searchByName}'
         </h3>
         <Table
-          tableHeadRow={tableHeadRow}
-          tableBody={tableBody}
+          tHead={tableHeadRow}
+          tBody={tableBody}
           pages={pages}
           onPageChange={(e, { activePage }) => {
             const currpage = activePage;
@@ -127,6 +136,10 @@ class SearchResultPage extends Component {
             }, 100);
           }}
         />
+        <p className="pull-right">
+          *To monitor a patient's statement, the patient must be assigned into a
+          bed with a sensor
+        </p>
       </TableWrapper>
     );
   }

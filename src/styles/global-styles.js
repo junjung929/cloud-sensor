@@ -15,7 +15,10 @@ injectGlobal`
     padding: 0;
     font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
   }
-
+  
+  #home {
+    min-height: 100vh;
+  }
   th, td {
     text-align: center
   }
@@ -211,5 +214,25 @@ injectGlobal`
   @-o-keyframes fadein {
       from { opacity: 0; }
       to   { opacity: 1; }
+  }
+
+  .text-center {
+    text-align: center !important;
+  }
+  
+  .text-left {
+    text-align: left !important;
+  }
+  
+  .text-right {
+    text-align: right !important;
+  }
+
+  .pull-left {
+    float: left !important;
+  }
+
+  .pull-right {
+    float: right !important;
   }
 `;

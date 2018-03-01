@@ -13,8 +13,10 @@ import {
 } from "actions";
 import { Link } from "react-router-dom";
 import { getOrdinal } from "../../components";
-import { Dimmer, Loader, Segment, List } from "semantic-ui-react";
+import { Dimmer, Loader, Segment, List, Button } from "semantic-ui-react";
 
+const PERPAGE = 5;
+const PAGE = 0;
 class HospitalsList extends Component {
   constructor(props) {
     super(props);
@@ -25,6 +27,9 @@ class HospitalsList extends Component {
       roomSelected: null,
       bedSelected: null
     };
+  }
+  componentDidMount() {
+    this.props.fetchHospitals(PERPAGE, PAGE);
   }
   onBedClick(id) {
     const { fetchBed } = this.props;
@@ -161,8 +166,7 @@ class HospitalsList extends Component {
       );
     });
   }
-  renderHospitalsList() {
-    const { hospitals } = this.props;
+  renderHospitalsList = hospitals => {
     const { hospitalSelected } = this.state;
     let items = <div />;
     let selected = false;
@@ -173,7 +177,7 @@ class HospitalsList extends Component {
         </Dimmer>
       );
     }
-    return _.map(hospitals.hospitals, hospital => {
+    return _.map(hospitals, hospital => {
       const { _id, name } = hospital;
       if (hospitalSelected === _id) {
         items = this.renderFloorsList();
@@ -210,12 +214,30 @@ class HospitalsList extends Component {
         </List.Item>
       );
     });
-  }
+  };
 
   render() {
+    if (!this.props.hospitals) {
+      return <div />;
+    }
+    const { page, pages, hospitals } = this.props.hospitals;
     return (
       <Segment inverted style={{ width: "100%", textAlign: "left" }}>
-        <List size="huge">{this.renderHospitalsList()}</List>
+        <List size="huge">{this.renderHospitalsList(hospitals)}</List>
+        {Math.ceil(pages) > 1 ? (
+          <Button.Group className="pull-right" style={{ margin: "10px" }}>
+            <Button
+              icon="angle left"
+              disabled={page > 0 ? false : true}
+              onClick={() => this.props.fetchHospitals(PERPAGE, page - 1)}
+            />
+            <Button
+              icon="angle right"
+              disabled={page + 1 < Math.ceil(pages) ? false : true}
+              onClick={() => this.props.fetchHospitals(PERPAGE, page + 1)}
+            />
+          </Button.Group>
+        ) : null}
       </Segment>
     );
   }

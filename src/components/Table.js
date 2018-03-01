@@ -1,17 +1,17 @@
 import _ from "lodash";
 import React from "react";
-import { Pagination, Icon } from "semantic-ui-react";
-const Table = ({ tableBody, tableHeadRow, pages, onPageChange }) => {
+import { Pagination, Icon, Table } from "semantic-ui-react";
+const TableComponent = ({ tBody, tHead, pages, onPageChange }) => {
   return (
-    <table className="table table-responsive">
-      <thead className="mdb-color lighten-4">
-        <tr>{renderTableHeadRow(tableHeadRow)}</tr>
-      </thead>
-      <tbody className="hospital-group">{renderTableBodyRows(tableBody)}</tbody>
+    <Table id="table" unstackable >
+      <Table.Header>
+        <Table.Row>{renderTableHeadRow(tHead)}</Table.Row>
+      </Table.Header>
+      <Table.Body>{renderTableBodyRows(tBody)}</Table.Body>
       {Math.ceil(pages) > 1 ? (
-        <tfoot>
-          <tr>
-            <td colSpan="100%" className="text-right">
+        <Table.Footer>
+          <Table.Row>
+            <Table.HeaderCell colSpan="100%" className="text-right">
               <Pagination
                 onPageChange={onPageChange}
                 defaultActivePage={1}
@@ -31,42 +31,44 @@ const Table = ({ tableBody, tableHeadRow, pages, onPageChange }) => {
                 nextItem={{ content: <Icon name="angle right" />, icon: true }}
                 totalPages={Math.ceil(pages)}
               />
-            </td>
-          </tr>
-        </tfoot>
+            </Table.HeaderCell>
+          </Table.Row>
+        </Table.Footer>
       ) : null}
-    </table>
+    </Table>
   );
 };
 const renderCells = cells => {
   let i = 0;
   return _.map(cells, cell => {
     if (cell === undefined) return;
-    return <td key={`table-body-row-cell-${i++}`}>{cell}</td>;
+    return <Table.Cell key={`table-body-row-cell-${i++}`}>{cell}</Table.Cell>;
   });
 };
 const renderTableBodyRows = rows => {
   let i = 0;
   if (!rows) {
     return (
-      <tr>
-        <td colSpan="100%" className="text-center">
+      <Table.Row>
+        <Table.Cell colSpan="100%" className="text-center">
           No result...
-        </td>
-      </tr>
+        </Table.Cell>
+      </Table.Row>
     );
   }
   return _.map(rows, row => {
-    return <tr key={`table-body-row-${i++}`}>{renderCells(row)}</tr>;
+    return (
+      <Table.Row key={`table-body-row-${i++}`}>{renderCells(row)}</Table.Row>
+    );
   });
 };
 const renderTableHeadRow = heads => {
   return _.map(heads, head => {
     return (
-      <td key={`table-head-${head}`}>
+      <Table.HeaderCell key={`table-head-${head}`}>
         <strong>{head}</strong>
-      </td>
+      </Table.HeaderCell>
     );
   });
 };
-export default Table;
+export default TableComponent;

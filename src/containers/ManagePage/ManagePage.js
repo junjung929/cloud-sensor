@@ -14,6 +14,7 @@ const InnerContainer = styled.div`
   display: flex;
   justify-content: center;
   width: 100%;
+  padding-top: 40px;
   flex-direction: column;
 `;
 
@@ -22,15 +23,15 @@ const ManagePage = ({ match }) => {
   return (
     <InnerContainer>
       <Route exact path={`${url}`} component={Hospitals} />
-      <Route exact path={`${url}/hospital=:id`} component={Hospital} />
+      <Route exact path={`${url}/hospital=:hospital_id`} component={Hospital} />
       <Route
         exact
-        path={`${url}/hospital=:id/floor=:floor_id`}
+        path={`${url}/hospital=:hospital_id/floor=:floor_id`}
         component={Floor}
       />
       <Route
         exact
-        path={`${url}/hospital=:id/floor=:floor_id/room=:room_id`}
+        path={`${url}/hospital=:hospital_id/floor=:floor_id/room=:room_id`}
         component={Room}
       />
       <Route exact path={`${url}/patients`} component={Patients} />

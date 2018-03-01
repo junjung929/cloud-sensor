@@ -7,6 +7,7 @@ const InnerContainer = styled.div`
   display: flex;
   justify-content: center;
   width: 100%;
+  padding-top: 40px;
   flex-direction: column;
 `;
 

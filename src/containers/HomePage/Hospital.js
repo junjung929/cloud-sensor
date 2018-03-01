@@ -4,8 +4,14 @@ import { connect } from "react-redux";
 import { Link } from "react-router-dom";
 import { fetchFloorsAt } from "actions";
 
-import { SubProfile, NoResult, getOrdinal } from "../../components";
-import { Content, ContentErr, Loading } from "./Components";
+import {
+  SubProfile,
+  NoResult,
+  getOrdinal,
+  ContentErr,
+  Loading
+} from "../../components";
+import { Content } from "./Components";
 
 const PERPAGE = 3;
 const PAGE = 0;
@@ -35,8 +41,7 @@ class Hospital extends Component {
       });
     }
   }
-  renderFloorsList =(url, floors)=> {
-
+  renderFloorsList = (url, floors) => {
     // get current floor id
     const { pathname } = this.props.location;
     let currItem = pathname.split("floor=").pop();
@@ -45,7 +50,7 @@ class Hospital extends Component {
       currItem = currItem.slice(0, sliceTill);
     }
 
-    if ( !floors || floors.length === 0) {
+    if (!floors || floors.length === 0) {
       return <NoResult />;
     }
     return _.map(floors, floor => {
@@ -71,7 +76,7 @@ class Hospital extends Component {
         />
       );
     });
-  }
+  };
   render() {
     const { floors_at, hospitals } = this.props;
     const { hospital_id } = this.props.match.params;

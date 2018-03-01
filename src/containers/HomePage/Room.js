@@ -4,8 +4,14 @@ import { connect } from "react-redux";
 import { Link } from "react-router-dom";
 import { fetchBedsAt } from "../../actions";
 
-import { Profile, NoResult, getOrdinal } from "../../components";
-import { Content, ContentErr, Loading } from "./Components";
+import {
+  Profile,
+  NoResult,
+  getOrdinal,
+  ContentErr,
+  Loading
+} from "../../components";
+import { Content } from "./Components";
 
 const PERPAGE = 3;
 const PAGE = 0;

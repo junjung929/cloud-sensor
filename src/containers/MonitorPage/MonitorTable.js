@@ -37,7 +37,7 @@ class MonitorTable extends Component {
       "Measured signal strength"
     ];
     const tableBody = this.tableBody(patient, updated_sensor_data);
-    return <Table tableHeadRow={tableHeadRow} tableBody={tableBody} />;
+    return <Table tHead={tableHeadRow} tBody={tableBody} />;
   }
 }
 function mapStateToProps(state) {

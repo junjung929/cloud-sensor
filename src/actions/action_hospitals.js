@@ -27,7 +27,7 @@ export function fetchHospitals(perPage, page) {
           type: FETCH_HOSPITALS,
           payload: data
         });
-        return data;
+        return { data };
       })
       .catch(({ message }) => {
         dispatch({
@@ -46,12 +46,23 @@ export function fetchHospital(id) {
   const request = axios.get(url);
 
   return dispatch => {
-    return request.then(({ data }) => {
-      dispatch({
-        type: FETCH_HOSPITAL,
-        payload: data
+    return request
+      .then(({ data }) => {
+        dispatch({
+          type: FETCH_HOSPITAL,
+          payload: data
+        });
+        return data;
+      })
+      .catch(err => {
+        dispatch({
+          type: FETCH_HOSPITAL,
+          payload: {
+            err: err
+          }
+        });
+        return err;
       });
-    });
   };
 }
 // post
@@ -71,11 +82,15 @@ export function addHospital(values, file) {
       .then(({ data }) => {
         dispatch({
           type: ADD_HOSPITAL,
-          payload: data
+          payload: "SUCCESS"
         });
+        return { data };
       })
       .catch(({ response }) => {
-        console.log(response.data.err);
+        dispatch({
+          type: ADD_HOSPITAL,
+          payload: "FAIL"
+        });
         return response.data.err;
       });
   };
@@ -92,18 +107,15 @@ export function editHospital(id, values, file) {
   const request = axios(config);
 
   return dispatch => {
-    console.log(request);
     return request
       .then(({ data }) => {
-        console.log(request);
-
         dispatch({
           type: EDIT_HOSPITAL,
           payload: "SUCCESS"
         });
       })
-      .catch(a => {
-        console.log(a);
+      .catch(err => {
+        console.log(err);
       });
   };
 }
@@ -116,12 +128,16 @@ export function deleteHospital(id) {
   const request = axios.delete(url);
 
   return dispatch => {
-    return request.then(({ data }) => {
-      dispatch({
-        type: DELETE_HOSPITAL,
-        payload: id
+    return request
+      .then(({ data }) => {
+        dispatch({
+          type: DELETE_HOSPITAL,
+          payload: id
+        });
+      })
+      .catch(err => {
+        console.log(err);
       });
-    });
   };
 }
 

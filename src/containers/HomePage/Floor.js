@@ -4,8 +4,14 @@ import { connect } from "react-redux";
 import { Link } from "react-router-dom";
 import { fetchRoomsAt } from "../../actions";
 
-import { SubProfile, NoResult, getOrdinal } from "../../components";
-import { Content, ContentErr, Loading } from "./Components";
+import {
+  SubProfile,
+  NoResult,
+  getOrdinal,
+  ContentErr,
+  Loading
+} from "../../components";
+import { Content } from "./Components";
 
 const PERPAGE = 3;
 const PAGE = 0;
