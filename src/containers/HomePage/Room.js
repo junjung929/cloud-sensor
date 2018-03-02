@@ -109,10 +109,10 @@ class Room extends Component {
         page={page}
         pages={pages}
         onLeftClick={() => {
-          this.props.fetchBedsAt(PERPAGE, page - 1);
+          this.props.fetchBedsAt(room_id, PERPAGE, page - 1);
         }}
         onRightClick={() => {
-          this.props.fetchBedsAt(PERPAGE, page + 1);
+          this.props.fetchBedsAt(room_id, PERPAGE, page + 1);
         }}
       />
     );

@@ -12,7 +12,15 @@ import { Form, Header } from "semantic-ui-react";
 }; */
 export const RenderFields = fields => {
   return _.map(fields, field => {
-    const { label, name, component, onChange, type, placeholder } = field;
+    const {
+      label,
+      name,
+      component,
+      onChange,
+      type,
+      placeholder,
+      option
+    } = field;
     return (
       <Field
         key={`hospital-form-field-${name}`}
@@ -22,6 +30,7 @@ export const RenderFields = fields => {
         onChange={onChange}
         type={type}
         placeholder={placeholder}
+        option={option}
       />
     );
   });

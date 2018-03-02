@@ -30,7 +30,7 @@ export function fetchBedsAt(id, perPage, page) {
           type: FETCH_BEDS_AT,
           payload: data
         });
-        return data;
+        return { data };
       })
       .catch(({ message }) => {
         dispatch({
@@ -96,18 +96,14 @@ export function editBed(id, values, file) {
   const request = axios(config);
 
   return dispatch => {
-    console.log(request);
     return request
       .then(({ data }) => {
-        console.log(request);
-
         dispatch({
           type: EDIT_BED,
           payload: "SUCCESS"
         });
       })
       .catch(({ response }) => {
-        console.log(response.data.err);
         return response.data.err;
       });
   };

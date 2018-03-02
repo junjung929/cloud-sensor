@@ -126,7 +126,7 @@ class Hospitals extends Component {
     //file config
     const newData = new FormData();
     this.setState({ openLoadModal: true });
-    
+
     newData.set("file", file);
     switch (mode) {
       case "edit":
@@ -257,9 +257,9 @@ class Hospitals extends Component {
       openLoadModal,
       openDeleteModal
     } = this.state;
-    
+
     if (!hospitals) {
-      return <Loading />;
+      return <Loading inline />;
     }
     if (hospitals.err) {
       return <ContentErr id="hospitals" message={hospitals.err} />;

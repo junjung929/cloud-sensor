@@ -64,8 +64,8 @@ class Hospital extends Component {
       }
     });
   };
-  handleInitialize = floors => {
-    const { number } = floors;
+  handleInitialize = floor => {
+    const { number } = floor;
     const iniData = {
       number
     };
@@ -144,7 +144,7 @@ class Hospital extends Component {
     }
   };
 
-  renderModal(mode, floor) {
+  renderModal = (mode, floor) => {
     const { handleSubmit } = this.props;
     let submitHandler = data => {
       this.onFormSubmit(data, mode);
@@ -154,7 +154,7 @@ class Hospital extends Component {
     };
     if (floor) {
       const { number } = floor;
-      placeholder.number = { number };
+      placeholder = { number };
       submitHandler = data => {
         this.onFormSubmit(data, mode, floor._id);
       };
@@ -181,7 +181,7 @@ class Hospital extends Component {
         {RenderFields(fields)}
       </Form>
     );
-  }
+  };
   renderFloors = (floors, pages, page) => {
     let i = 0;
 
@@ -244,7 +244,7 @@ class Hospital extends Component {
     } = this.state;
 
     if (!hospital || !floors_at) {
-      return <Loading />;
+      return <Loading inline />;
     }
     if (floors_at.err) {
       return <ContentErr id="floors" message={floors_at.err} />;

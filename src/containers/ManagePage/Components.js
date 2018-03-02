@@ -1,6 +1,9 @@
 import React from "react";
-import { Icon, Button, Modal, Image, Loader } from "semantic-ui-react";
+import { Icon, Button, Modal, Image, Loader, List } from "semantic-ui-react";
+import { Link, Route } from "react-router-dom";
 import { Table } from "../../components";
+import { LinkStyle } from "./styles";
+
 const WhiteImg = require("../../assets/white-image.png");
 
 export const TalbeContent = ({ tHead, tBody, pages, onPageChange }) => {
@@ -20,7 +23,8 @@ export const ModalContent = ({
   content,
   formId,
   mode,
-  onCancelClick
+  onCancelClick,
+  basic
 }) => {
   return (
     <Modal open={open}>
@@ -35,10 +39,18 @@ export const ModalContent = ({
         <Modal.Description>{content}</Modal.Description>
       </Modal.Content>
       <Modal.Actions>
-        <Button primary type="submit" form={formId} icon labelPosition="right">
-          <Icon name="check" />
-          Confirm
-        </Button>
+        {basic ? null : (
+          <Button
+            primary
+            type="submit"
+            form={formId}
+            icon
+            labelPosition="right"
+          >
+            <Icon name="check" />
+            Confirm
+          </Button>
+        )}
         <Button
           type="button"
           icon
@@ -46,7 +58,8 @@ export const ModalContent = ({
           negative
           onClick={onCancelClick}
         >
-          <Icon name="cancel" />Cancel
+          <Icon name="cancel" />
+          {basic ? "Close" : "Cancel"}
         </Button>
       </Modal.Actions>
     </Modal>
@@ -94,7 +107,7 @@ export const LoaderModal = ({
     };
   } else if (response === "FAIL") {
     content = {
-      icon: "warning circlee",
+      icon: "warning circle",
       header: "Fail",
       content: "Please try again."
     };
@@ -130,5 +143,79 @@ export const LoaderModal = ({
         </Modal.Actions>
       ) : null}
     </Modal>
+  );
+};
+
+export const RenderList = ({
+  listItems,
+  pages,
+  page,
+  onClickPrev,
+  onClickNext,
+  size,
+  btnSize
+}) => {
+  return (
+    <List size={size}>
+      {listItems}
+      {Math.ceil(pages) > 1 ? (
+        <ButtonGroup
+          size={btnSize}
+          onClickPrev={onClickPrev}
+          onClickNext={onClickNext}
+          page={page}
+          pages={pages}
+        />
+      ) : null}
+    </List>
+  );
+};
+
+export const RenderListItem = ({
+  id,
+  item,
+  url,
+  to,
+  onItemClick,
+  header,
+  items
+}) => {
+  const path = `${url}/${to}=${id}`;
+  return (
+    <List.Item style={{ textAlign: "left" }}>
+      <Link
+        to={path}
+        onClick={() => {
+          onItemClick;
+        }}
+      >
+        <LinkStyle>
+          <List>{header}</List>
+        </LinkStyle>
+      </Link>
+      {items}
+    </List.Item>
+  );
+};
+const ButtonGroup = ({ onClickPrev, onClickNext, page, pages, size }) => {
+  return (
+    <Button.Group
+      color="teal"
+      inverted
+      size={size}
+      className="pull-right"
+      style={{ margin: "10px" }}
+    >
+      <Button
+        icon="angle left"
+        disabled={page > 0 ? false : true}
+        onClick={onClickPrev}
+      />
+      <Button
+        icon="angle right"
+        disabled={page + 1 < Math.ceil(pages) ? false : true}
+        onClick={onClickNext}
+      />
+    </Button.Group>
   );
 };

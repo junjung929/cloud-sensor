@@ -16,8 +16,10 @@ export const ContentErr = ({ id, message }) => {
   );
 };
 
-export const Loading = () => {
-  return (
+export const Loading = ({ inline }) => {
+  return inline ? (
+    <Loader inline="centered" active />
+  ) : (
     <Dimmer active>
       <Loader>Loading</Loader>
     </Dimmer>

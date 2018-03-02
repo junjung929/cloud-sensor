@@ -7,4 +7,5 @@ export { default as Room } from './Room';
 export { default as Patients } from './Patients';
 export { default as Sensors } from './Sensors';
 export { default as HospitalsList } from './HospitalsList';
+export { default as FloorsList } from './FloorsList';
 export * from './styles';

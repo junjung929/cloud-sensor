@@ -104,10 +104,10 @@ class Hospital extends Component {
         page={page}
         pages={pages}
         onLeftClick={() => {
-          this.props.fetchFloorsAt(PERPAGE, page - 1);
+          this.props.fetchFloorsAt(hospital_id, PERPAGE, page - 1);
         }}
         onRightClick={() => {
-          this.props.fetchFloorsAt(PERPAGE, page + 1);
+          this.props.fetchFloorsAt(hospital_id, PERPAGE, page + 1);
         }}
       />
     );

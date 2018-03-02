@@ -63,3 +63,11 @@ export const Info = styled.div`
   flex-direction: column;
   padding: 5vw;
 `;
+export const LinkStyle = styled.li`
+  &:hover {
+    background-color: #00a4a4;
+    margin: 0 -14px 0 -14px;
+  }
+  &:hover span {
+  }
+`;

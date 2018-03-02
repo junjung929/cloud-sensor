@@ -28,7 +28,7 @@ export function fetchRoomsAt(id, perPage, page) {
           type: FETCH_ROOMS_AT,
           payload: data
         });
-        return data;
+        return { data };
       })
       .catch(({ message }) => {
         dispatch({

@@ -130,10 +130,10 @@ class Floor extends Component {
         page={page}
         pages={pages}
         onLeftClick={() => {
-          this.props.fetchRoomsAt(PERPAGE, page - 1);
+          this.props.fetchRoomsAt(floor_id, PERPAGE, page - 1);
         }}
         onRightClick={() => {
-          this.props.fetchRoomsAt(PERPAGE, page + 1);
+          this.props.fetchRoomsAt(floor_id, PERPAGE, page + 1);
         }}
       />
     );

@@ -13,18 +13,36 @@ import {
 } from "../constants/ActionTypes";
 
 const URL = `${ROOT_URL}/api/patients`;
-export function fetchPatients() {
+export function fetchPatients(perPage, page) {
   const url = `${URL}`;
-  const request = axios.get(url);
+  const config = {
+    method: "get",
+    url,
+    params: {
+      perPage,
+      page
+    }
+  };
+  const request = axios(config);
 
   return dispatch => {
-    return request.then(({ data }) => {
-      dispatch({
-        type: FETCH_PATIENTS,
-        payload: data
+    return request
+      .then(({ data }) => {
+        dispatch({
+          type: FETCH_PATIENTS,
+          payload: data
+        });
+        return { data };
+      })
+      .catch(({ message }) => {
+        dispatch({
+          type: FETCH_PATIENTS,
+          payload: {
+            err: message
+          }
+        });
+        return message;
       });
-      return data;
-    });
   };
 }
 export function fetchFreePatients() {
@@ -87,18 +105,38 @@ export function fetchPatientsSearched(searchByName, perPage, page) {
       });
   };
 }
-export function fetchPatientsAt(id) {
-  const query = `/hospital=${id}`;
+export function fetchPatientsAt(id, perPage, page) {
+  const query = `/hospital`;
   const url = `${URL}${query}`;
-  const request = axios.get(url);
+  const config = {
+    method: "get",
+    url,
+    params: {
+      id,
+      perPage,
+      page
+    }
+  };
+  const request = axios(config);
 
   return dispatch => {
-    return request.then(({ data }) => {
-      dispatch({
-        type: FETCH_PATIENTS_AT,
-        payload: data
+    return request
+      .then(({ data }) => {
+        dispatch({
+          type: FETCH_PATIENTS_AT,
+          payload: data
+        });
+        return { data };
+      })
+      .catch(({ message }) => {
+        dispatch({
+          type: FETCH_PATIENTS_AT,
+          payload: {
+            err: message
+          }
+        });
+        return message;
       });
-    });
   };
 }
 // post
