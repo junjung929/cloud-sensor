@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React from "react";
 import { HospitalsList } from "../ManagePage";
 import { SideInner, H3, Content } from ".../../components/styles";
 import { Link, Route } from "react-router-dom";

@@ -2,7 +2,6 @@ import _ from "lodash";
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { reduxForm } from "redux-form";
-import { Link } from "react-router-dom";
 import {
   fetchHospitals,
   fetchHospital,
@@ -25,12 +24,11 @@ import {
   RenderFields,
   RenderField,
   RenderPhotoField,
-  RenderSelectField,
   RenderSelectGroupField
 } from "../../components";
 import { ModalContent as Modal, LoaderModal, DeleteModal } from "./Components";
 
-import { Button, Icon, Form, Segment, Header } from "semantic-ui-react";
+import { Button, Icon, Form, Select } from "semantic-ui-react";
 
 const PERPAGE = 5;
 const PAGE = 0;
@@ -57,7 +55,6 @@ class Patients extends Component {
       openEditModal: false,
       openLoadModal: false,
       openDeleteModal: false,
-      openPatientModal: false,
       formResponse: false
     };
     // this.onEditFormSubmit = this.onEditFormSubmit.bind(this);
@@ -70,7 +67,6 @@ class Patients extends Component {
     const { currHospital } = this.state;
     let { page } = this.state;
     this.props.fetchPatientsAt(currHospital, PERPAGE, page).then(({ data }) => {
-      console.log(data);
       const { patients, pages } = data;
       if (patients.length === 0 && pages >= 1) {
         page -= 1;
@@ -80,7 +76,6 @@ class Patients extends Component {
     });
   };
   handleInitialize = (patient, additionalInit) => {
-    console.log(patient);
     const { first_name, last_name, phone_number, address } = patient;
     const dateFormat = require("dateformat");
     const birth = dateFormat(patient.birth, "yyyy-mm-dd");
@@ -118,7 +113,6 @@ class Patients extends Component {
     console.log(file);
   }
   deletePatient = patientId => {
-    const { currHospital } = this.state;
     this.setState({ openLoadModal: true });
     this.props
       .deletePatient(patientId)
@@ -306,25 +300,30 @@ class Patients extends Component {
         type: "text"
       },
       {
-        label: "Birthday of Patient",
-        name: "birth",
-        placeholder: placeholder.birth,
-        component: RenderField,
-        type: "date"
-      },
-      {
-        label: "Enter date of Patient",
-        name: "enter_date",
-        placeholder: placeholder.enter_date,
-        component: RenderField,
-        type: "date"
-      },
-      {
-        label: "Leave date of Patient",
-        name: "leave_date",
-        placeholder: placeholder.leave_date,
-        component: RenderField,
-        type: "date"
+        name: "date",
+        group: [
+          {
+            label: "Birthday of Patient",
+            name: "birth",
+            placeholder: placeholder.birth,
+            component: RenderField,
+            type: "date"
+          },
+          {
+            label: "Enter date of Patient",
+            name: "enter_date",
+            placeholder: placeholder.enter_date,
+            component: RenderField,
+            type: "date"
+          },
+          {
+            label: "Leave date of Patient",
+            name: "leave_date",
+            placeholder: placeholder.leave_date,
+            component: RenderField,
+            type: "date"
+          }
+        ]
       },
       {
         label: "Contact number of Patient",
@@ -341,86 +340,92 @@ class Patients extends Component {
         type: "text"
       },
       {
-        label: "",
-        name: "hospital_",
-        placeholder: placeholder.hospital_,
-        component: RenderSelectGroupField,
-        option: this.selectOptionHospital(),
-        required: false,
-        onChange: e => {
-          this.props.fetchFloorsAt(e.target.value);
-          if (this.state.modalMode !== "edit") {
-            return;
+        name: "location",
+        label: <strong>Patient Location</strong>,
+        group: [
+          {
+            label: "",
+            name: "hospital_",
+            placeholder: placeholder.hospital_,
+            component: RenderSelectGroupField,
+            option: this.selectOptionHospital(),
+            required: false,
+            onChange: e => {
+              this.props.fetchFloorsAt(e.target.value);
+              if (this.state.modalMode !== "edit") {
+                return;
+              }
+              if (e.target.value === "") {
+                const additionalInit = {
+                  floor_: "",
+                  room_: "",
+                  bed_: ""
+                };
+                this.props.fetchRoomsAt("");
+                this.props.fetchBedsAt("");
+                const iniData = this.handleInitialize(additionalInit);
+                this.props.initialize(iniData);
+              }
+            }
+          },
+          {
+            label: "",
+            name: "floor_",
+            placeholder: placeholder.floor_,
+            component: RenderSelectGroupField,
+            option: this.selectOptionFloor(),
+            required: false,
+            onChange: e => {
+              this.props.fetchRoomsAt(e.target.value);
+              if (this.state.modalMode !== "edit") {
+                return;
+              }
+              if (e.target.value === "") {
+                const additionalInit = {
+                  hospital_: patient.hospital_,
+                  floor_: "",
+                  room_: "",
+                  bed_: ""
+                };
+                this.props.fetchBedsAt("");
+                const iniData = this.handleInitialize(additionalInit);
+                this.props.initialize(iniData);
+              }
+            }
+          },
+          {
+            label: "",
+            name: "room_",
+            placeholder: placeholder.room_,
+            component: RenderSelectGroupField,
+            option: this.selectOptionRoom(),
+            required: false,
+            onChange: e => {
+              this.props.fetchBedsAt(e.target.value);
+              if (this.state.modalMode !== "edit") {
+                return;
+              }
+              if (e.target.value === "") {
+                const additionalInit = {
+                  hospital_: patient.hospital_,
+                  floor_: patient.floor_,
+                  room_: "",
+                  bed_: ""
+                };
+                const iniData = this.handleInitialize(additionalInit);
+                this.props.initialize(iniData);
+              }
+            }
+          },
+          {
+            label: "",
+            name: "bed_",
+            placeholder: placeholder.bed_,
+            component: RenderSelectGroupField,
+            option: this.selectOptionBed(),
+            required: false
           }
-          if (e.target.value === "") {
-            const additionalInit = {
-              floor_: "",
-              room_: "",
-              bed_: ""
-            };
-            this.props.fetchRoomsAt("");
-            this.props.fetchBedsAt("");
-            const iniData = this.handleInitialize(additionalInit);
-            this.props.initialize(iniData);
-          }
-        }
-      },
-      {
-        label: "",
-        name: "floor_",
-        placeholder: placeholder.floor_,
-        component: RenderSelectGroupField,
-        option: this.selectOptionFloor(),
-        required: false,
-        onChange: e => {
-          this.props.fetchRoomsAt(e.target.value);
-          if (this.state.modalMode !== "edit") {
-            return;
-          }
-          if (e.target.value === "") {
-            const additionalInit = {
-              hospital_: patient.hospital_,
-              floor_: "",
-              room_: "",
-              bed_: ""
-            };
-            this.props.fetchBedsAt("");
-            const iniData = this.handleInitialize(additionalInit);
-            this.props.initialize(iniData);
-          }
-        }
-      },
-      {
-        label: "",
-        name: "room_",
-        placeholder: placeholder.room_,
-        component: RenderSelectGroupField,
-        option: this.selectOptionRoom(),
-        required: false,
-        onChange: e => {
-          this.props.fetchBedsAt(e.target.value);
-          if (this.state.modalMode !== "edit") {
-            return;
-          }
-          if (e.target.value === "") {
-            const additionalInit = {
-              hospital_: patient.hospital_,
-              floor_: patient.floor_,
-              room_: "",
-              bed_: ""
-            };
-            const iniData = this.handleInitialize(additionalInit);
-            this.props.initialize(iniData);
-          }
-        }
-      },
-      {
-        label: "",
-        name: "bed_",
-        placeholder: placeholder.bed_,
-        component: RenderSelectGroupField,
-        option: this.selectOptionBed(),
-        required: false
+        ]
       }
     ];
     return (
@@ -429,14 +434,14 @@ class Patients extends Component {
       </Form>
     );
   };
-  renderPatients = (patients, pages, page) => {
+  renderPatients = (patients, page, pages) => {
     let i = 0;
     if (!patients || !patients.length === 0) {
       return;
     }
     return _.map(patients, patient => {
       return [
-        // /* PERPAGE * page + */ ++i,
+        PERPAGE * page + ++i,
         `${patient.first_name} ${patient.last_name}`,
         patient.hospital_ ? patient.hospital_.name : "Not set",
         patient.room_ ? patient.room_.number : "Not set",
@@ -496,8 +501,7 @@ class Patients extends Component {
       openAddModal,
       openEditModal,
       openLoadModal,
-      openDeleteModal,
-      openPatientModal
+      openDeleteModal
     } = this.state;
 
     if (!hospitals || !patients) {
@@ -542,20 +546,18 @@ class Patients extends Component {
           <Icon name="plus" />
           ADD
         </Button>
-        <div className="form-group pull-right">
-          <select
-            className="form-control"
-            onChange={e => {
-              console.log(e.target.value);
-              this.setState({ currHospital: e.target.value }, () => {
-                this.refetchPatients();
-              });
-            }}
-          >
-            <option value="">Hospital</option>
-            {this.renderSelect(hospitals.hospitals)}
-          </select>
-        </div>
+        <select
+          className="ui selection dropdown pull-right"
+          onChange={e => {
+            console.log(e.target.value);
+            this.setState({ currHospital: e.target.value }, () => {
+              this.refetchPatients();
+            });
+          }}
+        >
+          <option value="">Hospital</option>
+          {this.renderSelect(hospitals.hospitals)}
+        </select>
         {modalMode === "add" ? (
           <Modal
             open={openAddModal}

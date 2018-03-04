@@ -19,9 +19,39 @@ export const RenderFields = fields => {
       onChange,
       type,
       placeholder,
-      option
+      option,
+      group
     } = field;
-    return (
+    return group ? (
+      <div key={`hospital-form-field-${name}`}>
+        <label>{label}</label>
+        <Form.Group widths="three">
+          {_.map(group, item => {
+            const {
+              name,
+              label,
+              component,
+              onChange,
+              type,
+              placeholder,
+              option
+            } = item;
+            return (
+              <Field
+                key={`hospital-form-field-group-${name}`}
+                label={label}
+                name={name}
+                component={component}
+                onChange={onChange}
+                type={type}
+                placeholder={placeholder}
+                option={option}
+              />
+            );
+          })}
+        </Form.Group>
+      </div>
+    ) : (
       <Field
         key={`hospital-form-field-${name}`}
         label={label}
@@ -38,7 +68,7 @@ export const RenderFields = fields => {
 export const RenderField = field => {
   const { label, input, type, placeholder, meta: { touched, error } } = field;
   return (
-    <div>
+    <Form.Field>
       <Form.Input
         label={label}
         type={type}
@@ -50,57 +80,42 @@ export const RenderField = field => {
       <Header as="h6" color="red" style={{ marginTop: "-10px" }}>
         {touched ? error : ""}
       </Header>
-    </div>
+    </Form.Field>
   );
 };
 
 export const RenderSelectField = field => {
-  const {
-    required,
-    option,
-    label,
-    input,
-    placeholder,
-    meta: { touched, error }
-  } = field;
-  const className = `form-group ${touched && error ? "has-danger" : ""}`;
+  const { required, option, label, input, placeholder } = field;
   return (
-    <div className={className}>
-      <label>{label}</label>
-      <select
-        className="form-control"
-        {...input}
-        placeholder={placeholder.name ? placeholder.name : placeholder}
-        required={required}
-      >
-        {placeholder.name ? (
-          <option value={placeholder.id}>{placeholder.name}</option>
-        ) : (
-          <option value="">{placeholder}</option>
-        )}
-        {option}
-        {placeholder.name ? <option value="">Empty</option> : ""}
-      </select>
-      <div className="text-help text-danger">{touched ? error : ""}</div>
-    </div>
+    <Form.Field
+      control="select"
+      label={label}
+      {...input}
+      placeholder={placeholder.name ? placeholder.name : placeholder}
+      required={required}
+    >
+      {placeholder.name ? (
+        <option value={placeholder.id}>{placeholder.name}</option>
+      ) : (
+        <option value="">{placeholder}</option>
+      )}
+      {option}
+      {placeholder.name ? <option value="">Empty</option> : ""}
+    </Form.Field>
   );
 };
 export const RenderSelectGroupField = field => {
-  const { option, input, placeholder, meta: { touched, error } } = field;
-  const className = `pull-left ${touched && error ? "has-danger" : ""}`;
+  const { option, input, placeholder } = field;
   return (
-    <div className={className}>
-      <select
-        className="form-control"
-        {...input}
-        placeholder={placeholder.name ? placeholder.name : placeholder}
-      >
-        <option value={placeholder.id}>{placeholder.name}</option>
-        {option}
-        <option value="">Empty</option>
-      </select>
-      <div className="text-help text-danger">{touched ? error : ""}</div>
-    </div>
+    <Form.Field
+      {...input}
+      control="select"
+      placeholder={placeholder.name ? placeholder.name : placeholder}
+    >
+      <option value={placeholder.id}>{placeholder.name}</option>
+      {option}
+      <option value="">Empty</option>
+    </Form.Field>
   );
 };
 export const RenderPhotoField = field => {

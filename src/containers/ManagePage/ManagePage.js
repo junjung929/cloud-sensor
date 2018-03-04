@@ -8,7 +8,7 @@ import {
   Sensors
 } from "../ManagePage";
 import { Route, Redirect, Switch } from "react-router-dom";
-import { Tab, Menu, Label } from "semantic-ui-react";
+import { Tab } from "semantic-ui-react";
 import styled from "styled-components";
 
 const InnerContainer = styled.div`

@@ -1,6 +1,6 @@
 import React from "react";
 import { Icon, Button, Modal, Image, Loader, List } from "semantic-ui-react";
-import { Link, Route } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { Table } from "../../components";
 import { LinkStyle } from "./styles";
 
@@ -30,12 +30,14 @@ export const ModalContent = ({
     <Modal open={open}>
       <Modal.Header>{header}</Modal.Header>
       <Modal.Content image scrolling>
-        <Image
-          src={src ? src : String(WhiteImg)}
-          rounded
-          size="medium"
-          wrapped
-        />
+        {src === "none" ? null : (
+          <Image
+            src={src ? src : String(WhiteImg)}
+            rounded
+            size="medium"
+            wrapped
+          />
+        )}
         <Modal.Description>{content}</Modal.Description>
       </Modal.Content>
       <Modal.Actions>
@@ -183,12 +185,7 @@ export const RenderListItem = ({
   const path = `${url}/${to}=${id}`;
   return (
     <List.Item style={{ textAlign: "left" }}>
-      <Link
-        to={path}
-        onClick={() => {
-          onItemClick;
-        }}
-      >
+      <Link to={path} onClick={() => onItemClick}>
         <LinkStyle>
           <List>{header}</List>
         </LinkStyle>

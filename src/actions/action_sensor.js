@@ -76,12 +76,13 @@ export function fetchSensor(id) {
   };
 }
 export function fetchSensorsAt(id, perPage, page) {
-  const query = `/hospital=${id}`;
+  const query = `/hospital`;
   const url = `${URL}${query}`;
   const config = {
     method: "get",
     url,
     params: {
+      id,
       perPage,
       page
     }
