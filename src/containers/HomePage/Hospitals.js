@@ -2,58 +2,86 @@ import _ from "lodash";
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Link } from "react-router-dom";
-import LoadingIndicator from "react-loading-indicator";
-import { fetchHospitals } from "actions";
-import styled from "styled-components";
+import { fetchHospitals } from "../../actions";
 
-import { Table, Profile } from "components";
+import { Profile, NoResult, ContentErr, Loading } from "../../components";
+import { Content } from "./Components";
 
-const Content = styled.div`
-  display: flex;
-  justify-content: center;
-  max-width: 100%;
-`;
+const PERPAGE = 3;
+const PAGE = 0;
 
 class Hospitals extends Component {
   componentDidMount() {
-    this.props.fetchHospitals();
+    this.props.fetchHospitals(PERPAGE, PAGE);
     console.log("Monitor page mounted");
-    // let { _id } = this.props.match.params
-    // console.log(_id)
   }
-  componentDidUpdate() {}
-  renderHospitals() {
-    const { hospitals } = this.props;
-    const { url } = this.props.match;
-    let i = 0;
+  renderHospitals = (url, hospitals) => {
+    // get current hospital id
+    const { pathname } = this.props.location;
+    let currItem = pathname.split("hospital=").pop();
+    const sliceTill = currItem.search(/\//);
+    if (sliceTill > 0) {
+      currItem = currItem.slice(0, sliceTill);
+    }
+
+    if (!hospitals || hospitals.length === 0) {
+      return <NoResult />;
+    }
     return _.map(hospitals, hospital => {
-      if (i < 3) {
-        return (
-          <Profile
-            key={`prof-${hospital._id}-${i++}`}
-            content={hospital}
-            link={`${url}/hospital=${hospital._id}`}
-          />
-        );
-      } else {
-        return <div key={i++} />;
+      let toHospital = `${url}/hospital=${hospital._id}#floors`;
+      let spread = "Open";
+      if (currItem === hospital._id) {
+        toHospital = url;
+        spread = "Close";
       }
+      const extra = <Link to={toHospital}>{spread}</Link>;
+
+      return (
+        <Profile
+          key={`hospital-profile-${hospital._id}`}
+          color="blue"
+          src={hospital.imgSrc}
+          header={hospital.name}
+          alt={hospital.name}
+          meta="Hospitals"
+          description={
+            <div>
+              <p>Address: {hospital.address}</p>
+              <p>Tel. {hospital.phone_number}</p>
+            </div>
+          }
+          extra={extra}
+        />
+      );
     });
-  }
+  };
   render() {
     const { hospitals } = this.props;
+    const { url } = this.props.match;
     if (!hospitals) {
-      return (
-        <div className="text-center">
-          <LoadingIndicator />
-        </div>
-      );
+      return <Loading />;
     }
+    if (hospitals.err) {
+      return <ContentErr id="hospitals" message={hospitals.err} />;
+    }
+    const { page, pages } = hospitals;
+
     return (
-      <div id="hospitals">
-        <h3 className="text-center">Hospitals</h3>
-        <Content>{this.renderHospitals()}</Content>
-      </div>
+      <Content
+        id="hospitals"
+        icon="hospital"
+        header="Hospitals"
+        cards={() => this.renderHospitals(url, hospitals.hospitals)}
+        url={url}
+        page={page}
+        pages={pages}
+        onLeftClick={() => {
+          this.props.fetchHospitals(PERPAGE, page - 1);
+        }}
+        onRightClick={() => {
+          this.props.fetchHospitals(PERPAGE, page + 1);
+        }}
+      />
     );
   }
 }

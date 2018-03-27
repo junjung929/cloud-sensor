@@ -10,193 +10,160 @@ import {
   fetchRoom,
   fetchBedsAt,
   fetchBed
-} from "actions";
-import { Link } from "react-router-dom";
+} from "../../actions";
+import { Link, Route } from "react-router-dom";
 import { getOrdinal } from "../../components";
-import styled from "styled-components";
+import { FloorsList } from "../ManagePage";
+import { RenderList } from "./Components";
+import { LinkStyle } from "./styles";
+import { Dimmer, Loader, Segment, List } from "semantic-ui-react";
 
-const ListGroup = styled.ul`
-  padding-left: 2vw;
-`;
-const ListGroupItem = styled.li`
-  list-style-type: none;
-`;
+const PERPAGE = 5;
+const PAGE = 0;
 class HospitalsList extends Component {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      hospitalSelected: null,
-      floorSelected: null,
-      roomSelected: null,
-      bedSelected: null
-    };
-  }
   componentDidMount() {
-    const { hospitals, fetchHospitals } = this.props;
-    if (!hospitals) {
-      fetchHospitals();
+    console.log(this.props.match.params);
+    if (!this.props.hospitals) {
+      this.props.fetchHospitals(PERPAGE, PAGE);
     }
   }
-  onBedClick(id) {
-    const { bed, fetchBed } = this.props;
-    const { bedSelected } = this.state;
-    fetchBed(id);
-    this.setState({ bedSelected: id === bedSelected ? null : id });
-  }
-  onRoomClick(id) {
-    const { room, fetchRoom, fetchBedsAt } = this.props;
-    const { roomSelected } = this.state;
-    fetchRoom(id);
-    fetchBedsAt(id);
-    this.setState({ roomSelected: id === roomSelected ? null : id });
-  }
-  onFloorClick(id) {
-    const { floor, fetchFloor, fetchRoomsAt } = this.props;
-    const { floorSelected, roomSelected, room } = this.state;
-    fetchFloor(id);
-    fetchRoomsAt(id);
-    this.setState({ floorSelected: id === floorSelected ? null : id, roomSelected: null });
-  }
-  onHospitalClick(id) {
-    const { hospital, fetchHospital, fetchFloorsAt } = this.props;
-    const { hospitalSelected, floorSelected, roomSelected } = this.state;
-    fetchHospital(id);
-    fetchFloorsAt(id);
-    this.setState({ hospitalSelected: id === hospitalSelected ? null : id, floorSelected: null, roomSelected: null });
-  }
-  renderBedsList() {
+  renderBedsList = ({ url }) => {
     const { beds_at } = this.props;
-    const {
-      hospitalSelected,
-      floorSelected,
-      roomSelected,
-      bedSelected
-    } = this.state;
-    let items = <div />;
     if (!beds_at) {
-      return <div />;
+      return <Loader active inline="centered" />;
     }
-    return _.map(beds_at, bed => {
+    const { beds } = beds_at;
+    return _.map(beds, bed => {
       const { _id, number } = bed;
-      if (bedSelected === _id) {
-        // items = this.renderBedsList();
-      } else {
-        items = <div />;
-      }
-
       return (
-        <ListGroup key={_id}>
-          <Link
-            style={{ textDecoration: "none", color: "white" }}
-            to={`/manage/hospital=${hospitalSelected}/floor=${floorSelected}/room=${roomSelected}/bed=${_id}/`}
-            onClick={() => {
-              this.onBedClick(_id);
-            }}
-          >
-            {" "}
-            - {getOrdinal(number)} bed
-          </Link>
-          {items}
-        </ListGroup>
+        <List.Item key={_id} style={{ textAlign: "left" }}>
+          {getOrdinal(number)} bed
+        </List.Item>
       );
     });
-  }
-  renderRoomsList() {
+  };
+  renderRoomsList = ({ url }) => {
     const { rooms_at } = this.props;
-    const { hospitalSelected, floorSelected, roomSelected } = this.state;
-    let items = <div />;
     if (!rooms_at) {
-      return <div />;
+      return <Loader active inline="centered" />;
     }
-    return _.map(rooms_at, room => {
+    const { rooms } = rooms_at;
+    return _.map(rooms, room => {
       const { _id, number } = room;
-      if (roomSelected === _id) {
-        items = this.renderBedsList();
-      } else {
-        items = <div />;
-      }
 
       return (
-        <ListGroup key={_id}>
+        <List.Item key={_id} style={{ textAlign: "left" }}>
           <Link
             style={{ textDecoration: "none", color: "white" }}
-            to={`/manage/hospital=${hospitalSelected}/floor=${floorSelected}/room=${_id}/`}
+            to={`${url}/room=${_id}/`}
             onClick={() => {
-              this.onRoomClick(_id);
+              this.props.fetchBedsAt(_id, PERPAGE, PAGE);
             }}
           >
-            {" "}
-            - Room {number}
+            Room {number}
           </Link>
-          {items}
-        </ListGroup>
+          <List size="small">
+            <Route
+              path={`${url}/room=${_id}`}
+              component={({ match }) => {
+                return this.renderBedsList(match);
+              }}
+            />
+          </List>
+        </List.Item>
       );
     });
-  }
-  renderFloorsList() {
-    const { floors_at } = this.props;
-    const { hospitalSelected, floorSelected } = this.state;
-    let items = <div />;
-    if (!floors_at) {
+  };
+  renderFloorsList = ({ url }, floors) => {
+    if (!floors || floors.length === 0) {
       return <div />;
     }
-    return _.map(floors_at, floor => {
-      const { _id, number, hospital_ } = floor;
-      if (floorSelected === _id) {
-        items = this.renderRoomsList();
-      } else {
-        items = <div />;
-      }
+    return _.map(floors, floor => {
+      const { _id, number } = floor;
 
       return (
-        <ListGroup key={_id}>
+        <List.Item key={_id} style={{ textAlign: "left" }}>
           <Link
             style={{ textDecoration: "none", color: "white" }}
-            to={`/manage/hospital=${hospitalSelected}/floor=${_id}/`}
+            to={`${url}/floor=${_id}`}
             onClick={() => {
-              this.onFloorClick(_id);
+              this.props.fetchRoomsAt(_id, PERPAGE, PAGE);
             }}
           >
-            {" "}
-            - {getOrdinal(number)} floor
+            {getOrdinal(number)} floor
           </Link>
-          {items}
-        </ListGroup>
+          <List size="small">
+            <Route
+              path={`${url}/floor=${_id}`}
+              component={({ match }) => {
+                return this.renderRoomsList(match);
+              }}
+            />
+          </List>
+        </List.Item>
       );
     });
-  }
-  renderHospitalsList() {
-    const { hospitals } = this.props;
-    const { hospitalSelected } = this.state;
-    let items = <div />;
+  };
+  renderHospitalsList = (hospitals, url) => {
+    if (!hospitals || !hospitals.length === 0) {
+      return <div />;
+    }
     return _.map(hospitals, hospital => {
       const { _id, name } = hospital;
-      if (hospitalSelected === _id) {
-        items = this.renderFloorsList();
-      } else {
-        items = <div />;
-      }
-
       return (
-        <ListGroup key={_id}>
+        <List.Item key={_id} style={{ textAlign: "left" }}>
           <Link
             style={{ textDecoration: "none", color: "white" }}
-            to={`/manage/hospital=${_id}/`}
+            to={`${url}/hospital=${_id}`}
             onClick={() => {
-              this.onHospitalClick(_id);
+              this.props.fetchFloorsAt(_id, PERPAGE, PAGE);
             }}
           >
-            {" "}
-            - {name}
+            <LinkStyle>
+              <List>{name}</List>
+            </LinkStyle>
           </Link>
-          {items}
-        </ListGroup>
+          <List size="small">
+            <Route
+              path={`${url}/hospital=${_id}`}
+              component={({ match }) => {
+                const { floors_at } = this.props;
+                if (!floors_at) {
+                  return <Loader active inline="centered" />;
+                }
+                const { floors } = floors_at;
+                return <FloorsList match={match} floors={floors} />;
+              }}
+            />
+          </List>
+        </List.Item>
       );
     });
-  }
+  };
+
   render() {
-    return <ListGroup>{this.renderHospitalsList()}</ListGroup>;
+    if (!this.props.hospitals) {
+      return (
+        <Dimmer>
+          <Loader>Loading</Loader>
+        </Dimmer>
+      );
+    }
+    const { page, pages, hospitals } = this.props.hospitals;
+    const { url } = this.props.match;
+    return (
+      <Segment inverted style={{ width: "100%", textAlign: "left" }}>
+        <RenderList
+          size="huge"
+          listItems={this.renderHospitalsList(hospitals, url)}
+          pages={pages}
+          page={page}
+          btnSize="medium"
+          onClickPrev={() => this.props.fetchHospitals(PERPAGE, page - 1)}
+          onClickNext={() => this.props.fetchHospitals(PERPAGE, page + 1)}
+        />
+      </Segment>
+    );
   }
 }
 

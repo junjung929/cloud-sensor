@@ -1,154 +1,147 @@
 import _ from "lodash";
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { Field, reduxForm, initialize } from "redux-form";
+import { reduxForm } from "redux-form";
 import { Link } from "react-router-dom";
-import LoadingIndicator from "react-loading-indicator";
 import {
   fetchFloor,
   fetchRoomsAt,
-  fetchRoom,
-  fetchBedsAt,
   addRoom,
   editRoom,
-  deleteRoom,
-  deleteBed
-} from "actions";
-import Modal from "react-responsive-modal";
+  deleteRoom
+} from "../../actions";
 
 import {
-  Table,
-  Profile,
   getOrdinal,
+  Loading,
+  ContentErr,
+  Table,
+  RenderFields,
   RenderField,
   RenderPhotoField,
-  RenderSelectField,
-  FormReset
-} from "components";
+  RenderSelectField
+} from "../../components";
+import { ModalContent as Modal, LoaderModal, DeleteModal } from "./Components";
 
-import { PreviewImg, Content, ImgPreview } from "./styles";
+import { Button, Icon, Form } from "semantic-ui-react";
+
+const PERPAGE = 5;
+const PAGE = 0;
+const FORMID = "roomForm";
 
 class Floor extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      modalMode: null,
-      open: false,
-      updating: false,
-      updatingText: null,
-      currFloor: null,
-      currRoom: null,
+      page: 0,
+      err: "",
       file: null,
-      imagePreviewUrl: null
+      imagePreviewUrl: null,
+      editItem: null,
+      deleteItem: null,
+      modalMode: null,
+      openAddModal: false,
+      openEditModal: false,
+      openLoadModal: false,
+      openDeleteModal: false,
+      formResponse: false
     };
-    this.onFormSubmit = this.onFormSubmit.bind(this);
-    // this.onEditFormSubmit = this.onEditFormSubmit.bind(this);
   }
   componentDidMount() {
-    const { floor, room } = this.props;
     const { floor_id } = this.props.match.params;
-    this.setState({ currFloor: floor_id });
     this.props.fetchFloor(floor_id);
-    this.props.fetchRoomsAt(floor_id);
-    // let { _id } = this.props.match.params
-    // console.log(_id)
+    this.props.fetchRoomsAt(floor_id, PERPAGE, PAGE);
   }
-  componentDidUpdate() {
+  refetchRooms = () => {
     const { floor_id } = this.props.match.params;
-    const { currFloor } = this.state;
-    if (currFloor !== floor_id) {
-      this.props.fetchRoomsAt(floor_id);
-      this.setState({ currFloor: floor_id });
-    }
-  }
-  handleInitialize() {
-    const { number, room_class } = this.props.room;
+    let { page } = this.state;
+    this.props.fetchRoomsAt(floor_id, PERPAGE, page).then(({ data }) => {
+      const { rooms, pages } = data;
+      if (rooms.length === 0 && pages >= 1) {
+        page -= 1;
+        this.props.fetchRoomsAt(floor_id, PERPAGE, page);
+        this.setState({ page });
+      }
+    });
+  };
+  handleInitialize = room => {
+    const { number, room_class } = room;
     const iniData = {
       number,
       room_class
     };
     this.props.initialize(iniData);
-  }
-  handleInitializeNull() {
-    const iniData = null;
-    this.props.initialize(iniData);
-  }
+  };
   onPhotoChange(e) {
     e.preventDefault();
 
     let reader = new FileReader();
     let file = e.target.files[0];
-    reader.onloadend = () => {
-      this.setState({ file, imagePreviewUrl: reader.result });
-    };
+    let fileValidateRex = /^(image)\/(.+)$/;
+    if (!fileValidateRex.exec(file.type)) {
+      alert("Please upload only image file!");
+      return;
+    }
     reader.readAsDataURL(file);
     console.log(file);
   }
 
-  deleteRoom = (roomId, number) => e => {
+  deleteRoom = roomId => {
     const { floor_id } = this.props.match.params;
-    onClick: if (
-      window.confirm(
-        "This behaviour will also affect all information which is childe components of this room.\nAre you sure to delete?"
-      )
-    ) {
-      this.setState({ updating: true, updatingText: "initial" });
-      this.props.deleteRoom(roomId, floor_id).then(callback => {
-        this.setState({
-          updatingText: `${getOrdinal(
-            number
-          )} room has been successfully deleted!`
-        });
-        this.props.fetchRoomsAt(floor_id);
+    this.setState({ openLoadModal: true });
+    this.props
+      .deleteRoom(roomId, floor_id)
+      .then(() => {
+        this.setState({ formResponse: "SUCCESS", openDeleteModal: false });
+        this.refetchRooms();
+      })
+      .catch(err => {
+        this.setState({ formResponse: "FAIL" });
       });
-    }
   };
   addRoom = (values, file) => {
-    const { floor_id } = this.props.match.params;
-    console.log(values);
-    this.props.addRoom(values, file).then(callback => {
-      this.setState({ updatingText: `Room No. ${values.number} is added!` });
-      this.props.fetchRoomsAt(floor_id);
-      this.onCloseModal();
-    });
+    this.props
+      .addRoom(values, file)
+      .then(() => {
+        this.setState({ formResponse: "SUCCESS", openAddModal: false });
+        this.refetchRooms();
+      })
+      .catch(err => {
+        this.setState({ formResponse: "FAIL" });
+      });
   };
   editRoom = (roomId, values, file) => {
-    const { floor_id } = this.props.match.params;
-    this.props.editRoom(roomId, values, file).then(err => {
-      if (err) {
-        return this.setState({ updatingText: `${err}, please try again.` });
-      }
-
-      this.setState({ updatingText: `Room No. ${values.number} is edited!` });
-
-      this.props.fetchRoomsAt(floor_id);
-      this.onCloseModal();
-    });
+    this.props
+      .editRoom(roomId, values, file)
+      .then(() => {
+        this.setState({ formResponse: "SUCCESS", openEditModal: false });
+        this.refetchRooms();
+      })
+      .catch(err => {
+        this.setState({ formResponse: "FAIL" });
+      });
   };
   onFormSubmit = (data, mode, roomId) => {
     const { floor_id } = this.props.match.params;
     const temp = Object.assign(data, { floor_: floor_id });
     data = temp;
-    // console.log(data)
-    if (!data) {
-      return alert("dfa");
-    }
-    const { file, onSubmit } = this.state;
+
+    const { file } = this.state;
 
     //file config
     const newData = new FormData();
+    this.setState({ openLoadModal: true });
 
     newData.set("file", file);
-    this.setState({ updating: true, updatingText: "initial" });
+
+    newData.set("file", file);
     switch (mode) {
-      case "add":
-        console.log(data);
-        this.addRoom(data, newData);
-        break;
       case "edit":
         this.editRoom(roomId, data, newData);
         break;
+      default:
+        this.addRoom(data, newData);
     }
   };
   selectOption() {
@@ -165,253 +158,201 @@ class Floor extends Component {
       );
     });
   }
-  renderModal(mode) {
-    // console.log(this.props.initialize)
-    const { room, handleSubmit } = this.props;
-    let { imagePreviewUrl } = this.state;
-    let $imagePreview = null;
-    let title = "",
-      submitHandler = "",
-      placeholder = {
-        number: "Enter an integer number.",
-        room_class: "Please select a class for the room.",
-        button: "Add"
+  renderModal = (mode, room) => {
+    const { handleSubmit } = this.props;
+    let submitHandler = data => {
+      this.onFormSubmit(data, mode);
+    };
+    let placeholder = {
+      number: "Enter an integer number.",
+      room_class: "Please select a class for the room."
+    };
+    if (room) {
+      const { number, room_class } = room;
+      placeholder = { number, room_class };
+      submitHandler = data => {
+        this.onFormSubmit(data, mode, room._id);
       };
-    switch (mode) {
-      case "edit":
-        if (!room) {
-          return <div />;
+    }
+    const fields = [
+      {
+        label: "Photo of Room",
+        name: "thumb_picture",
+        component: RenderPhotoField,
+        onChange: e => {
+          this.onPhotoChange(e);
         }
-        title = `Room No.${room.number} Edit`;
-        submitHandler = data => {
-          this.onFormSubmit(data, mode, room._id);
-        };
-
-        placeholder.number = room.number;
-        placeholder.button = "Edit";
-        break;
-      default:
-        title = "Add a room";
-        submitHandler = data => {
-          this.onFormSubmit(data, mode);
-        };
-    }
-    if (imagePreviewUrl) {
-      $imagePreview = (
-        <ImgPreview>
-          <PreviewImg src={imagePreviewUrl} />
-        </ImgPreview>
-      );
-    } else if (mode === "edit") {
-      $imagePreview = (
-        <ImgPreview>
-          <PreviewImg
-            src={room.imgSrc}
-            alt={`${room.number} room main photo`}
-          />
-        </ImgPreview>
-      );
-    } else {
-      $imagePreview = <div />;
-    }
-
-    return (
-      <div>
-        <h3>{title}</h3>
-        <form
-          id="roomForm"
-          className="form-group"
-          onSubmit={handleSubmit(submitHandler)}
-        >
-          <Field
-            label="Photo of Room"
-            name="thumb_picture"
-            component={RenderPhotoField}
-            onChange={e => {
-              this.onPhotoChange(e);
-            }}
-          />
-          {$imagePreview}
-          <div className="divisionLine" />
-          <Field
-            label="Number of Room"
-            name="number"
-            type="number"
-            placeholder={placeholder.number}
-            component={RenderField}
-          />
-          <Field
-            label="Class of Room"
-            name="room_class"
-            placeholder={placeholder.room_class}
-            component={RenderSelectField}
-            option={this.selectOption()}
-          />
-          <div className="divisionLine" />
-          <button type="submit" className="btn btn-primary">
-            {placeholder.button}
-          </button>
-          <div
-            className="btn btn-danger"
-            onClick={() => {
-              this.onCloseModal();
-            }}
-          >
-            Cancel
-          </div>
-        </form>
-      </div>
-    );
-  }
-  onOpenModal(roomId) {
-    const { modalMode } = this.state;
-    this.props.fetchRoom(roomId).then(() => {
-      const { room } = this.props;
-      if (room && modalMode === "edit") {
-        this.handleInitialize();
-        this.setState({ open: true, currRoom: roomId });
+      },
+      {
+        label: "Number of Room",
+        name: "number",
+        placeholder: placeholder.number,
+        component: RenderField,
+        type: "number"
+      },
+      {
+        label: "Class of Room",
+        name: "room_class",
+        placeholder: placeholder.room_class,
+        component: RenderSelectField,
+        option: this.selectOption()
       }
-    });
-  }
-  onCloseModal() {
-    this.setState({
-      open: false,
-      currRoom: null,
-      file: null,
-      imagePreviewUrl: null
-    });
-    FormReset(this.props);
-  }
-  renderRooms() {
-    const { rooms_at } = this.props;
-    const { id } = this.props.match.params;
-    let i = 0;
-    if (!rooms_at || rooms_at.length < 1) {
-      return (
-        <tr>
-          <td colSpan="100%">No result...</td>
-        </tr>
-      );
-    }
-    return _.map(rooms_at, room => {
-      return (
-        <tr key={room._id} id={room._id}>
-          <th scope="row" width="10%">
-            {++i}
-          </th>
-          <td>
-            <Link
-              to={`/manage/hospital=${id}/floor=${room.floor_}/room=${
-                room._id
-              }`}
-            >
-              Room No. {room.number}
-            </Link>
-          </td>
-          <td>{room.room_class}</td>
-          <td width="10%">
-            <button
-              className="btn btn-default"
-              onClick={() => {
-                this.setState({ modalMode: "edit" }, () => {
-                  this.onOpenModal(room._id);
-                });
-              }}
-            >
-              Open
-            </button>
-          </td>
-          <td width="10%">
-            <button
-              className="btn btn-danger"
-              onClick={this.deleteRoom(room._id, room.number)}
-            >
-              Delete
-            </button>
-          </td>
-        </tr>
-      );
-    });
-  }
-  render() {
-    const { floor } = this.props;
-    const { open, updating, updatingText, currRoom, modalMode } = this.state;
-    const tableHeadRow = (
-      <tr>
-        <td>No.</td>
-        <td>Name</td>
-        <td>Class</td>
-        <td>Edit</td>
-        <td>Delete</td>
-      </tr>
+    ];
+    return (
+      <Form id={FORMID} onSubmit={handleSubmit(submitHandler)}>
+        {RenderFields(fields)}
+      </Form>
     );
-    const tableBody = this.renderRooms();
-    let modalContent = <LoadingIndicator />;
-    if (!floor) {
-      return (
-        <div className="text-center">
-          <LoadingIndicator />
-        </div>
-      );
+  };
+  renderRooms = (rooms, pages, page) => {
+    let i = 0;
+    const { hospital_id, floor_id } = this.props.match.params;
+    if (!rooms || rooms.length < 1) {
+      return;
     }
-    if (modalMode !== null) {
-      modalContent = this.renderModal(modalMode);
+    return _.map(rooms, room => {
+      return [
+        PERPAGE * page + ++i,
+        <Link
+          to={`/manage/hospital=${hospital_id}/floor=${floor_id}/room=${
+            room._id
+          }`}
+        >
+          Room No. {room.number}
+        </Link>,
+        room.room_class,
+        <Button
+          icon
+          fluid
+          labelPosition="left"
+          color="linkedin"
+          onClick={() => {
+            this.setState({
+              file: null,
+              imagePreviewUrl: null,
+              openEditModal: true,
+              modalMode: "edit",
+              editItem: room
+            });
+            this.handleInitialize(room);
+          }}
+        >
+          <Icon name="edit" />EDIT
+        </Button>,
+        <Button
+          icon
+          fluid
+          labelPosition="left"
+          color="red"
+          onClick={() => {
+            this.setState({
+              deleteItem: room,
+              openDeleteModal: true
+            });
+          }}
+        >
+          <Icon name="delete" />DELETE
+        </Button>
+      ];
+    });
+  };
+  render() {
+    const { floor, rooms_at } = this.props;
+    const {
+      editItem,
+      deleteItem,
+      imagePreviewUrl,
+      formResponse,
+      modalMode,
+      openAddModal,
+      openEditModal,
+      openLoadModal,
+      openDeleteModal
+    } = this.state;
+
+    if (!floor || !rooms_at) {
+      return <Loading inline />;
     }
+    if (rooms_at.err) {
+      return <ContentErr id="rooms" message={rooms_at.err} />;
+    }
+    const { rooms, page, pages } = rooms_at;
+    const tableHeadRow = ["No.", "Name", "Class", "Edit", "Delete"];
+    const tableBody = this.renderRooms(rooms, pages, page);
     return (
       <div id="rooms">
         <h3 className="text-center">{getOrdinal(floor.number)} floor</h3>
-
-        <Content>
-          <button
-            className="btn btn-primary pull-left"
-            onClick={() => {
-              this.setState({ modalMode: "add", open: true });
-              this.handleInitializeNull();
+        <Button
+          icon
+          color="blue"
+          labelPosition="right"
+          onClick={() => {
+            this.setState({
+              imagePreviewUrl: null,
+              file: null,
+              openAddModal: true,
+              modalMode: "add"
+            });
+            this.props.initialize(null);
+          }}
+        >
+          <Icon name="plus" />
+          ADD
+        </Button>
+        {modalMode === "add" ? (
+          <Modal
+            open={openAddModal}
+            header="Add a Room"
+            src={imagePreviewUrl}
+            content={this.renderModal(modalMode)}
+            formId={FORMID}
+            onCancelClick={() => {
+              this.setState({ openAddModal: false });
             }}
-          >
-            Add
-          </button>
-          <div className="divisionLine" />
-          <Table tableHeadRow={tableHeadRow} tableBody={tableBody} />
-        </Content>
-        <Modal
-          open={open}
-          onClose={() => {
-            this.onCloseModal();
+          />
+        ) : null}
+        {modalMode === "edit" && editItem ? (
+          <Modal
+            open={openEditModal}
+            header={`Edit Room No.${editItem.number}`}
+            src={imagePreviewUrl ? imagePreviewUrl : editItem.imgSrc}
+            content={this.renderModal("edit", editItem)}
+            formId={FORMID}
+            onCancelClick={() => {
+              this.setState({ openEditModal: false });
+            }}
+          />
+        ) : null},
+        <LoaderModal
+          open={openLoadModal}
+          response={formResponse}
+          onCancelClick={() => {
+            this.setState({ openLoadModal: false, formResponse: false });
           }}
-        >
-          {modalContent}
-        </Modal>
-        {/* updating alert modal */}
-        <Modal
-          open={updating}
-          onClose={() => {
-            this.onCloseModal();
+        />
+        {deleteItem ? (
+          <DeleteModal
+            open={openDeleteModal}
+            response={formResponse}
+            name={`Room No.${deleteItem.number}`}
+            onConfirmClick={() => {
+              this.deleteFloor(deleteItem._id);
+            }}
+            onCancelClick={() => {
+              this.setState({ openDeleteModal: false, deleteItem: null });
+            }}
+          />
+        ) : null}
+        <Table
+          tHead={tableHeadRow}
+          tBody={tableBody}
+          pages={pages}
+          onPageChange={(e, { activePage }) => {
+            this.setState({ page: activePage - 1 }, () => {
+              this.refetchRooms();
+            });
           }}
-        >
-          {(() => {
-            switch (updatingText) {
-              case "initial":
-                return <LoadingIndicator />;
-
-                break;
-              default:
-                return (
-                  <div>
-                    <p>{updatingText}</p>
-                    <button
-                      className="btn btn-sm btn-default"
-                      onClick={() => {
-                        this.setState({ updating: false });
-                      }}
-                    >
-                      Check
-                    </button>
-                  </div>
-                );
-            }
-          })()}
-        </Modal>
+        />
       </div>
     );
   }
@@ -419,7 +360,7 @@ class Floor extends Component {
 
 function mapStateToProps(state) {
   const { floor, rooms_at } = state.floors;
-  const { room, add_room, edit_room, beds_at } = state.rooms;
+  const { room, add_room, beds_at } = state.rooms;
   return {
     floor,
     rooms_at,
@@ -451,11 +392,8 @@ export default reduxForm({
   connect(mapStateToProps, {
     fetchFloor,
     fetchRoomsAt,
-    fetchRoom,
-    fetchBedsAt,
     addRoom,
     editRoom,
-    deleteRoom,
-    deleteBed
+    deleteRoom
   })(Floor)
 );

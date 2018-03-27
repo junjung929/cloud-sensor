@@ -2,96 +2,121 @@ import _ from "lodash";
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Link } from "react-router-dom";
-import LoadingIndicator from "react-loading-indicator";
-import { fetchHospital, fetchFloorsAt } from "actions";
-import styled from "styled-components";
+import { fetchFloorsAt } from "../../actions";
 
-//components
-import { Table, BackToList } from "components";
+import {
+  SubProfile,
+  NoResult,
+  getOrdinal,
+  ContentErr,
+  Loading
+} from "../../components";
+import { Content } from "./Components";
 
-const Content = styled.div`
-  display: flex;
-  justify-content: center;
-`;
+const PERPAGE = 3;
+const PAGE = 0;
 
-class HospitalPage extends Component {
+class Hospital extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      _id: null
+      hospital_id: null
     };
   }
   componentDidMount() {
     console.log("Hospital page mounted");
-    const { _id } = this.props.match.params;
-    this.props.fetchHospital(_id);
-    this.props.fetchFloorsAt(_id);
-    this.setState({ _id });
-  }
-  componentDidUpdate() {
-    const { _id } = this.props.match.params;
-    if (_id != this.state._id) {
-      this.props.fetchHospital(_id);
-      this.props.fetchFloorsAt(_id);
-      this.setState({ _id });
-    }
-  }
-  /* backRoute(){
-        let path = [{ route: "/monitor", comment: "Monitor"}];
-        return path;
-    }*/
-  renderFloorsList() {
-    let i = 0;
-    const { url } = this.props.match;
-    const { floors_at } = this.props;
-    if (!floors_at) {
-      return;
-    }
-    if (floors_at.length === 0) {
-      return;
-    }
-    return _.map(floors_at, floor => {
-      return (
-        <div key={floor._id} className="col-sm-4">
-          <div className="text-center">
-            <h3 className="">
-              <strong>{floor.number} floor</strong>
-            </h3>
-            <p>Number of Rooms: {floor._room_list.length}</p>
-            <Link to={`${url}/floor=${floor._id}`} className="btn btn-default">
-              Go
-            </Link>
-          </div>
-        </div>
-      );
+    const { hospital_id } = this.props.match.params;
+    this.setState({ hospital_id });
+    this.props.fetchFloorsAt(hospital_id, PERPAGE, PAGE).then(() => {
+      window.scrollTo(0, document.body.scrollHeight);
     });
   }
-  render() {
-    let { hospital } = this.props;
-    if (!hospital) {
+  componentDidUpdate() {
+    const { hospital_id } = this.props.match.params;
+    if (hospital_id !== this.state.hospital_id) {
+      this.setState({ hospital_id });
+      this.props.fetchFloorsAt(hospital_id, PERPAGE, PAGE).then(() => {
+        window.scrollTo(0, document.body.scrollHeight);
+      });
+    }
+  }
+  renderFloorsList = (url, floors) => {
+    // get current floor id
+    const { pathname } = this.props.location;
+    let currItem = pathname.split("floor=").pop();
+    const sliceTill = currItem.search(/\//);
+    if (sliceTill > 0) {
+      currItem = currItem.slice(0, sliceTill);
+    }
+
+    if (!floors || floors.length === 0) {
+      return <NoResult />;
+    }
+    return _.map(floors, floor => {
+      let toFloor = `${url}/floor=${floor._id}#rooms`;
+      let spread = "Open";
+      if (currItem === floor._id) {
+        toFloor = url;
+        spread = "Close";
+      }
+      const extra = <Link to={toFloor}>{spread}</Link>;
       return (
-        <div className="text-center">
-          <LoadingIndicator />
-        </div>
+        <SubProfile
+          key={`floor-profile-${floor._id}`}
+          color="green"
+          floated="right"
+          size="mini"
+          src={floor.imgSrc}
+          header={`${getOrdinal(floor.number)} floor`}
+          alt={`${getOrdinal(floor.number)} floor`}
+          meta="Floors"
+          description={<p>Number of Rooms: {floor._room_list.length}</p>}
+          extra={extra}
+        />
       );
+    });
+  };
+  render() {
+    const { floors_at, hospitals } = this.props;
+    const { hospital_id } = this.props.match.params;
+    const { url } = this.props.match;
+    if (!floors_at || !hospitals) {
+      return <Loading />;
+    }
+    if (floors_at.err) {
+      return <ContentErr id="floors" message={floors_at.err} />;
+    }
+    const { page, pages } = floors_at;
+    const hospital = hospitals.hospitals.find(hospital => {
+      return hospital._id === hospital_id;
+    });
+    if (!hospital) {
+      return <div />;
     }
     return (
-      <div id="hospital" className="table-wrapper">
-        {/* <BackToList route={this.backRoute()} /><div className="btn btn-primary active">{this.props.hospital.name}</div> */}
-        <h3 className="text-center">{hospital.name}</h3>
-        <Content>{this.renderFloorsList()}</Content>
-      </div>
+      <Content
+        id="floors"
+        icon="hospital"
+        header={hospital.name}
+        cards={() => this.renderFloorsList(url, floors_at.floors)}
+        url={url}
+        page={page}
+        pages={pages}
+        onLeftClick={() => {
+          this.props.fetchFloorsAt(hospital_id, PERPAGE, page - 1);
+        }}
+        onRightClick={() => {
+          this.props.fetchFloorsAt(hospital_id, PERPAGE, page + 1);
+        }}
+      />
     );
   }
 }
 function mapStateToProps(state) {
-  // console.log("hospitals log", hospitals[ownProps.match.params._id]);
-  const { hospital, floors_at } = state.hospitals;
+  const { hospitals, floors_at } = state.hospitals;
 
-  return { hospital, floors_at };
+  return { hospitals, floors_at };
 }
 
-export default connect(mapStateToProps, { fetchHospital, fetchFloorsAt })(
-  HospitalPage
-);
+export default connect(mapStateToProps, { fetchFloorsAt })(Hospital);

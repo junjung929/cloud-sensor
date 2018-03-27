@@ -1,19 +1,72 @@
-import _ from 'lodash';
-import React, { Component } from 'react';
-import { Link } from 'react-router-dom';
+import React from "react";
+import { Card, Image } from "semantic-ui-react";
 
-const Profile = (props) => {
-    const { content, link } = props;
-    return (
-        <div className="col-sm-4">
-            <div className="text-center">
-                <img src={content.imgSrc} className="img-circle" style={{width:150, height:150}} />
-                <h3 className=""><strong>{content.name}</strong></h3>
-                <p>{content.address}</p>
-                <p>{content.phone_number}</p>
-                <Link to={link} className="btn btn-default">Go</Link>
-            </div>
-        </div>
-    );
-}
-export default Profile;
+const WhiteImg = require("../assets/white-image.png");
+export const Profile = ({
+  src,
+  alt,
+  header,
+  meta,
+  description,
+  extra,
+  color,
+  size
+}) => {
+  return (
+    <Card color={color} className="fadeIn">
+      {src ? (
+        <Image src={src} size={size} centered alt={`${alt}-profile-image`} />
+      ) : (
+        <Image
+          src={String(WhiteImg)}
+          centered
+          size="small"
+          alt={`${alt}-profile-image`}
+        />
+      )}
+      <Card.Content>
+        <Card.Header>{header}</Card.Header>
+        <Card.Meta>{meta}</Card.Meta>
+        <Card.Description>{description}</Card.Description>
+      </Card.Content>
+      <Card.Content extra>{extra}</Card.Content>
+    </Card>
+  );
+};
+export const SubProfile = ({
+  src,
+  alt,
+  header,
+  meta,
+  description,
+  extra,
+  color,
+  size,
+  floated
+}) => {
+  return (
+    <Card color={color} className="fadeIn">
+      <Card.Content>
+        {src ? (
+          <Image
+            src={src}
+            size={size}
+            floated={floated}
+            alt={`${alt}-profile-image`}
+          />
+        ) : (
+          <Image
+            src={String(WhiteImg)}
+            size={size}
+            floated={floated}
+            alt={`${alt}-profile-image`}
+          />
+        )}
+        <Card.Header>{header}</Card.Header>
+        <Card.Meta>{meta}</Card.Meta>
+        <Card.Description>{description}</Card.Description>
+      </Card.Content>
+      <Card.Content extra>{extra}</Card.Content>
+    </Card>
+  );
+};

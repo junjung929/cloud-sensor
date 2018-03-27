@@ -13,22 +13,40 @@ import {
 
 const URL = `${ROOT_URL}/api/sensors`;
 
-export function fetchSensors() {
+export function fetchSensors(perPage, page) {
   const url = `${URL}`;
-
-  const request = axios.get(url);
+  const config = {
+    method: "get",
+    url,
+    params: {
+      perPage,
+      page
+    }
+  };
+  const request = axios(config);
 
   return dispatch => {
-    return request.then(({ data }) => {
-      dispatch({
-        type: FETCH_SENSORS,
-        payload: data
+    return request
+      .then(({ data }) => {
+        dispatch({
+          type: FETCH_SENSORS,
+          payload: data
+        });
+        return { data };
+      })
+      .catch(({ message }) => {
+        dispatch({
+          type: FETCH_SENSORS,
+          payload: {
+            err: message
+          }
+        });
+        return message;
       });
-    });
   };
 }
 export function fetchFreeSensors() {
-  const query = `/free`
+  const query = `/free`;
   const url = `${URL}${query}`;
 
   const request = axios.get(url);
@@ -57,19 +75,38 @@ export function fetchSensor(id) {
     });
   };
 }
-export function fetchSensorsAt(id) {
-  const query = `/hospital=${id}`;
+export function fetchSensorsAt(id, perPage, page) {
+  const query = `/hospital`;
   const url = `${URL}${query}`;
-
-  const request = axios.get(url);
+  const config = {
+    method: "get",
+    url,
+    params: {
+      id,
+      perPage,
+      page
+    }
+  };
+  const request = axios(config);
 
   return dispatch => {
-    return request.then(({ data }) => {
-      dispatch({
-        type: FETCH_SENSORS_AT,
-        payload: data
+    return request
+      .then(({ data }) => {
+        dispatch({
+          type: FETCH_SENSORS_AT,
+          payload: data
+        });
+        return { data };
+      })
+      .catch(({ message }) => {
+        dispatch({
+          type: FETCH_SENSORS_AT,
+          payload: {
+            err: message
+          }
+        });
+        return message;
       });
-    });
   };
 }
 // post
@@ -100,7 +137,6 @@ export function editSensor(id, values) {
   return dispatch => {
     return request
       .then(({ data }) => {
-
         dispatch({
           type: EDIT_SENSOR,
           payload: "SUCCESS"

@@ -6,26 +6,41 @@ import {
   FETCH_BED,
   ADD_BED,
   EDIT_BED,
-  DELETE_BED,
-  ADD_PATIENT_AT,
-  DELETE_PATIENT_AT,
-  ADD_SENSOR_AT,
-  DELETE_SENSOR_AT
+  DELETE_BED
 } from "../constants/ActionTypes";
 
 const URL = `${ROOT_URL}/api/beds`;
-export function fetchBedsAt(id) {
+export function fetchBedsAt(id, perPage, page) {
   const query = `/room=${id}`;
   const url = `${URL}${query}`;
-  const request = axios.get(url);
+  const config = {
+    method: "get",
+    url,
+    params: {
+      perPage,
+      page
+    }
+  };
+  const request = axios(config);
 
   return dispatch => {
-    return request.then(({ data }) => {
-      dispatch({
-        type: FETCH_BEDS_AT,
-        payload: data
+    return request
+      .then(({ data }) => {
+        dispatch({
+          type: FETCH_BEDS_AT,
+          payload: data
+        });
+        return { data };
+      })
+      .catch(({ message }) => {
+        dispatch({
+          type: FETCH_BEDS_AT,
+          payload: {
+            err: message
+          }
+        });
+        return message;
       });
-    });
   };
 }
 export function fetchBed(id) {
@@ -81,18 +96,14 @@ export function editBed(id, values, file) {
   const request = axios(config);
 
   return dispatch => {
-    console.log(request);
     return request
       .then(({ data }) => {
-        console.log(request);
-
         dispatch({
           type: EDIT_BED,
           payload: "SUCCESS"
         });
       })
       .catch(({ response }) => {
-        console.log(response.data.err);
         return response.data.err;
       });
   };
@@ -109,64 +120,6 @@ export function deleteBed(id) {
     return request.then(({ data }) => {
       dispatch({
         type: DELETE_BED,
-        payload: id
-      });
-    });
-  };
-}
-
-
-export function addPatientAt(id, patientId) {
-  const query = `/add_patient/${id}`;
-  const url = `${URL}${query}`;
-  const request = axios.post(url, patientId);
-
-  return dispatch => {
-    return request.then(({ data }) => {
-      dispatch({
-        type: ADD_PATIENT_AT,
-        payload: id
-      });
-    });
-  };
-}
-export function deletePatientAt(id, patientId) {
-  const query = `/delete_patient/${id}`;
-  const url = `${URL}${query}`;
-  const request = axios.post(url, patientId);
-
-  return dispatch => {
-    return request.then(({ data }) => {
-      dispatch({
-        type: DELETE_PATIENT_AT,
-        payload: id
-      });
-    });
-  };
-}
-export function addSensorAt(id, sensorId) {
-  const query = `/add_sensor/${id}`;
-  const url = `${URL}${query}`;
-  const request = axios.post(url, sensorId);
-
-  return dispatch => {
-    return request.then(({ data }) => {
-      dispatch({
-        type: ADD_SENSOR_AT,
-        payload: id
-      });
-    });
-  };
-}
-export function deleteSensorAt(id, sensorId) {
-  const query = `/delete_sensor/${id}`;
-  const url = `${URL}${query}`;
-  const request = axios.post(url, sensorId);
-
-  return dispatch => {
-    return request.then(({ data }) => {
-      dispatch({
-        type: DELETE_SENSOR_AT,
         payload: id
       });
     });

@@ -1,415 +1,358 @@
 import _ from "lodash";
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { Field, reduxForm, initialize } from "redux-form";
+import { reduxForm } from "redux-form";
 import { Link } from "react-router-dom";
-import LoadingIndicator from "react-loading-indicator";
 import {
   fetchHospitals,
-  fetchHospital,
-  fetchFloorsAt,
-  fetchRoomsAt,
-  fetchBedsAt,
-  deleteFloor,
-  deleteRoom,
-  deleteBed,
   addHospital,
   editHospital,
   deleteHospital
-} from "actions";
-import Modal from "react-responsive-modal";
+} from "../../actions";
 
 import {
+  Loading,
+  ContentErr,
   Table,
-  Profile,
+  RenderFields,
   RenderField,
-  RenderPhotoField,
-  FormReset
-} from "components";
+  RenderPhotoField
+} from "../../components";
+import { ModalContent as Modal, LoaderModal, DeleteModal } from "./Components";
 
-import { PreviewImg, Content, ImgPreview } from "./styles";
+import { Button, Icon, Form } from "semantic-ui-react";
+
+const PERPAGE = 5;
+const PAGE = 0;
+const FORMID = "hospitalForm";
 
 class Hospitals extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      modalMode: null,
-      open: false,
-      updating: false,
-      updatingText: null,
-      currHospital: null,
+      page: 0,
+      err: "",
       file: null,
-      imagePreviewUrl: null
+      imagePreviewUrl: null,
+      editItem: null,
+      deleteItem: null,
+      modalMode: null,
+      openAddModal: false,
+      openEditModal: false,
+      openLoadModal: false,
+      openDeleteModal: false,
+      formResponse: false
     };
     this.onFormSubmit = this.onFormSubmit.bind(this);
-    // this.onEditFormSubmit = this.onEditFormSubmit.bind(this);
   }
   componentDidMount() {
-    const { hospitals, hospital } = this.props;
-    if (!hospitals) {
-      this.props.fetchHospitals();
-    }
-    // let { _id } = this.props.match.params
-    // console.log(_id)
+    this.props.fetchHospitals(PERPAGE, PAGE);
   }
-  handleInitialize() {
-    const { name, address, phone_number } = this.props.hospital;
+  refetchHospitals = () => {
+    let { page } = this.state;
+    this.props.fetchHospitals(PERPAGE, page).then(({ data }) => {
+      const { hospitals, pages } = data;
+      if (hospitals.length === 0 && pages >= 1) {
+        page -= 1;
+        this.props.fetchHospitals(PERPAGE, page);
+        this.setState({ page });
+      }
+    });
+  };
+  handleInitialize = hospital => {
+    const { name, address, phone_number } = hospital;
     const iniData = {
       name,
       address,
       phone_number
     };
     this.props.initialize(iniData);
-  }
-  handleInitializeNull() {
-    const iniData = null;
-    this.props.initialize(iniData);
-  }
-  onPhotoChange(e) {
+  };
+  onPhotoChange = e => {
     e.preventDefault();
 
     let reader = new FileReader();
     let file = e.target.files[0];
+    let fileValidateRex = /^(image)\/(.+)$/;
+    if (!fileValidateRex.exec(file.type)) {
+      alert("Please upload only image file!");
+      return;
+    }
     reader.onloadend = () => {
       this.setState({ file, imagePreviewUrl: reader.result });
     };
     reader.readAsDataURL(file);
     console.log(file);
-  }
+  };
 
-  deleteHospital = (id, name) => e => {
-    onClick: if (
-      window.confirm(
-        "This behaviour will also affect all information which is childe components of this hospital.\nAre you sure to delete?"
-      )
-    ) {
-      this.setState({ updating: true, updatingText: "initial" });
-      this.props.deleteHospital(id).then(callback => {
-        this.setState({
-          updatingText: `${name} has been successfully deleted!`
-        });
-        this.props.fetchHospitals();
+  deleteHospital = id => {
+    this.setState({ openLoadModal: true });
+    this.props
+      .deleteHospital(id)
+      .then(() => {
+        this.setState({ formResponse: "SUCCESS", openDeleteModal: false });
+        this.refetchHospitals();
+      })
+      .catch(err => {
+        this.setState({ formResponse: "FAIL" });
       });
-    }
   };
   addHospital = (values, file) => {
-    this.props.addHospital(values, file).then(callback => {
-      this.setState({ updatingText: `${values.name} is added!` });
-      this.props.fetchHospitals();
-      this.onCloseModal();
-    });
+    this.props
+      .addHospital(values, file)
+      .then(() => {
+        this.setState({ formResponse: "SUCCESS", openAddModal: false });
+        this.refetchHospitals();
+      })
+      .catch(err => {
+        this.setState({ formResponse: "FAIL" });
+      });
   };
   editHospital = (id, values, file) => {
-    this.props.editHospital(id, values, file).then(err => {
-      if (err) {
-        return this.setState({ updatingText: `${err}, please try again.` });
-      }
-
-      this.setState({ updatingText: `${values.name} is edited!` });
-
-      this.props.fetchHospitals();
-      this.onCloseModal();
-    });
+    this.props
+      .editHospital(id, values, file)
+      .then(() => {
+        this.setState({ formResponse: "SUCCESS", openEditModal: false });
+        this.refetchHospitals();
+      })
+      .catch(err => {
+        this.setState({ formResponse: "FAIL" });
+      });
   };
   onFormSubmit = (data, mode, id) => {
-    // console.log(data)
-    if (!data) {
-      return alert("dfa");
-    }
-    const { file, onSubmit } = this.state;
+    const { file } = this.state;
 
     //file config
     const newData = new FormData();
+    this.setState({ openLoadModal: true });
 
     newData.set("file", file);
-    this.setState({ updating: true, updatingText: "initial" });
     switch (mode) {
-      case "add":
-        this.addHospital(data, newData);
-        break;
       case "edit":
         this.editHospital(id, data, newData);
         break;
+      default:
+        this.addHospital(data, newData);
     }
   };
 
-  renderModal(mode) {
-    // console.log(this.props.initialize)
-    const { hospital, handleSubmit } = this.props;
-    let { imagePreviewUrl } = this.state;
-    let $imagePreview = null;
-    let title = "",
-      submitHandler = "",
-      placeholder = {
-        name: "Input a hospital name",
-        address: "ex. Vanha maantie 6, espoo",
-        phone: "ex. +358 12 345 6789",
-        button: "Add"
-      };
-    switch (mode) {
-      case "edit":
-        if (!hospital) {
-          return <div />;
-        }
-        title = `${hospital.name} Edit`;
-        submitHandler = data => {
-          this.onFormSubmit(data, mode, hospital._id);
-        };
+  renderModal(mode, hospital) {
+    const { handleSubmit } = this.props;
 
-        placeholder.name = hospital.name;
-        placeholder.address = hospital.address;
-        placeholder.phone = hospital.phone_number;
-        placeholder.button = "Edit";
-        break;
-      default:
-        title = "Add a hospital";
-        submitHandler = data => {
-          this.onFormSubmit(data, mode);
-        };
+    let submitHandler = data => {
+      this.onFormSubmit(data, mode);
+    };
+    let placeholder = {
+      name: "Input a hospital name",
+      address: "ex. Vanha maantie 6, espoo",
+      phone: "ex. +358 12 345 6789"
+    };
+    if (hospital) {
+      const { name, address, phone_number } = hospital;
+      placeholder = {
+        name,
+        address,
+        phone: phone_number
+      };
+      submitHandler = data => {
+        this.onFormSubmit(data, mode, hospital._id);
+      };
     }
-    if (imagePreviewUrl) {
-      $imagePreview = (
-        <ImgPreview>
-          <PreviewImg src={imagePreviewUrl} />
-        </ImgPreview>
-      );
-    } else if (mode === "edit") {
-      $imagePreview = (
-        <ImgPreview>
-          <PreviewImg
-            src={hospital.imgSrc}
-            alt={`${hospital.name} main photo`}
-          />
-        </ImgPreview>
-      );
-    } else {
-      $imagePreview = <div />;
-    }
+
+    const fields = [
+      {
+        label: "Photo of Hospital",
+        name: "thumb_picture",
+        component: RenderPhotoField,
+        onChange: e => {
+          this.onPhotoChange(e);
+        }
+      },
+      {
+        label: "Name of Hospital",
+        name: "name",
+        placeholder: placeholder.name,
+        component: RenderField,
+        type: "text"
+      },
+      {
+        label: "Address of Hospital",
+        name: "address",
+        placeholder: placeholder.address,
+        component: RenderField,
+        type: "text"
+      },
+      {
+        label: "Contact Number of Hospital",
+        name: "phone_number",
+        placeholder: placeholder.phone,
+        component: RenderField,
+        type: "tel"
+      }
+    ];
 
     return (
-      <div>
-        <h3>{title}</h3>
-        <form
-          id="hospitalForm"
-          className="form-group"
-          onSubmit={handleSubmit(submitHandler)}
-        >
-          <Field
-            label="Photo of Hospital"
-            name="thumb_picture"
-            component={RenderPhotoField}
-            onChange={e => {
-              this.onPhotoChange(e);
-            }}
-          />
-          {$imagePreview}
-          <div className="divisionLine" />
-          <Field
-            label="Name of Hospital"
-            name="name"
-            placeholder={placeholder.name}
-            component={RenderField}
-            type="text"
-          />
-          <div className="divisionLine" />
-          <Field
-            label="Address of Hospital"
-            name="address"
-            placeholder={placeholder.address}
-            component={RenderField}
-            type="text"
-          />
-          <div className="divisionLine" />
-          <Field
-            label="Contact Number of Hospital"
-            name="phone_number"
-            placeholder={placeholder.phone}
-            component={RenderField}
-            type="tel"
-          />
-          <div className="divisionLine" />
-          <button type="submit" className="btn btn-primary">
-            {placeholder.button}
-          </button>
-          <div
-            className="btn btn-danger"
-            onClick={() => {
-              this.onCloseModal();
-            }}
-          >
-            Cancel
-          </div>
-        </form>
-      </div>
+      <Form id={FORMID} onSubmit={handleSubmit(submitHandler)}>
+        {RenderFields(fields)}
+      </Form>
     );
   }
-  onOpenModal(id) {
-    const { modalMode } = this.state;
-    this.props.fetchHospital(id).then(() => {
-      const { hospital } = this.props;
-      if (hospital && modalMode === "edit") {
-        this.handleInitialize();
-        this.setState({ open: true, currHospital: id });
-      }
-    });
-  }
-  onCloseModal() {
-    this.setState({
-      open: false,
-      currHospital: null,
-      file: null,
-      imagePreviewUrl: null
-    });
-    FormReset(this.props);
-  }
-  renderHospitals() {
-    const { hospitals } = this.props;
+
+  renderHospitals = (hospitals, pages, page) => {
     let i = 0;
     if (!hospitals || hospitals.length < 1) {
-      return (
-        <tr>
-          <td colSpan="100%">No result...</td>
-        </tr>
-      );
+      return;
     }
     return _.map(hospitals, hospital => {
-      return (
-        <tr key={hospital._id} id={hospital._id}>
-          <th scope="row" width="10%">
-            {++i}
-          </th>
-          <td><Link to={`/manage/hospital=${hospital._id}`}>{hospital.name}</Link></td>
-          <td>{hospital.address}</td>
-          <td width="10%">
-            <div
-              className="btn btn-default"
-              onClick={() => {
-                this.setState({ modalMode: "edit" }, () => {
-                  this.onOpenModal(hospital._id);
-                });
-              }}
-            >
-              Open
-            </div>
-          </td>
-          <td width="10%">
-            <div
-              className="btn btn-danger"
-              onClick={this.deleteHospital(hospital._id, hospital.name)}
-            >
-              Delete
-            </div>
-          </td>
-        </tr>
-      );
+      return [
+        PERPAGE * page + ++i,
+        <Link to={`/manage/hospital=${hospital._id}`}>{hospital.name}</Link>,
+        hospital.address,
+        <Button
+          icon
+          fluid
+          labelPosition="left"
+          color="linkedin"
+          onClick={() => {
+            this.setState({
+              file: null,
+              imagePreviewUrl: null,
+              openEditModal: true,
+              modalMode: "edit",
+              editItem: hospital
+            });
+            this.handleInitialize(hospital);
+          }}
+        >
+          <Icon name="edit" />EDIT
+        </Button>,
+        <Button
+          icon
+          fluid
+          labelPosition="left"
+          color="red"
+          onClick={() => {
+            this.setState({
+              deleteItem: hospital,
+              openDeleteModal: true
+            });
+          }}
+        >
+          <Icon name="delete" />DELETE
+        </Button>
+      ];
     });
-  }
+  };
   render() {
-    const { hospitals, hospital } = this.props;
+    const { hospitals } = this.props;
     const {
-      open,
-      updating,
-      updatingText,
-      currHospital,
-      modalMode
+      editItem,
+      deleteItem,
+      imagePreviewUrl,
+      formResponse,
+      modalMode,
+      openAddModal,
+      openEditModal,
+      openLoadModal,
+      openDeleteModal
     } = this.state;
-    const tableHeadRow = (
-      <tr>
-        <td>No.</td>
-        <td>Name</td>
-        <td>Address</td>
-        <td>Edit</td>
-        <td>Delete</td>
-      </tr>
-    );
-    const tableBody = this.renderHospitals();
-    let modalContent = <LoadingIndicator />;
+
     if (!hospitals) {
-      return (
-        <div className="text-center">
-          <LoadingIndicator />
-        </div>
-      );
+      return <Loading inline />;
     }
-    if (modalMode !== null) {
-      modalContent = this.renderModal(modalMode);
+    if (hospitals.err) {
+      return <ContentErr id="hospitals" message={hospitals.err} />;
     }
+    const { pages, page } = hospitals;
+    const tableHeadRow = ["No.", "Name", "Address", "Edit", "Delete"];
+    const tableBody = this.renderHospitals(hospitals.hospitals, pages, page);
     return (
       <div id="hospitals">
         <h3 className="text-center">Hospitals</h3>
-
-        <Content>
-          <button
-            className="btn btn-primary pull-left"
-            onClick={() => {
-              this.setState({ modalMode: "add", open: true });
-              this.handleInitializeNull();
+        <Button
+          icon
+          color="blue"
+          labelPosition="right"
+          onClick={() => {
+            this.setState({
+              imagePreviewUrl: null,
+              file: null,
+              openAddModal: true,
+              modalMode: "add"
+            });
+            this.props.initialize(null);
+          }}
+        >
+          <Icon name="plus" />
+          ADD
+        </Button>
+        {modalMode === "add" ? (
+          <Modal
+            open={openAddModal}
+            header="Add a Hospital"
+            src={imagePreviewUrl}
+            content={this.renderModal(modalMode)}
+            formId={FORMID}
+            onCancelClick={() => {
+              this.setState({ openAddModal: false });
             }}
-          >
-            Add
-          </button>
-          <div className="divisionLine" />
-          <Table tableHeadRow={tableHeadRow} tableBody={tableBody} />
-        </Content>
-        <Modal
-          open={open}
-          onClose={() => {
-            this.onCloseModal();
+          />
+        ) : null}
+        {modalMode === "edit" && editItem ? (
+          <Modal
+            open={openEditModal}
+            header={`Edit ${editItem.name}`}
+            src={imagePreviewUrl ? imagePreviewUrl : editItem.imgSrc}
+            content={this.renderModal("edit", editItem)}
+            formId={FORMID}
+            onCancelClick={() => {
+              this.setState({ openEditModal: false });
+            }}
+          />
+        ) : null},
+        <LoaderModal
+          open={openLoadModal}
+          response={formResponse}
+          onCancelClick={() => {
+            this.setState({ openLoadModal: false, formResponse: false });
           }}
-        >
-          {modalContent}
-        </Modal>
-        {/* updating alert modal */}
-        <Modal
-          open={updating}
-          onClose={() => {
-            this.onCloseModal();
+        />
+        {deleteItem ? (
+          <DeleteModal
+            open={openDeleteModal}
+            response={formResponse}
+            name={deleteItem.name}
+            onConfirmClick={() => {
+              this.deleteHospital(deleteItem._id);
+            }}
+            onCancelClick={() => {
+              this.setState({ openDeleteModal: false, deleteItem: null });
+            }}
+          />
+        ) : null}
+        <Table
+          tHead={tableHeadRow}
+          tBody={tableBody}
+          pages={pages}
+          onPageChange={(e, { activePage }) => {
+            this.setState({ page: activePage - 1 }, () => {
+              this.refetchHospitals();
+            });
           }}
-        >
-          {(() => {
-            switch (updatingText) {
-              case "initial":
-                return <LoadingIndicator />;
-
-                break;
-              default:
-                return (
-                  <div>
-                    <p>{updatingText}</p>
-                    <button
-                      className="btn btn-sm btn-default"
-                      onClick={() => {
-                        this.setState({ updating: false });
-                      }}
-                    >
-                      Check
-                    </button>
-                  </div>
-                );
-            }
-          })()}
-        </Modal>
+        />
       </div>
     );
   }
 }
 
 function mapStateToProps(state) {
-  const {
-    hospitals,
-    hospital,
-    add_hospital,
-    edit_hospital,
-    floors_at
-  } = state.hospitals;
-  const { floor, add_floor, edit_floor, rooms_at } = state.floors;
+  const { hospitals, floors_at } = state.hospitals;
+  const { rooms_at } = state.floors;
   const { beds_at } = state.rooms;
 
   return {
     hospitals,
-    hospital,
-    add_hospital,
     floors_at,
     rooms_at,
     beds_at
@@ -440,13 +383,6 @@ export default reduxForm({
 })(
   connect(mapStateToProps, {
     fetchHospitals,
-    fetchHospital,
-    fetchFloorsAt,
-    fetchRoomsAt,
-    fetchBedsAt,
-    deleteRoom,
-    deleteBed,
-    deleteFloor,
     addHospital,
     editHospital,
     deleteHospital

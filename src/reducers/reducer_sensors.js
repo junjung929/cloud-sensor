@@ -1,10 +1,9 @@
-import _ from "lodash";
 import {
   FETCH_SENSORS,
   FETCH_FREE_SENSORS,
   FETCH_SENSOR,
   FETCH_SENSORS_AT
-} from "constants/ActionTypes";
+} from "../constants/ActionTypes";
 
 export default function(state = {}, action) {
   switch (action.type) {

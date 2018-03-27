@@ -1,11 +1,10 @@
-import _ from "lodash";
 import {
   FETCH_PATIENTS,
   FETCH_FREE_PATIENTS,
   FETCH_PATIENT,
   FETCH_PATIENTS_SEACHED,
   FETCH_PATIENTS_AT
-} from "constants/ActionTypes";
+} from "../constants/ActionTypes";
 
 export default function(state = {}, action) {
   switch (action.type) {

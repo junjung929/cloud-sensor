@@ -6,25 +6,37 @@ import {
   FETCH_ROOM,
   ADD_ROOM,
   EDIT_ROOM,
-  DELETE_ROOM,
-  ADD_BED_AT,
-  DELETE_BED_AT
+  DELETE_ROOM
 } from "../constants/ActionTypes";
 
 const URL = `${ROOT_URL}/api/rooms`;
 
-export function fetchRoomsAt(id) {
+export function fetchRoomsAt(id, perPage, page) {
   const query = `/floor=${id}`;
   const url = `${URL}${query}`;
-  const request = axios.get(url);
+  const config = {
+    method: "get",
+    url,
+    params: { perPage, page }
+  };
+  const request = axios(config);
 
   return dispatch => {
-    return request.then(({ data }) => {
-      dispatch({
-        type: FETCH_ROOMS_AT,
-        payload: data
+    return request
+      .then(({ data }) => {
+        dispatch({
+          type: FETCH_ROOMS_AT,
+          payload: data
+        });
+        return { data };
+      })
+      .catch(({ message }) => {
+        dispatch({
+          type: FETCH_ROOMS_AT,
+          payload: { err: message }
+        });
+        return message;
       });
-    });
   };
 }
 export function fetchRoom(id) {
@@ -100,7 +112,7 @@ export function deleteRoom(id, floor_) {
   const config = {
     method: "delete",
     url,
-    params: {floor_}
+    params: { floor_ }
   };
   const request = axios(config);
 
@@ -108,35 +120,6 @@ export function deleteRoom(id, floor_) {
     return request.then(({ data }) => {
       dispatch({
         type: DELETE_ROOM,
-        payload: id
-      });
-    });
-  };
-}
-
-export function addBedAt(id, bedId) {
-  const query = `/add_bed/${id}`;
-  const url = `${URL}${query}`;
-  const request = axios.post(url, bedId);
-
-  return dispatch => {
-    return request.then(({ data }) => {
-      dispatch({
-        type: ADD_BED_AT,
-        payload: id
-      });
-    });
-  };
-}
-export function deleteBedAt(id, bedId) {
-  const query = `/delete_bed/${id}`;
-  const url = `${URL}${query}`;
-  const request = axios.post(url, bedId);
-
-  return dispatch => {
-    return request.then(({ data }) => {
-      dispatch({
-        type: DELETE_BED_AT,
         payload: id
       });
     });

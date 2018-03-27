@@ -1,123 +1,258 @@
-import React from 'react'
-import { HomePage, MonitorPage, ManagePage } from 'containers'
-import { Header, Sidebar, Carousel, Searchbar, SearchResult } from 'components'
-import { Patient } from 'containers/HomePage'
-import { BrowserRouter as Router, Route, Link } from 'react-router-dom'
-import styled from 'styled-components'
-import MultiMonitorPage from '../containers/MultiMonitorPage';
-import ManageSide from '../containers/ManagePage/ManageSide';
+import _ from "lodash";
+import React, { Component } from "react";
+import { BrowserRouter as Router, Route, Link, Switch } from "react-router-dom";
+import { HomePage, HomeSide } from "../containers/HomePage";
+import { MonitorPage, MonitorSide } from "../containers/MonitorPage";
+import { ManagePage, ManageSide } from "../containers/ManagePage";
+import {
+  MultiMonitorPage,
+  MultiMonitorSide
+} from "../containers/MultiMonitorPage";
+import { NotFound } from "../components";
+import { Carousel, Searchbar } from "../components";
 
-const Container = styled.div`text-align: center;`
-let windowHeight = window.innerHeight;
-let Side = styled.div`
-    position: fixed;
-    float: left; 
-    min-height: ${windowHeight}px; 
-    width: 25%; 
-    background-color: #333F50; 
-    color: white;
-    box-shadow: 3px 0px 8px 3px rgba(0, 0, 0, 0.3);
-    display: flex; 
-    align-items: center; 
-    flex-direction: column; 
-    justify-content: center`;
+import {
+  Sidebar,
+  Menu,
+  Icon,
+  Container,
+  Dropdown,
+  Dimmer,
+  Loader
+} from "semantic-ui-react";
 
-const Search = styled.div`padding: 20px 0 20px 0`
-const HomeContainer = styled.div`float:right; width:75%;`;
-const HomeContent = styled.div`padding: 0 0 20px 0`
-const InnerContainer = styled.div`display: flex; justify-content: center; width:100%; flex-direction: column`;
+import { HomeContainer, Search } from "./styles";
 
-function Routes() {
+class Routes extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      visible: false,
+      toggle: 0
+    };
+  }
+  HomeMenu = () => {
+    let menuBarIcon = "sidebar";
+    if (this.state.visible === true) {
+      menuBarIcon = "triangle left";
+    }
     return (
-        <Router>
-            <Container>
-                {/* <Header /> */}
-                <Route exact path="/" component={Redirect} />
-                <Route path="/(.+)" render={(() =>
-                    <div>
-                        <Side>
-                            <Route path="/home" component={Sidebar} />
-                            <Route path="/monitor" component={MonitorSide} />
-                            <Route path="/multi" component={MultiMonitorSide} />
-                            <Route path="/manage" component={ManageSide} />
-                        </Side>
-                        <HomeContainer id="home">
-                            <HomeContent>
-                                <Carousel />
-                                <Search>
-                                    <Route path="/home" component={() => { return (<Searchbar url={`/home`} />) }} />
-                                    <Route path="/monitor" component={() => { return (<Searchbar url={`/monitor`} />) }} />
-                                    <Route path="/multi" component={() => { return (<Searchbar url={`/multi`} />) }} />
-                                </Search>
-                                {/* <Hospitals /> */}
-                                <Route path="/home" component={HomePage} />
-                                <Route path="/monitor" component={MonitorPage} />
-                                <Route path="/multi" component={MultiMonitor} />
-                                <Route path="/manage" component={ManagePage} />
-                                <Route path="/about" component={temp} />
-                            </HomeContent>
-                        </HomeContainer>
-                    </div>
-                )} />
-
-            </Container>
-        </Router>
-    )
+      <Menu
+        id="toggleMenu"
+        style={{
+          position: "fixed",
+          zIndex: 1000,
+          width: "100%",
+          margin: 0,
+          top: 0,
+          borderRadius: 0
+        }}
+      >
+        <Link to="/">
+          <Menu.Item header>Sensor Monitor</Menu.Item>
+        </Link>
+        <Menu.Item onClick={this.toggleVisibility}>
+          <Icon name={menuBarIcon} />Menu
+        </Menu.Item>
+      </Menu>
+    );
+  };
+  renderMenus = menus => {
+    return _.map(menus, menu => {
+      return (
+        <Link
+          key={`menu-${menu.to}`}
+          to={menu.to}
+          title={menu.title}
+          onClick={menu.name === "home" ? this.onClickGeneral : null}
+        >
+          <Dropdown.Item>
+            <Icon name={menu.name} />
+            {menu.header}
+          </Dropdown.Item>
+        </Link>
+      );
+    });
+  };
+  OtherMenu = (menuBarText, menuBarCloseText) => {
+    let menuBarIcon = "sidebar";
+    if (this.state.visible === true) {
+      menuBarIcon = "triangle left";
+    }
+    const menus = [
+      {
+        to: "/home/view",
+        title: "Go Home page",
+        name: "home",
+        header: "Home"
+      },
+      {
+        to: "/monitor",
+        title: "Go Monitoring page",
+        name: "computer",
+        header: "Monitor"
+      },
+      {
+        to: "/multi",
+        title: "Go Multi Monitoring page",
+        name: "users",
+        header: "Multi Monitor"
+      },
+      {
+        to: "/manage",
+        title: "Go Management page",
+        name: "settings",
+        header: "Management"
+      },
+      {
+        to: "/about",
+        title: "Go About page",
+        name: "help circle outline",
+        header: "About"
+      }
+    ];
+    return (
+      <Menu
+        id="toggleMenu"
+        style={{
+          position: "fixed",
+          zIndex: 1000,
+          width: "100%",
+          margin: 0,
+          top: 0,
+          borderRadius: 0
+        }}
+      >
+        <Link to="/" title="Go Homepage">
+          <Menu.Item header>Sensor Monitor</Menu.Item>
+        </Link>
+        <Menu.Item
+          onClick={this.toggleVisibility}
+          className={this.state.visible ? "fadeIn" : ""}
+        >
+          <Icon name={menuBarIcon} />
+          {this.state.visible ? menuBarCloseText : menuBarText}
+        </Menu.Item>
+        <Dropdown item text="Menus">
+          <Dropdown.Menu>{this.renderMenus(menus)}</Dropdown.Menu>
+        </Dropdown>
+      </Menu>
+    );
+  };
+  toggleVisibility = () => this.setState({ visible: !this.state.visible });
+  onClickGeneral = () => {
+    if (this.state.visible === true)
+      this.setState({ visible: !this.state.visible });
+  };
+  render() {
+    const { visible } = this.state;
+    return (
+      <Router>
+        <Switch>
+          <Route exact path="/" component={Redirect} />
+          <Route
+            path="/(.+)"
+            render={({ match }) => {
+              const { url } = match;
+              let onClick = null;
+              const homeUrlValidateRex = /^(\/home).+$/;
+              const aboutUrlValidateRex = /^(\/about)$/;
+              const multiUrlValidateRex = /^(\/multi)$/;
+              if (
+                homeUrlValidateRex.exec(url) ||
+                aboutUrlValidateRex.exec(url) ||
+                multiUrlValidateRex.exec(url)
+              ) {
+                onClick = this.onClickGeneral;
+              }
+              return (
+                <div>
+                  <Sidebar
+                    id="Sidebar"
+                    as={Menu}
+                    animation="push"
+                    width="wide"
+                    visible={visible}
+                    icon="labeled"
+                    vertical
+                    inverted
+                    style={{ top: "40px" }}
+                    onClick={onClick}
+                  >
+                    <Route path="/home" component={HomeSide} />
+                    <Route path="/monitor" component={MonitorSide} />
+                    <Route path="/multi" component={MultiMonitorSide} />
+                    <Route path="/manage" component={ManageSide} />
+                  </Sidebar>
+                  <Route path="/home" component={() => this.HomeMenu()} />
+                  <Route
+                    path="/monitor"
+                    component={() =>
+                      this.OtherMenu("Patient Info", "Close Info")
+                    }
+                  />
+                  <Route
+                    path="/multi"
+                    component={() => this.OtherMenu("See List", "Close List")}
+                  />
+                  <Route
+                    path="/manage"
+                    component={() => this.OtherMenu("See List", "Close List")}
+                  />
+                  <Route path="/about" component={() => this.HomeMenu()} />
+                  <HomeContainer id="home" onClick={this.onClickGeneral}>
+                    <div style={{ height: "40px" }} />
+                    <Route path="/home" component={Carousel} />
+                    <Container>
+                      <Route
+                        path="/home"
+                        component={() => {
+                          return (
+                            <Search id="searchbar">
+                              <Searchbar url={`/home`} />
+                            </Search>
+                          );
+                        }}
+                      />
+                      <Route
+                        path="/monitor"
+                        component={() => {
+                          return (
+                            <Search id="searchbar">
+                              <Searchbar url={`/monitor`} />
+                            </Search>
+                          );
+                        }}
+                      />
+                      <Switch>
+                        <Route path="/home" component={HomePage} />
+                        <Route path="/monitor" component={MonitorPage} />
+                        <Route path="/multi" component={MultiMonitorPage} />
+                        <Route path="/manage" component={ManagePage} />
+                        <Route path="/about" component={temp} />
+                        <Route path="*" component={NotFound} />
+                      </Switch>
+                    </Container>
+                  </HomeContainer>
+                </div>
+              );
+            }}
+          />
+        </Switch>
+      </Router>
+    );
+  }
 }
 const Redirect = () => {
-    window.location.replace("/home/view");
-    return (<div>Redirecting to HomePage</div>);
-}
+  window.location.replace("/home/view");
+  return (
+    <Dimmer active>
+      <Loader>Loading</Loader>
+    </Dimmer>
+  );
+};
 
-
-const MonitorSide = ({ match }) => {
-    const { url } = match;
-    const A = styled.a` float: right; color: white; padding: 0px 10px 0px 0; display: flex; flex: 1; align-items: center; justify-content: flex-end`
-    const Content = styled.div`width:100%; display: flex; flex: 7; justify-content: center;`
-    const H3 = styled.h3`width: 100%; color: white; padding: 10px 0 10px 0; margin: 0; font-size:2em; display: flex; flex: 1; align-items: center; justify-content: center`
-    const SideSearch = styled.div`width: 100%; padding: 10px 0 10px 0; font-size:1em; display:flex; flex: 1; align-items: center; justify-content: center`;
-    const SideInner = styled.div`height: 100%; width:100%;`
-    return (
-        <SideInner>
-            <A href="/"><span className="glyphicon glyphicon-chevron-left"></span>Home</A>
-            <Link to="/monitor"><H3>Monitor Page</H3></Link>
-            <SideSearch><Searchbar url={url} /></SideSearch>
-            <Content>
-                <Route exact path={`${url}`} component={temp} />
-                <Route path={`${url}/patient=:_id`} component={Patient} />
-            </Content>
-        </SideInner>
-    )
-}
-const MultiMonitor = ({ match }) => {
-    const { url } = match;
-    return (
-        <InnerContainer>
-            <Route exact path={`${url}`} component={() => { return <MultiMonitorPage />}} />
-            <Route path={`${url}/search=:searchByName`} component={SearchResult} />
-        </InnerContainer>
-    )
-}
-const MultiMonitorSide = ({ match }) => {
-    const { url } = match;
-    const A = styled.a` float: right; color: white; padding: 0px 10px 0px 0; display: flex; flex: 1; align-items: center; justify-content: flex-end`
-    const Content = styled.div`width:100%; display: flex; flex: 7; justify-content: center;`
-    const H3 = styled.h3`width: 100%; color: white; padding: 10px 0 10px 0; margin: 0; font-size:2em; display: flex; flex: 1; align-items: center; justify-content: center`
-    const SideSearch = styled.div`width: 100%; padding: 10px 0 10px 0; font-size:1em; display:flex; flex: 1; align-items: center; justify-content: center`;
-    const SideInner = styled.div`height: 100%; width:100%;`
-    return (
-        <SideInner>
-            <A href="/"><span className="glyphicon glyphicon-chevron-left"></span>Home</A>
-            <Link to="/monitor"><H3>Monitor Page</H3></Link>
-            <Content>
-                <Route exact path={`${url}`} component={temp} />
-                {/* <Route path={`${url}`} component={} /> */}
-            </Content>
-        </SideInner>
-    )
-}
 const temp = () => {
-    return (<div>
-    </div>)
-}
-export default Routes
+  return <div />;
+};
+export default Routes;

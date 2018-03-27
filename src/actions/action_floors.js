@@ -6,24 +6,38 @@ import {
   FETCH_FLOOR,
   ADD_FLOOR,
   EDIT_FLOOR,
-  DELETE_FLOOR,
-  ADD_ROOM_AT,
-  DELETE_ROOM_AT
+  DELETE_FLOOR
 } from "../constants/ActionTypes";
 
 const URL = `${ROOT_URL}/api/floors`;
-export function fetchFloorsAt(id) {
+export function fetchFloorsAt(id, perPage, page) {
   const query = `/hospital=${id}`;
   const url = `${URL}${query}`;
-  const request = axios.get(url);
+  const config = {
+    method: "get",
+    url,
+    params: { perPage, page }
+  };
+  const request = axios(config);
 
   return dispatch => {
-    return request.then(({ data }) => {
-      dispatch({
-        type: FETCH_FLOORS_AT,
-        payload: data
+    return request
+      .then(({ data }) => {
+        dispatch({
+          type: FETCH_FLOORS_AT,
+          payload: data
+        });
+        return { data };
+      })
+      .catch(({ message }) => {
+        dispatch({
+          type: FETCH_FLOORS_AT,
+          payload: {
+            err: message
+          }
+        });
+        return message;
       });
-    });
   };
 }
 export function fetchFloor(id) {
@@ -58,7 +72,7 @@ export function addFloor(values, file) {
         type: ADD_FLOOR,
         payload: data
       });
-      return data
+      return data;
     });
   };
 }
@@ -74,18 +88,14 @@ export function editFloor(id, values, file) {
   const request = axios(config);
 
   return dispatch => {
-    console.log(request);
     return request
       .then(({ data }) => {
-    console.log(request);
-        
         dispatch({
           type: EDIT_FLOOR,
-          payload: 'SUCCESS'
+          payload: "SUCCESS"
         });
       })
       .catch(({ response }) => {
-        console.log(response.data.err);
         return response.data.err;
       });
   };
@@ -99,45 +109,20 @@ export function deleteFloor(id, hospital_) {
   const config = {
     method: "delete",
     url,
-    params: {hospital_}
+    params: { hospital_ }
   };
   const request = axios(config);
 
   return dispatch => {
-    return request.then(({ data }) => {
-      dispatch({
-        type: DELETE_FLOOR,
-        payload: id
+    return request
+      .then(({ data }) => {
+        dispatch({
+          type: DELETE_FLOOR,
+          payload: id
+        });
+      })
+      .catch(err => {
+        console.log(err);
       });
-    });
-  };
-}
-
-export function addRoomAt(id, roomId) {
-  const query = `/add_room/${id}`;
-  const url = `${URL}${query}`;
-  const request = axios.post(url, roomId);
-
-  return dispatch => {
-    return request.then(({ data }) => {
-      dispatch({
-        type: ADD_ROOM_AT,
-        payload: id
-      });
-    });
-  };
-}
-export function deleteRoomAt(id, roomId) {
-  const query = `/delete_room/${id}`;
-  const url = `${URL}${query}`;
-  const request = axios.post(url, roomId);
-
-  return dispatch => {
-    return request.then(({ data }) => {
-      dispatch({
-        type: DELETE_ROOM_AT,
-        payload: id
-      });
-    });
   };
 }

@@ -1,4 +1,3 @@
-import _ from "lodash";
 import {
   FETCH_HOSPITALS,
   FETCH_HOSPITAL,
@@ -6,7 +5,7 @@ import {
   ADD_HOSPITAL,
   EDIT_HOSPITAL,
   RESET_HOSPITAL_FORM
-} from "constants/ActionTypes";
+} from "../constants/ActionTypes";
 
 export default function(state = {}, action) {
   switch (action.type) {

@@ -15,6 +15,7 @@
     "react-responsive-modal": "^2.0.0",
     "react-router-dom": "^4.2.2",
     "react-scripts": "1.0.17",
+    "react-tag-autocomplete": "^5.5.0",
     "recompose": "^0.26.0",
     "redux": "^3.7.0",
     "redux-actions": "^2.2.1",
@@ -22,7 +23,7 @@
     "redux-form": "^7.2.0",
     "redux-thunk": "^2.2.0",
     "reselect": "^3.0.1",
-    "semantic-ui-react": "^0.77.0",
+    "semantic-ui-react": "^0.77.2",
     "styled-components": "^2.2.3"
   },
   "devDependencies": {

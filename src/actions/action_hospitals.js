@@ -7,24 +7,37 @@ import {
   ADD_HOSPITAL,
   EDIT_HOSPITAL,
   DELETE_HOSPITAL,
-  ADD_FLOOR_AT,
-  DELETE_FLOOR_AT,
   RESET_HOSPITAL_FORM
 } from "../constants/ActionTypes";
 
 const URL = `${ROOT_URL}/api/hospitals`;
 // get
-export function fetchHospitals() {
+export function fetchHospitals(perPage, page) {
   const url = `${URL}`;
-  const request = axios.get(url);
-
+  const config = {
+    method: "get",
+    url,
+    params: { perPage, page }
+  };
+  const request = axios(config);
   return dispatch => {
-    return request.then(({ data }) => {
-      dispatch({
-        type: FETCH_HOSPITALS,
-        payload: data
+    return request
+      .then(({ data }) => {
+        dispatch({
+          type: FETCH_HOSPITALS,
+          payload: data
+        });
+        return { data };
+      })
+      .catch(({ message }) => {
+        dispatch({
+          type: FETCH_HOSPITALS,
+          payload: {
+            err: message
+          }
+        });
+        return message;
       });
-    });
   };
 }
 export function fetchHospital(id) {
@@ -33,12 +46,23 @@ export function fetchHospital(id) {
   const request = axios.get(url);
 
   return dispatch => {
-    return request.then(({ data }) => {
-      dispatch({
-        type: FETCH_HOSPITAL,
-        payload: data
+    return request
+      .then(({ data }) => {
+        dispatch({
+          type: FETCH_HOSPITAL,
+          payload: data
+        });
+        return data;
+      })
+      .catch(err => {
+        dispatch({
+          type: FETCH_HOSPITAL,
+          payload: {
+            err: err
+          }
+        });
+        return err;
       });
-    });
   };
 }
 // post
@@ -54,12 +78,21 @@ export function addHospital(values, file) {
   const request = axios(config);
 
   return dispatch => {
-    return request.then(({ data }) => {
-      dispatch({
-        type: ADD_HOSPITAL,
-        payload: data
+    return request
+      .then(({ data }) => {
+        dispatch({
+          type: ADD_HOSPITAL,
+          payload: "SUCCESS"
+        });
+        return { data };
+      })
+      .catch(({ response }) => {
+        dispatch({
+          type: ADD_HOSPITAL,
+          payload: "FAIL"
+        });
+        return response.data.err;
       });
-    });
   };
 }
 export function editHospital(id, values, file) {
@@ -74,19 +107,15 @@ export function editHospital(id, values, file) {
   const request = axios(config);
 
   return dispatch => {
-    console.log(request);
     return request
       .then(({ data }) => {
-        console.log(request);
-
         dispatch({
           type: EDIT_HOSPITAL,
           payload: "SUCCESS"
         });
       })
-      .catch(({ response }) => {
-        console.log(response.data.err);
-        return response.data.err;
+      .catch(err => {
+        console.log(err);
       });
   };
 }
@@ -99,15 +128,18 @@ export function deleteHospital(id) {
   const request = axios.delete(url);
 
   return dispatch => {
-    return request.then(({ data }) => {
-      dispatch({
-        type: DELETE_HOSPITAL,
-        payload: id
+    return request
+      .then(({ data }) => {
+        dispatch({
+          type: DELETE_HOSPITAL,
+          payload: id
+        });
+      })
+      .catch(err => {
+        console.log(err);
       });
-    });
   };
 }
-
 
 export function resetHospitalForm() {
   return dispatch => {

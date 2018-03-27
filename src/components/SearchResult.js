@@ -1,129 +1,154 @@
-import _ from 'lodash'
-import React, { Component } from 'react';
-import { connect } from 'react-redux';
-import { Link } from 'react-router-dom';
-import LoadingIndicator from 'react-loading-indicator';
-import { fetchPatientsSearched } from '../actions';
-import styled from 'styled-components';
+import _ from "lodash";
+import React, { Component } from "react";
+import { connect } from "react-redux";
+import { Link } from "react-router-dom";
+import { fetchPatientsSearched } from "../actions";
 
-import { Table, BackToList } from '../components';
-const TableWrapper = styled.div`width:100%; padding: 0 3vw 0 3vw`;
+import styled from "styled-components";
+
+import { Button, Icon, Loader, Dimmer } from "semantic-ui-react";
+import { Table, getOrdinal } from "../components";
+
+const TableWrapper = styled.div`
+  width: 100%;
+  padding: 0 3vw 0 3vw;
+`;
+
+const PERPAGE = 5;
+const PAGE = 0;
 
 class SearchResultPage extends Component {
-    constructor (props) {
-        super(props);
-        this.state = {
-            searchByName: null,
-            countResult: 0
-        }
-        this.onCountResult = this.onCountResult.bind(this, false);
+  constructor(props) {
+    super(props);
+    this.state = {
+      searchByName: null,
+      countResult: 0,
+      page: 0
+    };
+    this.onCountResult = this.onCountResult.bind(this, false);
+  }
+  componentDidMount() {
+    let { searchByName } = this.props.match.params;
+    this.props.fetchPatientsSearched(searchByName, PERPAGE, PAGE);
+    this.setState({ searchByName });
+    this.onCountResult();
+  }
+  componentDidUpdate() {
+    let { searchByName } = this.props.match.params;
+    // if new search keyword is different with current keyword
+    if (this.state.searchByName !== searchByName) {
+      // fetch the data again
+      this.props.fetchPatientsSearched(searchByName, PERPAGE, PAGE);
+      // set new value as current keyword
+      this.setState({ searchByName });
     }
-    componentDidMount() {
-        let { searchByName } = this.props.match.params;
-        this.props.fetchPatientsSearched(searchByName);
-        this.setState({searchByName});
-        this.onCountResult()
-    }
-    componentDidUpdate(){
-        let { searchByName } = this.props.match.params;
-        // if new search keyword is different with current keyword
-        if(this.state.searchByName != searchByName) {
-            // fetch the data again
-            this.props.fetchPatientsSearched(searchByName);
-            // set new value as current keyword
-            this.setState({searchByName});
-        }
-        this.onCountResult()
-    }
-    
-    onCountResult() {
-        if(this.props.patients_searched ){
-            let countResult = this.props.patients_searched.length;
-            if(countResult != this.state.countResult){
-                this.setState({countResult});
-            }
-        }
-    }
-    onGoBtn(id) {
-        const { match } = this.props;
-        switch(match){
+    this.onCountResult();
+  }
 
-        }
-        return (
-            <a href={`/monitor/patient=${id}`} className="btn btn-default">
-                Go
-            </a>
-        );
+  onCountResult() {
+    if (this.props.patients_searched) {
+      const countResult = this.props.patients_searched.length;
+      if (countResult !== this.state.countResult) {
+        this.setState({ countResult });
+      }
     }
-    renderPatient() {
-        let i = 0;
-        if(!this.props.patients_searched) {
-            if (i === 0) { return ; }
-            return ;
-        }
-        if (this.props.patients_searched.length === 0) {
-            return ;
-        }
-        return _.map(this.props.patients_searched, patient =>{
-            let dateFormat = require('dateformat');
-            let birth = dateFormat(patient.birth, "yyyy-mm-dd");
-            let enter_date = dateFormat(patient.enter_date, "yyyy-mm-dd");
-            let leave_date = dateFormat(patient.leave_date, "yyyy-mm-dd");
-            return (
-                <tr key={patient._id}>
-                    <th scope="row">{++i}</th>
-                    <td>{patient.first_name} {patient.last_name}</td>
-                    <td>{patient.phone_number}</td>
-                    <td>{birth}</td>
-                    <td>{enter_date}</td>
-                    <td>{leave_date}</td>
-                    <td>{patient.hospital_ ?patient.hospital_.name:"Not set"}</td>
-                    <td>
-                        {this.onGoBtn(patient._id)}
-                    </td>
-                </tr>
-            );
-        });
+  }
+  renderPatient = (patients, pages, page) => {
+    let i = 0;
+    if (!patients || patients.length < 1) {
+      return;
     }
-    render() { 
-        if(!this.props.patients_searched) {
-            return (
-                <div className="text-center">
-                    <LoadingIndicator />
-                </div>
-            );
-        }
-        let tableHeadRow = (
-            <tr>
-                <th>No.</th>
-                <th>Name</th>
-                <th>Tel</th>
-                <th>Birthday</th>
-                <th>Enter Date</th>
-                <th>Leave Date</th>
-                <th>Hospital</th>
-                <th></th>
-            </tr>
-        );
-        let tableBody = this.renderPatient();
-        if (!tableBody || !tableBody[0]) {
-            tableBody = (<tr><td colSpan="100%" className="text-center">No result... <BackToList /></td></tr>);
-        }
-        /* 
-        if(this.state.countResult == 0){
-            return (<p colSpan="100%" className="text-center">No result... <BackToList /></p>);
-        }    */
-        return (
-            <TableWrapper>
-                <BackToList />
-                <h3 style={{marginTop:0}} className="text-center">Result of '{this.state.searchByName}'</h3>
-                <Table tableHeadRow={tableHeadRow} tableBody={tableBody}/>
-            </TableWrapper>
-        );
+    return _.map(patients, patient => {
+      const dateFormat = require("dateformat");
+      const birth = dateFormat(patient.birth, "yyyy-mm-dd");
+      const enter_date = dateFormat(patient.enter_date, "yyyy-mm-dd");
+      const leave_date = dateFormat(patient.leave_date, "yyyy-mm-dd");
+      return [
+        PERPAGE * page + ++i,
+        `${patient.first_name} ${patient.last_name}`,
+        patient.phone_number,
+        birth,
+        enter_date,
+        leave_date,
+        patient.hospital_ ? patient.hospital_.name : "Not set",
+        patient.room_ ? patient.room_.number : "Not set",
+        patient.bed_ ? getOrdinal(patient.bed_.number) : "Not set",
+        <Button
+          as={Link}
+          color="blue"
+          basic
+          to={`/monitor/patient=${patient._id}`}
+          icon
+          fluid
+          title={
+            patient.bed_
+              ? "Go to Monitor"
+              : "This patient is not assigned to any bed yet"
+          }
+          disabled={patient.bed_ ? false : true}
+        >
+          <Icon name="computer" />
+        </Button>
+      ];
+    });
+  };
+  render() {
+    const { patients_searched } = this.props;
+    const { searchByName } = this.state;
+    if (!this.props.patients_searched) {
+      return (
+        <Dimmer active>
+          <Loader>Loading</Loader>
+        </Dimmer>
+      );
     }
+    const { patients, pages, page } = patients_searched;
+    const tableHeadRow = [
+      "No.",
+      "Name",
+      "Tel",
+      "Birthday",
+      "Enter Date",
+      "Leave Date",
+      "Hospital",
+      "Room",
+      "Bed",
+      ""
+    ];
+    const tableBody = this.renderPatient(patients, pages, page);
+    return (
+      <TableWrapper>
+        <h3 style={{ marginTop: 0 }} className="text-center">
+          Result of '{this.state.searchByName}'
+        </h3>
+        <Table
+          tHead={tableHeadRow}
+          tBody={tableBody}
+          pages={pages}
+          onPageChange={(e, { activePage }) => {
+            const currpage = activePage;
+            setTimeout(() => {
+              this.props.fetchPatientsSearched(
+                searchByName,
+                PERPAGE,
+                currpage - 1
+              );
+            }, 100);
+          }}
+        />
+        <p className="pull-right">
+          *To monitor a patient's statement, the patient must be assigned into a
+          bed with a sensor
+        </p>
+      </TableWrapper>
+    );
+  }
 }
 function mapStateToProps(state) {
-    return { patients_searched: state.patients.patients_searched };
+  const { patients_searched } = state.patients;
+  return { patients_searched };
 }
 
-export default connect(mapStateToProps, { fetchPatientsSearched })(SearchResultPage);
+export default connect(mapStateToProps, { fetchPatientsSearched })(
+  SearchResultPage
+);
