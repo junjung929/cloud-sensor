@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import Searchbar from "../../components/Searchbar";
 import { Icon } from "semantic-ui-react";
 import styled from "styled-components";
-import { SideInner } from ".../../components/styles";
+import { SideInner } from "../../components/styles";
 
 const Brand = styled.div`
   padding: 10px 0 20px 0;
