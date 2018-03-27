@@ -28,7 +28,7 @@ import {
 } from "../../components";
 import { ModalContent as Modal, LoaderModal, DeleteModal } from "./Components";
 
-import { Button, Icon, Form, Select } from "semantic-ui-react";
+import { Button, Icon, Form } from "semantic-ui-react";
 
 const PERPAGE = 5;
 const PAGE = 0;

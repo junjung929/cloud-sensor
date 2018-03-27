@@ -13,12 +13,8 @@ import {
 } from "../../actions";
 import { Link, Route } from "react-router-dom";
 import { getOrdinal } from "../../components";
-import { RenderList, RenderListItem } from "./Components";
-import { LinkStyle } from "./styles";
-import { Dimmer, Loader, Segment, List, Button } from "semantic-ui-react";
+import { List } from "semantic-ui-react";
 
-const PERPAGE = 5,
-  PAGE = 0;
 class FloorsList extends Component {
   render() {
     const { match, floors } = this.props;

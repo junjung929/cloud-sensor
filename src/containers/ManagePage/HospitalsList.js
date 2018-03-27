@@ -14,9 +14,9 @@ import {
 import { Link, Route } from "react-router-dom";
 import { getOrdinal } from "../../components";
 import { FloorsList } from "../ManagePage";
-import { RenderList, RenderListItem } from "./Components";
+import { RenderList } from "./Components";
 import { LinkStyle } from "./styles";
-import { Dimmer, Loader, Segment, List, Button } from "semantic-ui-react";
+import { Dimmer, Loader, Segment, List } from "semantic-ui-react";
 
 const PERPAGE = 5;
 const PAGE = 0;
@@ -131,7 +131,7 @@ class HospitalsList extends Component {
                 if (!floors_at) {
                   return <Loader active inline="centered" />;
                 }
-                const { floors, pages, page } = floors_at;
+                const { floors } = floors_at;
                 return <FloorsList match={match} floors={floors} />;
               }}
             />

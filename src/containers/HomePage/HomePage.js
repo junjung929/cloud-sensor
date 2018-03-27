@@ -1,6 +1,6 @@
 import React from "react";
-import { SearchResult } from "components";
-import { Hospitals, Hospital, Floor, Room } from "containers/HomePage";
+import { SearchResult } from "../../components";
+import { Hospitals, Hospital, Floor, Room } from "../../containers/HomePage";
 import { Route } from "react-router-dom";
 import styled from "styled-components";
 

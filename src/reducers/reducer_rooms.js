@@ -1,4 +1,4 @@
-import { FETCH_BEDS_AT, FETCH_ROOM } from "constants/ActionTypes";
+import { FETCH_BEDS_AT, FETCH_ROOM } from "../constants/ActionTypes";
 
 export default function(state = {}, action) {
   switch (action.type) {

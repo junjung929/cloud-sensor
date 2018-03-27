@@ -2,7 +2,7 @@ import {
   FETCH_BED,
   FETCH_SENSOR_DATA,
   FETCH_UPDATED_SENSOR_DATA
-} from "constants/ActionTypes";
+} from "../constants/ActionTypes";
 
 export default function(state = {}, action) {
   switch (action.type) {

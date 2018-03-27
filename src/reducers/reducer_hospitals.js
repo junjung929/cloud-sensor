@@ -5,7 +5,7 @@ import {
   ADD_HOSPITAL,
   EDIT_HOSPITAL,
   RESET_HOSPITAL_FORM
-} from "constants/ActionTypes";
+} from "../constants/ActionTypes";
 
 export default function(state = {}, action) {
   switch (action.type) {
